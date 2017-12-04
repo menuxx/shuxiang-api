@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="Mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <commentGenerator>
+            <property name="suppressAllComments" value="true" />
+            <property name="suppressDate" value="true" />
+            <property name="javaFileEncoding" value="utf-8"/>
+        </commentGenerator>
+
+        <jdbcConnection driverClass="${driverClass}"
+                        connectionURL="${connectionURL}"
+                        userId="${userId}"
+                        password="${password}">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="${modelPackage}" targetProject="${src_main_java}">
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="true" />
+        </javaModelGenerator>
+
+        <!--<sqlMapGenerator targetPackage="${sqlMapperPackage}" targetProject="${src_main_resources}">-->
+            <!--<property name="enableSubPackages" value="true" />-->
+        <!--</sqlMapGenerator>-->
+
+        <!--<javaClientGenerator targetPackage="${mapperPackage}" targetProject="${src_main_java}" type="ANNOTATEDMAPPER">-->
+            <!--<property name="enableSubPackages" value="true"/>-->
+        <!--</javaClientGenerator>-->
+
+        <table schema="onecode" tableName="t_admin_user" domainObjectName="AdminUser">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_order" domainObjectName="Order">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_authority" domainObjectName="Authority">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_express" domainObjectName="Express">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="i_item" domainObjectName="Item">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_order_charge" domainObjectName="OrderCharge">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_user_address" domainObjectName="UserAddress">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_user" domainObjectName="User">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_wx_user" domainObjectName="WXUser">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_vip_channel" domainObjectName="VipChannel">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_merchant_user" domainObjectName="MerchantUser">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <!--<table schema="onecode" tableName="t_user_authority" domainObjectName="UserAuthority">-->
+            <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
+        <!--</table>-->
+
+        <table schema="onecode" tableName="t_area" domainObjectName="Area">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        </context>
+    </generatorConfiguration>
