@@ -1,0 +1,26 @@
+ssoweb_dev:
+  image: daocloud.io/nizhuantech/oc-api-server:dev
+  container_name: oc_api_dev
+  volumes:
+  - /data/oc-api-server:/log:rw
+  - /tmp
+  environment:
+  - JAVA_OPTS=-server -Xms512m -Xmx512m -Dspring.profiles.active=development -Duser.timezone=GMT+8
+  - PORT=8070
+  ports:
+  - 8070:8070
+  restart: always
+  privileged: true
+ssoweb:
+  image: daocloud.io/nizhuantech/oc-api-server:prod
+  container_name: oc_api_prod
+  volumes:
+  - /data/oc-api-server:/log:rw
+  - /tmp
+  environment:
+  - JAVA_OPTS=-server -Xms800m -Xmx800m -Dspring.profiles.active=production -Duser.timezone=GMT+8
+  - PORT=8071
+  ports:
+  - 8071:8071
+  restart: always
+  privileged: true

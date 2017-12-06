@@ -1,0 +1,8 @@
+
+server:
+  address: 0.0.0.0
+  port: ${port:8071}
+
+spring:
+  datasource:
+    url: jdbc:mysql://rm-uf68lsw07o293t779.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8

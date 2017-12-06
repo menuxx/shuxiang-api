@@ -1,0 +1,12 @@
+FROM java:8-jdk
+MAINTAINER Yinchangsheng <yinchangsheng@gmail.com>
+
+COPY app.jar /app.jar
+
+VOLUME /tmp
+VOLUME /log
+
+EXPOSE 8070
+EXPOSE 8071
+
+ENTRYPOINT java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar
