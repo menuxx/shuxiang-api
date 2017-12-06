@@ -1,5 +1,6 @@
 package com.menuxx.ocapiserver.ctrl
 
+import com.menuxx.ocapiserver.AllOpen
 import com.menuxx.ocapiserver.bean.ApiResp
 import com.menuxx.ocapiserver.bean.UserAddress
 import org.springframework.web.bind.annotation.*
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*
  * 微信: yin80871901
  */
 
+@AllOpen
 @RestController
 @RequestMapping("/user_addresses")
 class UserAddressCtrl {

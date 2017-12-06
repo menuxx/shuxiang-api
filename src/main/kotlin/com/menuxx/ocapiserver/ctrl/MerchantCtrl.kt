@@ -1,7 +1,9 @@
 package com.menuxx.ocapiserver.ctrl
 
+import com.menuxx.ocapiserver.AllOpen
 import com.menuxx.ocapiserver.bean.MerchantUser
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController
  * 微信: yin80871901
  */
 
+@AllOpen
 @RestController
 @RequestMapping("/merchants")
 class MerchantCtrl {
@@ -20,7 +23,7 @@ class MerchantCtrl {
         return MerchantUser()
     }
 
-    @PostMapping
+    @PutMapping
     fun updateMerchantCtrl() : MerchantUser {
         return MerchantUser()
     }

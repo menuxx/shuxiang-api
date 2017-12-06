@@ -1,23 +1,35 @@
 package com.menuxx.ocapiserver.bean;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class VipChannel {
+
     private Integer id;
 
+    @NotNull
     private Integer expressFee;
 
+    @NotNull
     private Integer payFee;
 
+    @NotNull
     private Integer stock;
 
+    @NotNull
     private String ownerName;
 
+    @NotNull
     private String ownerAvatarUrl;
 
+    @NotNull
     private String giftTxt;
 
-    private Integer itemIt;
+    @NotNull
+    private Integer itemId;
+
+    // 商品详情
+    private Item item;
 
     private Integer merchantId;
 
@@ -35,6 +47,14 @@ public class VipChannel {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 
     public Integer getExpressFee() {
@@ -85,12 +105,12 @@ public class VipChannel {
         this.giftTxt = giftTxt == null ? null : giftTxt.trim();
     }
 
-    public Integer getItemIt() {
-        return itemIt;
+    public Integer getItemId() {
+        return itemId;
     }
 
-    public void setItemIt(Integer itemIt) {
-        this.itemIt = itemIt;
+    public void setItemId(Integer itemId) {
+        this.itemId = itemId;
     }
 
     public Integer getMerchantId() {

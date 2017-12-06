@@ -1,0 +1,35 @@
+
+spring:
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: B5q0n6NfDdvYWXD
+    username: oc
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8
+    hikari:
+      maximum-pool-size: 10
+      connection-init-sql: select count(1) from t_item
+      idle-timeout: 10000
+      max-lifetime: 180000
+      validation-timeout: 5000
+      minimum-idle: 20
+      connection-timeout: 6000
+
+ronglian:
+  app-id: 8a216da85da6adf7015de9addca8199f
+  account-sid: 8a216da857511049015774861894153f
+  auth-token: e1de26cde6e24dd28dfedcd81467d1f0
+  sms-tpls:
+    captcha-id: 198719
+    buy-success-id: 221811
+
+qiniu:
+  bucket: menuxx
+  access-key: sr4H3rnxg3fkN9bf5NBTj9V9ptPFMnW5Ryxbg_o6
+  secret-key: 9Gtvk0QbjvLDKWXwAi_WCYQkLq5Biu-X9wjHjXS5
+
+logging:
+  level:
+    org.jooq: DEBUG
+    # org.springframework: DEBUG

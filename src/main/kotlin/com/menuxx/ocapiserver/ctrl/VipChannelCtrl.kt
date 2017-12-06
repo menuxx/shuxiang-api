@@ -1,7 +1,10 @@
 package com.menuxx.ocapiserver.ctrl
 
+import com.menuxx.ocapiserver.AllOpen
 import com.menuxx.ocapiserver.bean.VipChannel
+import com.menuxx.ocapiserver.db.VipChannelDb
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -9,18 +12,21 @@ import org.springframework.web.bind.annotation.*
  * 微信: yin80871901
  */
 
+@AllOpen
 @RestController
 @RequestMapping("/vip_channel")
-class VipChannelCtrl {
+class VipChannelCtrl(val vipChannelDb: VipChannelDb) {
 
     @PostMapping
-    fun addChannel() : VipChannel {
-        return VipChannel()
+    fun addChannel(@RequestBody @Valid vipChannel: VipChannel) : VipChannel {
+        vipChannel.merchantId = 1
+        return vipChannelDb.insertVipChannel(vipChannel)
     }
 
     @PutMapping("/channelId")
-    fun updateChannel(@PathVariable channelId: Int) : VipChannel {
-        return VipChannel()
+    fun updateChannel(@PathVariable channelId: Int, @RequestBody @Valid vipChannel: VipChannel) : VipChannel {
+        vipChannel.merchantId = 1
+        return vipChannelDb.updateVipChannel(channelId, vipChannel)
     }
 
 }

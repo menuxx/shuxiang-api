@@ -3,6 +3,7 @@ package com.menuxx.ocapiserver.bean;
 import java.util.Date;
 
 public class OrderCharge {
+
     private Integer id;
 
     private String appid;

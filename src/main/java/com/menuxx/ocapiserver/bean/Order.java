@@ -3,11 +3,15 @@ package com.menuxx.ocapiserver.bean;
 import java.util.Date;
 
 public class Order {
+
     private Integer id;
 
     private Integer merchantId;
 
     private Integer channelId;
+
+    // 渠道详情
+    private VipChannel vipChannel;
 
     private Integer userId;
 
@@ -30,6 +34,14 @@ public class Order {
     private Date createAt;
 
     private Date updateAt;
+
+    public VipChannel getVipChannel() {
+        return vipChannel;
+    }
+
+    public void setVipChannel(VipChannel vipChannel) {
+        this.vipChannel = vipChannel;
+    }
 
     public Integer getId() {
         return id;

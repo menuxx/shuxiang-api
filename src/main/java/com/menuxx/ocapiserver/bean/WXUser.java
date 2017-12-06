@@ -3,6 +3,7 @@ package com.menuxx.ocapiserver.bean;
 import java.util.Date;
 
 public class WXUser {
+
     private Integer id;
 
     private String nickname;
@@ -112,4 +113,5 @@ public class WXUser {
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
     }
+
 }

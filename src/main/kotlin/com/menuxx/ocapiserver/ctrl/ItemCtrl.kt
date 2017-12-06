@@ -1,8 +1,11 @@
 package com.menuxx.ocapiserver.ctrl
 
 import com.menuxx.ocapiserver.AllOpen
+import com.menuxx.ocapiserver.Page
+import com.menuxx.ocapiserver.PageParam
 import com.menuxx.ocapiserver.bean.ApiResp
 import com.menuxx.ocapiserver.bean.Item
+import com.menuxx.ocapiserver.db.ItemDb
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -11,41 +14,56 @@ import javax.validation.Valid
  * 创建于: 2017/12/4
  * 微信: yin80871901
  */
+@AllOpen
 @RestController
 @RequestMapping("/items")
-@AllOpen
-class ItemCtrl {
+class ItemCtrl(private val itemDb: ItemDb) {
 
+    /**
+     * 加载商家所有商品
+     */
     @GetMapping
-    fun loadItems() : List<Item> {
-        return listOf(
-                Item(1, 2, 1, "颠覆者：周鸿祎自传", "rBEhV1Kvv9sIAAAAAAUy3HX-_p0AAG-0wEwBpYABTL0830.jpg"),
-                Item(2, 2, 1, "被掩埋的巨人", "58f49747Nfa6808bb.jpg"),
-                Item(3, 2, 1, "大秦帝国", "59d767a0Nc964d6ed.jpg"),
-                Item(3, 2, 1, "大秦帝国", "5a0038d9N7d41a1a5.jpg"),
-                Item(3, 2, 1, "", "rBEQWFEuvNkIAAAAAA1iGwk9blwAABJmANSQDQADWIz534.jpg"),
-                Item(3, 2, 1, "", "images/items/599ff650N72088964.jpg")
-        )
+    fun loadItems(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<Item> {
+        return itemDb.selectItemsOfPage(1, PageParam(pageNum, pageSize))
     }
 
+    /**
+     * 创建一个商品到商家
+     */
     @PostMapping
     fun addItem(@RequestBody @Valid item: Item) : Item {
-        return Item()
+        item.merchantId = 1
+        return itemDb.insetItem(item)
     }
 
+    /**
+     * 获取一个商品详情
+     */
     @GetMapping("/{itemId}")
     fun getById(@PathVariable itemId : Int) : Item {
-        return Item()
+        return itemDb.getById(itemId)
     }
 
-    @PutMapping("/itemId")
-    fun updateItem(@PathVariable itemId: Int) : Item {
-        return Item()
+    /**
+     * 修改一个商品
+     */
+    @PutMapping("/{itemId}")
+    fun updateItem(@PathVariable itemId: Int, @RequestBody @Valid item: Item) : Item {
+        item.merchantId = 1
+        return itemDb.updateItem(itemId, item)
     }
 
-    @DeleteMapping("/itemId")
+    /**
+     * 删除一个商品
+     */
+    @DeleteMapping("/{itemId}")
     fun delItem(@PathVariable itemId: Int) : ApiResp {
-        return ApiResp(1, "delete ok!")
+        val rowNum = itemDb.delById(itemId)
+        return if ( rowNum > 0) {
+            ApiResp(1, "delete ok!")
+        } else {
+            ApiResp(400, "fail, item not found")
+        }
     }
 
 }

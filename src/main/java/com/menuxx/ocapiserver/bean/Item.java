@@ -1,5 +1,6 @@
 package com.menuxx.ocapiserver.bean;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class Item {
@@ -7,7 +8,7 @@ public class Item {
     public Item() {
     }
 
-    public Item(Integer id, Integer merchantId, Integer status, String name, String thumbImgs, String isbn, String press, String authors, String describe, Integer shopUrl, Date createAt, Date updateAt) {
+    public Item(Integer id, Integer merchantId, Integer status, String name, String thumbImgs, String isbn, String press, String authors, String translators, String describe, String shopUrl, Date createAt, Date updateAt) {
         this.id = id;
         this.merchantId = merchantId;
         this.status = status;
@@ -16,6 +17,7 @@ public class Item {
         this.isbn = isbn;
         this.press = press;
         this.authors = authors;
+        this.translators = translators;
         this.describe = describe;
         this.shopUrl = shopUrl;
         this.createAt = createAt;
@@ -28,19 +30,27 @@ public class Item {
 
     private Integer status;
 
+    @NotNull
     private String name;
 
     private String thumbImgs;
 
+    @NotNull
     private String isbn;
 
+    @NotNull
     private String press;
 
+    @NotNull
     private String authors;
+
+    @NotNull
+    private String translators;
 
     private String describe;
 
-    private Integer shopUrl;
+    @NotNull
+    private String shopUrl;
 
     private Date createAt;
 
@@ -110,6 +120,14 @@ public class Item {
         this.authors = authors == null ? null : authors.trim();
     }
 
+    public String getTranslators() {
+        return translators;
+    }
+
+    public void setTranslators(String translators) {
+        this.translators = translators;
+    }
+
     public String getDescribe() {
         return describe;
     }
@@ -118,11 +136,11 @@ public class Item {
         this.describe = describe == null ? null : describe.trim();
     }
 
-    public Integer getShopUrl() {
+    public String getShopUrl() {
         return shopUrl;
     }
 
-    public void setShopUrl(Integer shopUrl) {
+    public void setShopUrl(String shopUrl) {
         this.shopUrl = shopUrl;
     }
 
