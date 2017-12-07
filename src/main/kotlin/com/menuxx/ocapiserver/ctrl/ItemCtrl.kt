@@ -6,6 +6,8 @@ import com.menuxx.ocapiserver.PageParam
 import com.menuxx.ocapiserver.bean.ApiResp
 import com.menuxx.ocapiserver.bean.Item
 import com.menuxx.ocapiserver.db.ItemDb
+import com.menuxx.ocapiserver.db.tables.records.TItemRecord
+import org.jooq.types.UInteger
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 

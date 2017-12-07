@@ -1,6 +1,8 @@
 package com.menuxx.ocapiserver.ctrl
 
 import com.menuxx.ocapiserver.AllOpen
+import com.menuxx.ocapiserver.Page
+import com.menuxx.ocapiserver.PageParam
 import com.menuxx.ocapiserver.bean.VipChannel
 import com.menuxx.ocapiserver.db.VipChannelDb
 import org.springframework.web.bind.annotation.*
@@ -14,8 +16,13 @@ import javax.validation.Valid
 
 @AllOpen
 @RestController
-@RequestMapping("/vip_channel")
+@RequestMapping("/vip_channels")
 class VipChannelCtrl(val vipChannelDb: VipChannelDb) {
+
+    @GetMapping
+    fun loadChannelOf(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<VipChannel> {
+        return vipChannelDb.loadVipChannels(1, PageParam(pageNum, pageSize))
+    }
 
     @PostMapping
     fun addChannel(@RequestBody @Valid vipChannel: VipChannel) : VipChannel {

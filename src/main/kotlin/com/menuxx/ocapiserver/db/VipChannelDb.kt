@@ -1,6 +1,9 @@
 package com.menuxx.ocapiserver.db
 
+import com.menuxx.ocapiserver.PageParam
+import com.menuxx.ocapiserver.bean.Item
 import com.menuxx.ocapiserver.bean.VipChannel
+import com.menuxx.ocapiserver.db.tables.TItem
 import com.menuxx.ocapiserver.db.tables.TVipChannel
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
@@ -18,6 +21,19 @@ class VipChannelDb(private val dsl: DSLContext) {
     fun getById(channelId: Int) : VipChannel {
         val tVipChannel = TVipChannel.T_VIP_CHANNEL
         return dsl.select().from(tVipChannel).where(tVipChannel.ID.eq(UInteger.valueOf(channelId))).fetchOne().into(VipChannel::class.java)
+    }
+
+    fun loadVipChannels(merchantId: Int, page: PageParam) : List<VipChannel> {
+        val tVipChannel = TVipChannel.T_VIP_CHANNEL
+        val tItem = TItem.T_ITEM
+        return dsl.select().from(tVipChannel)
+                .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
+                .offset(page.getOffset()).limit(page.getLimit()).fetchArray().map {
+            val channel = it.into(VipChannel::class.java)
+            val item = it.into(Item::class.java)
+            channel.item = item
+            channel
+        }
     }
 
     /**
