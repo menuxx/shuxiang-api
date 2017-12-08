@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.1.61'
+		kotlinVersion = '1.2.0'
 		springBootVersion = '1.5.9.RELEASE'
 	}
 	repositories {
@@ -170,6 +170,8 @@ dependencies {
 	optional "org.springframework.boot:spring-boot-configuration-processor"
 
 	compile 'com.qiniu:qiniu-java-sdk:7.2.+'
+
+	compile 'com.lmax:disruptor:3.3.7'
 
 	compile project(":ronglian")
 

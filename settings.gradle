@@ -1,3 +1,4 @@
 rootProject.name = 'oc-api-server'
 include ':ronglian'
+include ':miaosha'
 
