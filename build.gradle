@@ -5,7 +5,7 @@ buildscript {
 	}
 	repositories {
 		maven { url 'http://repo.spring.io/plugins-release' }
-		maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+		maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
 		mavenCentral()
 	}
 	dependencies {
@@ -18,6 +18,7 @@ buildscript {
 	}
 }
 
+apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'kotlin-noarg'
@@ -37,11 +38,11 @@ version = '0.0.1'
 sourceCompatibility = 1.8
 
 noArg {
-	annotation("com.menuxx.ocapiserver.NoArg")
+	annotation("com.menuxx.NoArg")
 }
 
 allOpen {
-	annotation("com.menuxx.ocapiserver.AllOpen")
+	annotation("com.menuxx.AllOpen")
 }
 
 repositories {
@@ -101,6 +102,7 @@ compileTestKotlin {
 }
 
 repositories {
+	maven { url 'http://repo.spring.io/plugins-release' }
 	maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
 	mavenCentral()
 }
@@ -130,7 +132,7 @@ jooq {
 				fluentSetters = true
 			}
 			target {
-				packageName = 'com.menuxx.ocapiserver.db'
+				packageName = 'com.menuxx.common.db'
 				// directory = 'src/main/java'
 			}
 		}
@@ -169,11 +171,29 @@ dependencies {
 
 	optional "org.springframework.boot:spring-boot-configuration-processor"
 
+	compile project(":ronglian")
+
+	compile 'com.github.binarywang:weixin-java-pay:2.9.0'
+	compile 'com.github.binarywang:weixin-java-mp:2.9.0'
+
 	compile 'com.qiniu:qiniu-java-sdk:7.2.+'
 
-	compile 'com.lmax:disruptor:3.3.7'
+	compile 'com.google.guava:guava:23.4-jre'
 
-	compile project(":ronglian")
+
+	// 阿里 rocketmq 消息队列，保证消息的可靠性
+	// 日志 https://help.aliyun.com/document_detail/43460.html?spm=5176.doc55448.6.583.yj53tv
+	compile 'com.aliyun.openservices:ons-client:1.7.0.Final'
+
+	// http://x-stream.github.io/annotations-tutorial.html
+	// 支付 xml 解析
+	compile 'com.thoughtworks.xstream:xstream:1.4.7'
+	// spring 框架 xml 解析，配合 xstream
+	compile 'org.springframework:spring-oxm:4.3.5.RELEASE'
+
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin'
+
+	compile 'com.lmax:disruptor:3.3.7'
 
 	// jooq 文档
 	// https://www.jooq.org/doc/3.0/manual/sql-execution/fetching/pojos/#N15577
@@ -188,23 +208,26 @@ dependencies {
 		exclude group: 'org.apache.tomcat', module: 'tomcat-jdbc'
 	}
 
-	compile "mysql:mysql-connector-java:6.0.3"
+	compile 'mysql:mysql-connector-java:6.0.3'
 	jooqRuntime 'mysql:mysql-connector-java:6.0.3'
 
 	mybatisGenerator 'mysql:mysql-connector-java:6.0.3'
-	mybatisGenerator "org.mybatis.generator:mybatis-generator-core:1.3.5"
+	mybatisGenerator 'org.mybatis.generator:mybatis-generator-core:1.3.5'
 
 	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.7.0'
 	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
 	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.7.0'
 
-	// compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
-	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
-	runtime('org.springframework.boot:spring-boot-devtools')
+	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework.boot:spring-boot-starter-freemarker'
+	compile 'org.springframework.boot:spring-boot-starter-security'
+	compile 'org.springframework.boot:spring-boot-starter-cache'
+	compile 'org.springframework.boot:spring-boot-starter-data-redis'
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}"
+	compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+	runtime 'org.springframework.boot:spring-boot-devtools'
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.security:spring-security-test')
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+	testCompile 'org.springframework.security:spring-security-test'
 }

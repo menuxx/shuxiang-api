@@ -1,0 +1,3 @@
+[submodule "weixin-shu"]
+	path = weixin-shu
+	url = https://github.com/menuxx/weixin-shu.git

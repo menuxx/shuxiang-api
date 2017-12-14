@@ -1,4 +1,5 @@
-rootProject.name = 'oc-api-server'
+rootProject.name = 'shuxiang'
 include ':ronglian'
 include ':miaosha'
+include ':weixin-shu'
 

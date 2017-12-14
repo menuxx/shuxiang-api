@@ -231,7 +231,6 @@ class MyExceptionHandler : ExceptionHandler<ChannelUser> {
     override fun handleOnStartException(ex: Throwable) {
         ex.printStackTrace()
     }
-
 }
 
 class ChannelUserFactory : EventFactory<ChannelUser> {
