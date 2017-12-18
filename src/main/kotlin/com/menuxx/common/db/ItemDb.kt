@@ -17,11 +17,12 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class ItemDb (private val dsl: DSLContext) {
 
+    private final val tItem = TItem.T_ITEM
+
     /**
      * 新增一个书籍
      */
     fun insetItem(item: Item) : Item {
-        val tItem = TItem.T_ITEM
         return dsl.insertInto(tItem)
                 .set(dsl.newRecord(tItem, item))
                 .returning().fetchOne().into(Item::class.java)
@@ -32,7 +33,6 @@ class ItemDb (private val dsl: DSLContext) {
      */
     @Transactional
     fun updateItem(itemId: Int, item: Item) : Item {
-        val tItem = TItem.T_ITEM
         dsl.update(tItem)
                     .set(dsl.newRecord(tItem, item))
                     // 过滤掉 状态为 0 的
@@ -45,7 +45,6 @@ class ItemDb (private val dsl: DSLContext) {
      * 获取 出版社 发布的书籍，支持分页
      */
     fun selectItemsOfPage(creatorId: Int, page: PageParam) : List<Item> {
-        val tItem = TItem.T_ITEM
         return dsl.select().from(tItem)
                 .where(
                         tItem.MERCHANT_ID.eq(UInteger.valueOf(creatorId))
@@ -62,7 +61,6 @@ class ItemDb (private val dsl: DSLContext) {
      * 获取 item 详细信息
      */
     fun getById(itemId: Int) : Item {
-        val tItem = TItem.T_ITEM
         return dsl.select().from(tItem).where(
                     tItem.ID.eq(UInteger.valueOf(itemId))
                             .and(tItem.STATUS.ne(Const.DbStatusDel))    // 过滤掉 状态为 0 的
@@ -70,7 +68,6 @@ class ItemDb (private val dsl: DSLContext) {
     }
 
     fun delById(itemId: Int) : Int {
-        val tItem = TItem.T_ITEM
         return dsl.update(tItem).set(tItem.STATUS, Const.DbStatusDel).where(
                     tItem.ID.eq(UInteger.valueOf(itemId))
             ).execute()

@@ -19,11 +19,12 @@ import org.springframework.stereotype.Service
 @Service
 class OrderDb(private val dsl: DSLContext) {
 
+    private final val tOrder = TOrder.T_ORDER
+
     /**
      * 获取订单详情，包括订单渠道，订单商品
      */
     fun getOrderDetail(orderId: Int) : Order {
-        val tOrder = TOrder.T_ORDER
         val tVipChannel = TVipChannel.T_VIP_CHANNEL
         val tItem = TItem.T_ITEM
         return dsl.select()
@@ -45,7 +46,6 @@ class OrderDb(private val dsl: DSLContext) {
      * 支持分页
      */
     fun loadOrders(creatorId: Int, channelId: Int?, page: PageParam) : List<Order> {
-        val tOrder = TOrder.T_ORDER
         val tVipChannel = TVipChannel.T_VIP_CHANNEL
         val tItem = TItem.T_ITEM
         // where 条件

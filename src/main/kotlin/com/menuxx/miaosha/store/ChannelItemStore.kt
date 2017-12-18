@@ -54,7 +54,7 @@ object ChannelItemStore {
             null
         } else {
             val consumeToken = UUID.randomUUID().toString()
-            channelItems[channelItemId]?.consumeToken = consumeToken
+            channelItems[channelItemId]?.preConsumeToken = consumeToken
             consumeToken
         }
     }
@@ -79,11 +79,12 @@ object ChannelItemStore {
      * 一个用户 消费一个持有的条件是
      * 1 channel 存在该用户的持有
      * 2. 并且持有时间 发生在30秒之内
+     * 3. 没有消费的 channelItem
      */
     fun searchObtainFromChannel(userId: Int, channelId: Int) : ChannelItem? {
         val channel = getChannelStore(channelId)?.data
         return channel?.search(Math.floor( (channel.size / 2000).toDouble() ).toLong(), { _, v ->
-            if (v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < 30) {
+            if (v.consumeToken != null && v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < 30) {
                 v
             } else {
                 null
@@ -91,9 +92,11 @@ object ChannelItemStore {
         })
     }
 
-    fun removeObtainFromChannel(channelId: Int, itemId: Int) : ChannelItem? {
+    fun consumeObtainFromChannel(channelId: Int, itemId: Int) : ChannelItem? {
         val channel = getChannelStore(channelId)?.data
-        return channel?.remove(itemId)
+        val channelItem = channel?.get(itemId)
+        channelItem?.consumeToken = channelItem?.preConsumeToken
+        return channelItem
     }
 
     /**

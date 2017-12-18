@@ -28,23 +28,31 @@ val AuthoritiyRoleAdmin = 3
 @Service
 class UserDb(private val dsl: DSLContext) {
 
+    private final val tUser = TUser.T_USER
+    private final val tWxUser = TWxUser.T_WX_USER
+    private final val tUserAuthority = TUserAuthority.T_USER_AUTHORITY
+    private final val tAuthority = TAuthority.T_AUTHORITY
+
     /**
      * 根据 openid 获取用户信息
      */
     fun findUserByOpenid(openid: String) : User? {
-        val tUser = TUser.T_USER
-        val tWxUser = TWxUser.T_WX_USER
         return dsl.select().from(tUser)
                 .leftJoin(tWxUser)
                 .on(tUser.WX_USER_ID.eq(tWxUser.ID))
                 .where(tWxUser.OPENID.eq(openid)).fetchOne()?.into(User::class.java)
     }
 
+    fun fetchUserByIdList(idList: List<Int>) : List<User> {
+        return dsl.select().from(tUser).where(tWxUser.ID.`in`(idList.map { UInteger.valueOf(it) })).fetchArray().map {
+            it.into(User::class.java)
+        }
+    }
+
     /**
      * 更新微信用户
      */
     private fun updateWXUser(wxUser: WXUser) : Int {
-        val tWxUser = TWxUser.T_WX_USER
         return dsl.update(tWxUser).set(dsl.newRecord(tWxUser, wxUser)).where(tWxUser.ID.eq(UInteger.valueOf(wxUser.id))).execute()
     }
 
@@ -52,7 +60,6 @@ class UserDb(private val dsl: DSLContext) {
      * 更新用户
      */
     private fun updateUser(user: User) : Int {
-        val tUser = TUser.T_USER
         return dsl.update(tUser).set(dsl.newRecord(tUser, user)).where(tUser.ID.eq(UInteger.valueOf(user.id))).execute()
     }
 
@@ -60,7 +67,6 @@ class UserDb(private val dsl: DSLContext) {
      * 插入微信用户
      */
     private fun insertWXUser(wxUser: WXUser) : WXUser {
-        val tWxUser = TWxUser.T_WX_USER
         return dsl.insertInto(tWxUser).set(dsl.newRecord(tWxUser, wxUser)).returning().fetchOne().into(WXUser::class.java)
     }
 
@@ -68,8 +74,6 @@ class UserDb(private val dsl: DSLContext) {
      * 获取用户授权信息详情
      */
     fun findAuthoritiesByUserId(userId: Int) : List<UserAuthority> {
-        val tUserAuthority = TUserAuthority.T_USER_AUTHORITY
-        val tAuthority = TAuthority.T_AUTHORITY
         return dsl.select().from(tUserAuthority)
                 .leftJoin(tAuthority).on(tAuthority.ID.eq(tUserAuthority.AUTHORITY_ID))
                 .where(tUserAuthority.USER_ID.eq(userId))
@@ -85,7 +89,6 @@ class UserDb(private val dsl: DSLContext) {
      * 插入一条授权规则
      */
     private fun insertUserAuthority(authority: UserAuthority) : UserAuthority {
-        val tUserAuthority = TUserAuthority.T_USER_AUTHORITY
         return dsl.insertInto(tUserAuthority)
                 .set(dsl.newRecord(tUserAuthority, authority))
                 .returning()
@@ -96,7 +99,6 @@ class UserDb(private val dsl: DSLContext) {
      * 插入系统用户
      */
     private fun insertUser(user: User) : User {
-        val tUser = TUser.T_USER
         return dsl.insertInto(tUser).set(dsl.newRecord(tUser, user)).returning().fetchOne().into(User::class.java)
     }
 

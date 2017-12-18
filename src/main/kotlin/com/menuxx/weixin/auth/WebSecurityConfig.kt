@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
 /**
@@ -53,13 +52,13 @@ class WebSecurityConfig(
                 // 其他的都需要授权
                 .anyRequest().authenticated().and()
 
-        if (env.activeProfiles.contains("production")) {
+        // if (env.activeProfiles.contains("production")) {
             // 使用正式
-            http.addFilterBefore(wxFilter, UsernamePasswordAuthenticationFilter::class.java)
-        } else {
+            // http.addFilterBefore(wxFilter, UsernamePasswordAuthenticationFilter::class.java)
+        // } else {
             // 使用模拟
-            http.addFilterBefore(wxFilter, UsernamePasswordAuthenticationFilter::class.java)
-        }
+            // http.addFilterBefore(MockWXAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
+        // }
                 .logout()
                 .logoutRequestMatcher(AntPathRequestMatcher("/auth/logout"))
     }

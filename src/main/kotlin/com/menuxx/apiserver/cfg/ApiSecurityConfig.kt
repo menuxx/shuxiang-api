@@ -8,6 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * 微信: yin80871901
  */
 
-class ApiSecurityConfig : WebSecurityConfigurerAdapter() {
-
-}
+//class ApiSecurityConfig : WebSecurityConfigurerAdapter() {
+//
+//}

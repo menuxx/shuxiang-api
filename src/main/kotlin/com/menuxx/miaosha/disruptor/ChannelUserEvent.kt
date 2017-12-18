@@ -20,6 +20,7 @@ data class ChannelUserEvent(
         var userId: Int?,
         var channelId: Int?,
         var loopRefId: String?,
+        var avatarUrl: String?,
         var confirmState: ConfirmState = ConfirmState.NoObtain,
         var consumeToken: String?
 )

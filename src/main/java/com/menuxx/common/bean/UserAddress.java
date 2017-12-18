@@ -15,7 +15,7 @@ public class UserAddress {
 
     private String detailInfo;
 
-    private String telNumber;
+    private String phoneNumber;
 
     private String postalCode;
 
@@ -77,12 +77,12 @@ public class UserAddress {
         this.detailInfo = detailInfo == null ? null : detailInfo.trim();
     }
 
-    public String getTelNumber() {
-        return telNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setTelNumber(String telNumber) {
-        this.telNumber = telNumber == null ? null : telNumber.trim();
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber == null ? null : phoneNumber.trim();
     }
 
     public String getPostalCode() {

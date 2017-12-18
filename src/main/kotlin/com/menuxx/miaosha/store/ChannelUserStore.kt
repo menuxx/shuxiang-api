@@ -17,6 +17,7 @@ class ChannelUserGroup {
 
     fun getUser(userId: Int) = ChannelUserGroup.UserGroup[userId]
 
+    fun getConsumedUsers() = ChannelUserGroup.UserGroup.filter { it.value.consumeToken != null }
 
     fun getAndInsertUser(userId: Int, channelUser: ChannelUserEvent) : ChannelUserEvent {
         var user = ChannelUserGroup.UserGroup[userId]
@@ -34,7 +35,7 @@ object ChannelUserStore {
     @JvmStatic private val UserStore = HashMap<Int, ChannelUserGroup>()
 
     fun getUserGroup(channelId: Int) : ChannelUserGroup {
-        var group =UserStore[channelId]
+        var group = UserStore[channelId]
         if ( group == null ) {
             group = ChannelUserGroup()
             UserStore.put(channelId, group)

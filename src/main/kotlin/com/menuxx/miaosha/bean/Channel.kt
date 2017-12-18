@@ -15,5 +15,6 @@ data class ChannelItem(
         var itemId: Int,
         var obtainUserId: Int?,
         var obtainTime: Instant?,
+        var preConsumeToken: String?, // 消费前置令牌
         var consumeToken: String?
 )

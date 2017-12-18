@@ -23,7 +23,7 @@ class WebAuthenticationEntryPoint(private val wxAppId: String) : AuthenticationE
     private val LoginUrl = "/auth/login"
 
     private val WeixinMobileAuthorizeUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect"
-    private val WeixinPCAuthorizeUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect"
+    private val WeixinPCAuthorizeUrl = "https://open.weixin.qq.com/connect/qrconnect?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect"
 
     private fun getWeixinRedirect(urlTpl: String, encodeFormUrl: String) : String {
         return urlTpl
@@ -56,7 +56,7 @@ class WebAuthenticationEntryPoint(private val wxAppId: String) : AuthenticationE
                     response.sendRedirect(redUrl)
                     // 否则都是用 pc 授权链接
                 } else {
-                    val redUrl = getWeixinRedirect(WeixinMobileAuthorizeUrl, encodeUrl)
+                    val redUrl = getWeixinRedirect(WeixinPCAuthorizeUrl, encodeUrl)
                     logger.info("in pc redirect: $redUrl, in pc")
                     response.sendRedirect(redUrl)
                 }

@@ -130,8 +130,8 @@ class ChannelUserEventHandler(
                 // 必去要持有一个 消费obtain  的令牌，才能执行该步骤
                 val channelItem = ChannelItemStore.searchObtainFromChannel(userId, channelId)
                 if ( channelItem != null ) {
-                    // 如果用户持有的 消费令牌 和 商品的消费令牌 不一致，消费就失败
-                    if ( channelItem.consumeToken != null && channelItem.consumeToken == sessionUser.consumeToken ) {
+                    // 如果用户持有的 消费令牌 和 商品的欲消费令牌 不一致，消费就失败
+                    if ( channelItem.preConsumeToken != null && channelItem.preConsumeToken == sessionUser.consumeToken ) {
                         userStateWriteQueue.commitConsumeState(UserObtainItemState(
                                 loopRefId = event.loopRefId!!,
                                 userId = event.userId!!,
@@ -143,7 +143,7 @@ class ChannelUserEventHandler(
                         // 产生序号
                         val queueNum = channelStore.counter.getAndIncrement()
                         // 移除该用户信息
-                        ChannelItemStore.removeObtainFromChannel(channelId, channelItem.id)
+                        ChannelItemStore.consumeObtainFromChannel(channelId, channelItem.id)
                         println("userId: $userId, queueNum: $queueNum")
                     } else {
                         // 消费令牌不正确，消费就失败

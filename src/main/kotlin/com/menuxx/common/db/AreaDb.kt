@@ -15,6 +15,8 @@ class AreaDb(private val dsl: DSLContext) {
 
     val LevelProvincePID = 0
 
+    private final val tArea = TArea.T_AREA
+
     /**
      * 获取所有省级区域
      */
@@ -24,7 +26,7 @@ class AreaDb(private val dsl: DSLContext) {
      * 获取区域列表通过pid
      */
     fun loadAreasByPid(pid: Int) : List<Area> {
-        val tArea = TArea.T_AREA
+
         return dsl.select().from(tArea).where(tArea.PID.eq(pid)).orderBy(tArea.SORT_WEIGHT.desc()).fetchArray().map {
             it.into(Area::class.java)
         }

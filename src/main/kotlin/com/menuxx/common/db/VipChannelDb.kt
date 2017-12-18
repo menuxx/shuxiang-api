@@ -25,14 +25,14 @@ class VipChannelDb(
         private val channelItemDb: ChannelItemRecordDb
 ) {
 
+    private final val tVipChannel = TVipChannel.T_VIP_CHANNEL
+    private final val tItem = TItem.T_ITEM
+
     val StatusCreated = 0
     val StatusStarted = 1
     val StatusFinishd = 2
 
     fun getById(channelId: Int) : VipChannel? {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
-        val tItem = TItem.T_ITEM
-
         val channelItemRecord = dsl.select()
                 .from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
@@ -49,8 +49,6 @@ class VipChannelDb(
     }
 
     fun loadVipChannels(merchantId: Int, page: PageParam) : List<VipChannel> {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
-        val tItem = TItem.T_ITEM
         return dsl.select().from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
                 .offset(page.getOffset()).limit(page.getLimit()).fetchArray().map {
@@ -65,7 +63,6 @@ class VipChannelDb(
      * 新增渠道
      */
     fun insertVipChannel(vipChannel: VipChannel) : VipChannel {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
         return dsl.insertInto(tVipChannel).set(dsl.newRecord(tVipChannel, vipChannel)).returning().fetchOne().into(VipChannel::class.java)
     }
 
@@ -74,7 +71,6 @@ class VipChannelDb(
      */
     @Transactional
     fun updateVipChannel(channelId: Int, vipChannel: VipChannel) : VipChannel? {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
         dsl.update(tVipChannel)
                     .set(dsl.newRecord(tVipChannel, vipChannel))
                     .where(tVipChannel.ID.eq(UInteger.valueOf(channelId))).execute()
@@ -82,7 +78,6 @@ class VipChannelDb(
     }
 
     fun updateToStarted(channelId: Int) {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
         dsl.update(tVipChannel)
                 .set(tVipChannel.STATUS, StatusStarted)
                 .where(tVipChannel.ID.eq(UInteger.valueOf(channelId)))
@@ -119,6 +114,7 @@ class VipChannelDb(
                     itemId = item.itemId,
                     obtainUserId = item.obtainUserId,
                     obtainTime = item.obtainTime?.toInstant(),
+                    preConsumeToken = null,
                     consumeToken = null
             )
         }

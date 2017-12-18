@@ -22,12 +22,13 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
     val ObtainConsumeStatusNotCounsumed = 0
     val ObtainConsumeStatusCounsumed = 1
 
+    private final val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
+
     /**
      * 标注为消费状态
      * 启动状态恢复，就不会恢复该记录
      */
     fun itemConsumed(itemId: Int) : Int {
-        val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
         return dsl.update(tChannelItemRecord).set(tChannelItemRecord.OBTAIN_CONSUMED, 1).where(tChannelItemRecord.ID.eq(UInteger.valueOf(itemId))).execute()
     }
 
@@ -35,7 +36,6 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
      * 标注为持有状态
      */
     fun itemObtain(userId: Int, itemId: Int) : Int {
-        val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
         return dsl.update(tChannelItemRecord)
                 .set(tChannelItemRecord.OBTAIN_USER_ID, UInteger.valueOf(userId))
                 .set(tChannelItemRecord.OBTAIN_TIME, Timestamp.from(Instant.now()))
@@ -48,7 +48,6 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
      * 2. 所有 obtainUserId 为空的
      */
     fun loadChannelNoObtainItems() : List<ChannelItemRecord> {
-        val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
         // 如果 OBTAIN_TIME 大于 当前时间 - 30秒 就是 过期的持有结果
         val expiredTime = Instant.now().minusSeconds(Const.MaxObtainSeconds.toLong())
         return dsl.select().from(tChannelItemRecord).where(
@@ -64,13 +63,11 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
     }
 
     fun loadChannelItems(channelId: Int) : List<ChannelItemRecord> {
-        val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
         return dsl.select().from(tChannelItemRecord).where(tChannelItemRecord.CHANNEL_ID.eq(UInteger.valueOf(channelId)))
                 .fetchArray().map { it.into(ChannelItemRecord::class.java) }
     }
 
     fun addChannelBatch(list: List<ChannelItemRecord>) : Int {
-        val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
         val step = dsl.insertInto(tChannelItemRecord).columns(
                 tChannelItemRecord.CHANNEL_ID,
                 tChannelItemRecord.ITEM_ID

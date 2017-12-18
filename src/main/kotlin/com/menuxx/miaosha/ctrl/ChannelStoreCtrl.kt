@@ -9,16 +9,18 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.menuxx.AllOpen
 import com.menuxx.Const
 import com.menuxx.apiserver.bean.ApiResp
-import com.menuxx.common.bean.User
+import com.menuxx.common.db.UserDb
 import com.menuxx.common.db.VipChannelDb
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
+import com.menuxx.weixin.auth.AUser
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.async.DeferredResult
 import java.util.*
@@ -33,6 +35,7 @@ import java.util.*
 @RestController
 @RequestMapping("/channel_store")
 class ChannelStoreCtrl(
+        private val userDb: UserDb,
         private val channelDb: VipChannelDb,
         @Autowired @Qualifier("channelUserProducer") private val channelUserProducer: ProducerBean,
         private val objectMapper: ObjectMapper,
@@ -48,17 +51,16 @@ class ChannelStoreCtrl(
     data class LoopResult(val stateCode: Int, val msg: String)
     @GetMapping("/{channelId}/long_loop_state")
     fun longLoopState(@PathVariable channelId: Int, @RequestParam loopRefId: String) : LoopResult {
-//        val currentUser = SecurityContextHolder.getContext().authentication as User
-//        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: throw NotFoundException("用户状态不能进行该操作[LOOG_LOOP_USER_NOT_EXISTS]")
-//        // 验证 loopRefId 是否一致，不一致，无法发起轮询
-//        // 正常请款修改，是正确的
-//        return if ( user.loopRefId == loopRefId ) {
-//            val confirmState = intRedisTemplate.opsForValue().get(loopRefId)
-//            LoopResult(confirmState, "SUCCESS")
-//        } else {
-//            LoopResult(-1, "FAIL")
-//        }
-        return LoopResult(-1, "FAIL")
+        val currentUser = SecurityContextHolder.getContext().authentication as AUser
+        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: throw NotFoundException("用户状态不能进行该操作[LOOG_LOOP_USER_NOT_EXISTS]")
+        // 验证 loopRefId 是否一致，不一致，无法发起轮询
+        // 正常请款修改，是正确的
+        return if ( user.loopRefId == loopRefId ) {
+            val confirmState = intRedisTemplate.opsForValue().get(loopRefId)
+            LoopResult(confirmState, "SUCCESS")
+        } else {
+            LoopResult(-1, "FAIL")
+        }
     }
 
     // val code: Int, val message: String
@@ -79,10 +81,11 @@ class ChannelStoreCtrl(
      * 消费持有，一般伴随支付，为了让支付更可靠，引入消息队列机制，消费成功后，通知 message handler 消费持有
      * 由消息队列输入
      */
+    @PutMapping("/aaa/aa")
     fun requestConsumeObtain() {
-        // val currentUser = SecurityContextHolder.getContext().authentication as User
-    }
+        val currentUser = SecurityContextHolder.getContext().authentication as AUser
 
+    }
     /**
      * 请求持有，就是对某个 channel_item 加锁，目前加锁最长时间 Const.MaxObtainSeconds 30 秒
      * 超过加锁时间后，其他用户可以抢
@@ -96,10 +99,9 @@ class ChannelStoreCtrl(
     data class TryObtain(val loopRefId: String?, val messageId: String, val errCode: Int, val errMsg: String?)
     @GetMapping("/{channelId}/obtain")
     fun requestObtain(@PathVariable channelId: Int) : DeferredResult<TryObtain> {
-        val currentUser = User()
-        // val currentUser = SecurityContextHolder.getContext().authentication as User
+        val currentUser = SecurityContextHolder.getContext().authentication as AUser
         val msg = Message()
-        msg.tag = "FromServiceNo" // 从服务号抢购
+        msg.tag = "FromMp" // 从服务号抢购
         msg.key = "/channel_store/$channelId/obtain"    // url
 
         // 长轮询引用id
@@ -154,12 +156,12 @@ class ChannelStoreCtrl(
     @GetMapping("/{channelId}")
     fun lookChannelStore(@PathVariable channelId: Int) : Map<String, Any>? {
         val store = ChannelItemStore.getChannelStore(channelId)
+        val partners = ChannelUserStore.getUserGroup(channelId).getConsumedUsers()
         if ( store != null ) {
-            val data = store.data.toMap()
             val counter = store.counter.get()
-            return mapOf("data" to data, "counter" to counter)
+            return mapOf("counter" to counter, "partners" to partners)
         }
-        throw NotFoundException("没有找到对应 channel_store, 可能该活动还没有启动")
+        throw NotFoundException("没有找到对应 channel_store, 该活动还没有启动")
     }
 
 }
