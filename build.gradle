@@ -166,7 +166,7 @@ jooq {
 //	}
 }
 
-project.tasks.getByName('compileJava').dependsOn -= 'generateOnecodeProdJooqSchemaSource'
+project.tasks.getByName('compileJava').dependsOn -= 'generateOnecodeDevJooqSchemaSource'
 // project.tasks.getByName('compileJava').dependsOn -= 'generateMenuxxDevJooqSchemaSource'
 
 dependencies {
