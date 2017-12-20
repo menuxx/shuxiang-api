@@ -1,5 +1,3 @@
 rootProject.name = 'shuxiang'
 include ':ronglian'
 include ':miaosha'
-include ':weixin-shu'
-

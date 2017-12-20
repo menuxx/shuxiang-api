@@ -14,15 +14,16 @@ class ChannelUserEventTranslator : EventTranslatorOneArg<ChannelUserEvent, ByteB
     override fun translateTo(event: ChannelUserEvent, sequence: Long, byteBuffer: ByteBuffer) {
         event.userId = byteBuffer.int
         event.channelId = byteBuffer.int
-        // 位置充值到字符串位置
-        byteBuffer.position(2)
         event.loopRefId = Charset.forName("UTF-8").decode(byteBuffer).toString()
     }
 }
 
 class ChannelUserEventProducer(private val ringBuffer: RingBuffer<ChannelUserEvent>) {
+
     private val translator = ChannelUserEventTranslator()
+
     fun product(bb: ByteBuffer) {
         ringBuffer.publishEvent<ByteBuffer>(translator, bb)
     }
+
 }

@@ -37,7 +37,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TOrder extends TableImpl<TOrderRecord> {
 
-    private static final long serialVersionUID = 1799274127;
+    private static final long serialVersionUID = -534454835;
 
     /**
      * The reference instance of <code>onecode.t_order</code>
@@ -121,6 +121,31 @@ public class TOrder extends TableImpl<TOrderRecord> {
      * The column <code>onecode.t_order.update_at</code>.
      */
     public final TableField<TOrderRecord, Timestamp> UPDATE_AT = createField("update_at", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+
+    /**
+     * The column <code>onecode.t_order.receiver_phone_number</code>. 收货人手机号
+     */
+    public final TableField<TOrderRecord, String> RECEIVER_PHONE_NUMBER = createField("receiver_phone_number", org.jooq.impl.SQLDataType.VARCHAR.length(20), this, "收货人手机号");
+
+    /**
+     * The column <code>onecode.t_order.receiver_name</code>. 收货人姓名
+     */
+    public final TableField<TOrderRecord, String> RECEIVER_NAME = createField("receiver_name", org.jooq.impl.SQLDataType.VARCHAR.length(30), this, "收货人姓名");
+
+    /**
+     * The column <code>onecode.t_order.receiver_address</code>. 收货人地址
+     */
+    public final TableField<TOrderRecord, String> RECEIVER_ADDRESS = createField("receiver_address", org.jooq.impl.SQLDataType.VARCHAR.length(100), this, "收货人地址");
+
+    /**
+     * The column <code>onecode.t_order.receiver_detail_info</code>. 收货人详细地址
+     */
+    public final TableField<TOrderRecord, String> RECEIVER_DETAIL_INFO = createField("receiver_detail_info", org.jooq.impl.SQLDataType.VARCHAR.length(100), this, "收货人详细地址");
+
+    /**
+     * The column <code>onecode.t_order.receiver_postal_code</code>. 收货人邮政编码
+     */
+    public final TableField<TOrderRecord, String> RECEIVER_POSTAL_CODE = createField("receiver_postal_code", org.jooq.impl.SQLDataType.VARCHAR.length(20), this, "收货人邮政编码");
 
     /**
      * Create a <code>onecode.t_order</code> table reference

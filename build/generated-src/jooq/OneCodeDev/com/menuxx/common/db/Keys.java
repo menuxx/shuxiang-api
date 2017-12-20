@@ -81,6 +81,7 @@ public class Keys {
     public static final UniqueKey<TAdminUserRecord> KEY_T_ADMIN_USER_PRIMARY = UniqueKeys0.KEY_T_ADMIN_USER_PRIMARY;
     public static final UniqueKey<TAdminUserRecord> KEY_T_ADMIN_USER_USERNAME = UniqueKeys0.KEY_T_ADMIN_USER_USERNAME;
     public static final UniqueKey<TAreaRecord> KEY_T_AREA_PRIMARY = UniqueKeys0.KEY_T_AREA_PRIMARY;
+    public static final UniqueKey<TAreaRecord> KEY_T_AREA_POSTAL_CODE = UniqueKeys0.KEY_T_AREA_POSTAL_CODE;
     public static final UniqueKey<TAuthorityRecord> KEY_T_AUTHORITY_PRIMARY = UniqueKeys0.KEY_T_AUTHORITY_PRIMARY;
     public static final UniqueKey<TChannelItemRecordRecord> KEY_T_CHANNEL_ITEM_RECORD_PRIMARY = UniqueKeys0.KEY_T_CHANNEL_ITEM_RECORD_PRIMARY;
     public static final UniqueKey<TExpressRecord> KEY_T_EXPRESS_PRIMARY = UniqueKeys0.KEY_T_EXPRESS_PRIMARY;
@@ -128,6 +129,7 @@ public class Keys {
         public static final UniqueKey<TAdminUserRecord> KEY_T_ADMIN_USER_PRIMARY = createUniqueKey(TAdminUser.T_ADMIN_USER, "KEY_t_admin_user_PRIMARY", TAdminUser.T_ADMIN_USER.ID);
         public static final UniqueKey<TAdminUserRecord> KEY_T_ADMIN_USER_USERNAME = createUniqueKey(TAdminUser.T_ADMIN_USER, "KEY_t_admin_user_username", TAdminUser.T_ADMIN_USER.USERNAME);
         public static final UniqueKey<TAreaRecord> KEY_T_AREA_PRIMARY = createUniqueKey(TArea.T_AREA, "KEY_t_area_PRIMARY", TArea.T_AREA.ID);
+        public static final UniqueKey<TAreaRecord> KEY_T_AREA_POSTAL_CODE = createUniqueKey(TArea.T_AREA, "KEY_t_area_postal_code", TArea.T_AREA.POSTAL_CODE);
         public static final UniqueKey<TAuthorityRecord> KEY_T_AUTHORITY_PRIMARY = createUniqueKey(TAuthority.T_AUTHORITY, "KEY_t_authority_PRIMARY", TAuthority.T_AUTHORITY.ID);
         public static final UniqueKey<TChannelItemRecordRecord> KEY_T_CHANNEL_ITEM_RECORD_PRIMARY = createUniqueKey(TChannelItemRecord.T_CHANNEL_ITEM_RECORD, "KEY_t_channel_item_record_PRIMARY", TChannelItemRecord.T_CHANNEL_ITEM_RECORD.ID);
         public static final UniqueKey<TExpressRecord> KEY_T_EXPRESS_PRIMARY = createUniqueKey(TExpress.T_EXPRESS, "KEY_t_express_PRIMARY", TExpress.T_EXPRESS.ID);

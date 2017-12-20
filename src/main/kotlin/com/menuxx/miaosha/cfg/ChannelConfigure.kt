@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate
 
 @Configuration
 class ChannelConfigure(
-        @Autowired @Qualifier("intRedisTemplate") val intRedisTemplate: RedisTemplate<String, Int>
+        @Autowired @Qualifier("objRedisTemplate") val objRedisTemplate: RedisTemplate<String, Any>
 ) {
 
     /**
@@ -27,7 +27,7 @@ class ChannelConfigure(
      */
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     fun channelUserStateWriteQueue(channelItemDb: ChannelItemRecordDb) : ChannelUserStateWriteQueue {
-        return ChannelUserStateWriteQueue(intRedisTemplate, channelItemDb)
+        return ChannelUserStateWriteQueue(objRedisTemplate, channelItemDb)
     }
 
     /**
@@ -43,10 +43,10 @@ class ChannelConfigure(
      */
     @Bean
     fun channelUserEventPostObtainHandler() : ChannelUserEventPostObtainHandler {
-        return ChannelUserEventPostObtainHandler(intRedisTemplate)
+        return ChannelUserEventPostObtainHandler(objRedisTemplate)
     }
 
-    @Bean
+    @Bean(initMethod = "start", destroyMethod = "shutdown")
     fun channelUserEventDisruptor(channelUserEventHandler: ChannelUserEventHandler, channelUserEventPostObtainHandler: ChannelUserEventPostObtainHandler) : ChannelUserEventDisruptor {
         return ChannelUserEventDisruptor(channelUserEventHandler, channelUserEventPostObtainHandler)
     }

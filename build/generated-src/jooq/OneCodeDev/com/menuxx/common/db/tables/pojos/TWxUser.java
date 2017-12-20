@@ -25,12 +25,13 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TWxUser implements Serializable {
 
-    private static final long serialVersionUID = -283557062;
+    private static final long serialVersionUID = 555371453;
 
     private final UInteger  id;
     private final String    nickname;
     private final String    headimgurl;
     private final String    openid;
+    private final String    refreshToken;
     private final String    country;
     private final String    province;
     private final String    city;
@@ -44,6 +45,7 @@ public class TWxUser implements Serializable {
         this.nickname = value.nickname;
         this.headimgurl = value.headimgurl;
         this.openid = value.openid;
+        this.refreshToken = value.refreshToken;
         this.country = value.country;
         this.province = value.province;
         this.city = value.city;
@@ -58,6 +60,7 @@ public class TWxUser implements Serializable {
         String    nickname,
         String    headimgurl,
         String    openid,
+        String    refreshToken,
         String    country,
         String    province,
         String    city,
@@ -70,6 +73,7 @@ public class TWxUser implements Serializable {
         this.nickname = nickname;
         this.headimgurl = headimgurl;
         this.openid = openid;
+        this.refreshToken = refreshToken;
         this.country = country;
         this.province = province;
         this.city = city;
@@ -93,6 +97,10 @@ public class TWxUser implements Serializable {
 
     public String getOpenid() {
         return this.openid;
+    }
+
+    public String getRefreshToken() {
+        return this.refreshToken;
     }
 
     public String getCountry() {
@@ -131,6 +139,7 @@ public class TWxUser implements Serializable {
         sb.append(", ").append(nickname);
         sb.append(", ").append(headimgurl);
         sb.append(", ").append(openid);
+        sb.append(", ").append(refreshToken);
         sb.append(", ").append(country);
         sb.append(", ").append(province);
         sb.append(", ").append(city);

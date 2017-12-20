@@ -24,13 +24,14 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TArea implements Serializable {
 
-    private static final long serialVersionUID = 1269134004;
+    private static final long serialVersionUID = 650035823;
 
     private final UInteger id;
     private final Integer  type;
     private final String   name;
     private final Integer  pid;
     private final Integer  sortWeight;
+    private final String   postalCode;
 
     public TArea(TArea value) {
         this.id = value.id;
@@ -38,6 +39,7 @@ public class TArea implements Serializable {
         this.name = value.name;
         this.pid = value.pid;
         this.sortWeight = value.sortWeight;
+        this.postalCode = value.postalCode;
     }
 
     public TArea(
@@ -45,13 +47,15 @@ public class TArea implements Serializable {
         Integer  type,
         String   name,
         Integer  pid,
-        Integer  sortWeight
+        Integer  sortWeight,
+        String   postalCode
     ) {
         this.id = id;
         this.type = type;
         this.name = name;
         this.pid = pid;
         this.sortWeight = sortWeight;
+        this.postalCode = postalCode;
     }
 
     public UInteger getId() {
@@ -74,6 +78,10 @@ public class TArea implements Serializable {
         return this.sortWeight;
     }
 
+    public String getPostalCode() {
+        return this.postalCode;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("TArea (");
@@ -83,6 +91,7 @@ public class TArea implements Serializable {
         sb.append(", ").append(name);
         sb.append(", ").append(pid);
         sb.append(", ").append(sortWeight);
+        sb.append(", ").append(postalCode);
 
         sb.append(")");
         return sb.toString();

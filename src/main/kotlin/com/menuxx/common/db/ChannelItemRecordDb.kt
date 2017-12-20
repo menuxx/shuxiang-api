@@ -29,7 +29,9 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
      * 启动状态恢复，就不会恢复该记录
      */
     fun itemConsumed(itemId: Int) : Int {
-        return dsl.update(tChannelItemRecord).set(tChannelItemRecord.OBTAIN_CONSUMED, 1).where(tChannelItemRecord.ID.eq(UInteger.valueOf(itemId))).execute()
+        return dsl.update(tChannelItemRecord)
+                .set(tChannelItemRecord.OBTAIN_CONSUMED, 1)
+                .where(tChannelItemRecord.ID.eq(UInteger.valueOf(itemId))).execute()
     }
 
     /**
@@ -47,7 +49,7 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
      * 1. 所有 obtainUserId 不为空 但是 所有 obtainTime 大于 MaxObtainSeconds 的
      * 2. 所有 obtainUserId 为空的
      */
-    fun loadChannelNoObtainItems() : List<ChannelItemRecord> {
+    fun loadChannelNotObtainItems() : List<ChannelItemRecord> {
         // 如果 OBTAIN_TIME 大于 当前时间 - 30秒 就是 过期的持有结果
         val expiredTime = Instant.now().minusSeconds(Const.MaxObtainSeconds.toLong())
         return dsl.select().from(tChannelItemRecord).where(
@@ -61,6 +63,13 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
             it.into(ChannelItemRecord::class.java)
         }
     }
+
+    /**
+     * 加载所有已经启动但是尚未结束的 channel item record 到内存
+     * 1. 找到所有符合要求的渠道
+     */
+    // fun loadAllChannelItems() : List<ChannelItemRecord> {
+    // }
 
     fun loadChannelItems(channelId: Int) : List<ChannelItemRecord> {
         return dsl.select().from(tChannelItemRecord).where(tChannelItemRecord.CHANNEL_ID.eq(UInteger.valueOf(channelId)))

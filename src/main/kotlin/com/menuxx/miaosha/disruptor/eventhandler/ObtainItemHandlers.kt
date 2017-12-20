@@ -9,6 +9,7 @@ import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
+import java.util.concurrent.TimeUnit
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -16,7 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate
  * 微信: yin80871901
  */
 class ChannelUserEventPostObtainHandler(
-        private val intRedisTemplate: RedisTemplate<String, Int>
+        private val objRedisTemplate: RedisTemplate<String, Any>
         ) : EventHandler<ChannelUserEvent> {
 
     private val logger = LoggerFactory.getLogger(ChannelUserEventPostObtainHandler::class.java)
@@ -30,7 +31,7 @@ class ChannelUserEventPostObtainHandler(
                 logger.warn("NoObtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
             }
 
-            // 被持有
+            // 被持有(存储redis状态逻辑已经被上层实现)
             ConfirmState.Obtain -> {
                 logger.info("Obtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 // mqtt 通知 个数减少
@@ -39,21 +40,37 @@ class ChannelUserEventPostObtainHandler(
             // 已经抢完了
             ConfirmState.Finish -> {
                 logger.info("Finish, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
-                intRedisTemplate.opsForValue().set(event.loopRefId, ConfirmState.FreeObtain.state)
+                objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
+                        loopRefId = event.loopRefId!!,
+                        userId = event.userId!!,
+                        channelItemId = event.channelId!!,
+                        confirmState = ConfirmState.Finish.state
+                ))
             }
 
             // 已经被释放
             ConfirmState.FreeObtain -> {
                 logger.info("FreeObtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
-                intRedisTemplate.opsForValue().set(event.loopRefId, ConfirmState.FreeObtain.state)
+                objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
+                        loopRefId = event.loopRefId!!,
+                        userId = event.userId!!,
+                        channelItemId = event.channelId!!,
+                        confirmState = ConfirmState.FreeObtain.state
+                ))
             }
 
             // 重复消费
             ConfirmState.ObtainConsumeAgain -> {
                 logger.warn("ObtainConsumeAgain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
+                objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
+                        loopRefId = event.loopRefId!!,
+                        userId = event.userId!!,
+                        channelItemId = event.channelId!!,
+                        confirmState = ConfirmState.ObtainConsumeAgain.state
+                ))
             }
 
-            // 已消费
+            // 已消费 (存储redis状态逻辑已经被上层实现)
             ConfirmState.ObtainConsumed -> {
                 logger.info("ObtainConsumed, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 // 由上一个循环
@@ -62,10 +79,16 @@ class ChannelUserEventPostObtainHandler(
             // 消费失败
             ConfirmState.ConsumeFail -> {
                 logger.warn("ConsumeFail, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
-                intRedisTemplate.opsForValue().set(event.loopRefId, ConfirmState.FreeObtain.state)
+                objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
+                        loopRefId = event.loopRefId!!,
+                        userId = event.userId!!,
+                        channelItemId = event.channelId!!,
+                        confirmState = ConfirmState.ConsumeFail.state
+                ))
             }
-
         }
+
+        objRedisTemplate.expire(event.loopRefId, 60, TimeUnit.SECONDS)
     }
 }
 
@@ -104,8 +127,8 @@ class ChannelUserEventHandler(
 
         // 如果未持有，就开始持有
         when(sessionUser.confirmState) {
-            // 未持有，就申请持有
-            ConfirmState.NoObtain -> {
+            // 未持有，就申请持有，如果已经被释放了，就再抢
+            ConfirmState.NoObtain, ConfirmState.FreeObtain -> {
                 // 开始持有
                 val channelItem = ChannelItemStore.obtainItemFromChannel(userId, channelId)
                 // 如果能够持有，就修改用户状态

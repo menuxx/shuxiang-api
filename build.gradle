@@ -180,6 +180,8 @@ dependencies {
 
 	compile 'com.google.guava:guava:23.4-jre'
 
+	compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.0-api', version: '1.0.1.Final'
+	compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
 
 	// 阿里 rocketmq 消息队列，保证消息的可靠性
 	// 日志 https://help.aliyun.com/document_detail/43460.html?spm=5176.doc55448.6.583.yj53tv

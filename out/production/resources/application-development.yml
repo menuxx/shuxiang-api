@@ -1,5 +1,9 @@
 
+auth-token:
+  secret: qidj983f8u2dh2
+
 logging:
   level:
-    org.springframework: DEBUG
+    com.menuxx: INFO
+    org.springframework: ERROR
     org.jooq: DEBUG

@@ -3,6 +3,9 @@ server:
   address: 0.0.0.0
   port: ${port:8071}
 
+auth-token:
+  secret: 8dyh1o1fh923dh2dui112dhid823di23ihi21ksqad
+
 spring:
   datasource:
     url: jdbc:mysql://rm-uf68lsw07o293t779.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8

@@ -24,7 +24,7 @@ class ChannelResumeRunner(
     override fun run(vararg args: String) {
         logger.info("load channel: start")
         // 将所有的 未持有 item 分组后 恢复到内存
-        channelItemRecordDb.loadChannelNoObtainItems().groupBy { it.channelId }.forEach { channelId, group ->
+        channelItemRecordDb.loadChannelNotObtainItems().groupBy { it.channelId }.forEach { channelId, group ->
             logger.info("load channel: $channelId, size : ${group.size}")
             ChannelItemStore.putChannelItems(channelId, group.map { item ->
                 ChannelItem(

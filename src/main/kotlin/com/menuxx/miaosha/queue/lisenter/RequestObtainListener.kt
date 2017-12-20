@@ -7,6 +7,7 @@ import com.aliyun.openservices.ons.api.MessageListener
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.menuxx.miaosha.disruptor.ChannelUserEvent
 import com.menuxx.miaosha.disruptor.ChannelUserEventDisruptor
+import com.menuxx.miaosha.queue.msg.ObtainUserMsg
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -26,12 +27,13 @@ class RequestObtainListener(
 
     // Message json { userId: Int, channelId: Int, loopRefId: String }
     override fun consume(message: Message, context: ConsumeContext): Action {
-        val event = objectMapper.readValue(message.body, ChannelUserEvent::class.java)
         // 提交到 disruptor
         return try {
+            val event = objectMapper.readValue(message.body, ObtainUserMsg::class.java)
             producerDisruptor.product(userId = event.userId!!, channelId = event.channelId!!, loopRefId = event.loopRefId!!)
             Action.CommitMessage
         } catch (ex: Exception) {
+            ex.printStackTrace()
             logger.error("ProducerDisruptor: ${ex.message}")
             Action.ReconsumeLater
         }

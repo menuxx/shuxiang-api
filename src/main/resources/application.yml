@@ -100,6 +100,11 @@ weixin:
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
 
+auth-token:
+  secret: ewydjwiefj23fg2y12g7e
+  header: X-Authorization
+  expiration: 7200
+
 server:
   address: 0.0.0.0
   port: ${port:8070}

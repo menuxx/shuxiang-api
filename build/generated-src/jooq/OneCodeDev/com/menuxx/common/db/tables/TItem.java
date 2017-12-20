@@ -37,7 +37,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TItem extends TableImpl<TItemRecord> {
 
-    private static final long serialVersionUID = -1189884823;
+    private static final long serialVersionUID = -1989856322;
 
     /**
      * The reference instance of <code>onecode.t_item</code>
@@ -81,6 +81,11 @@ public class TItem extends TableImpl<TItemRecord> {
      * The column <code>onecode.t_item.thumb_imgs</code>. 缩略图；用逗号分隔
      */
     public final TableField<TItemRecord, String> THUMB_IMGS = createField("thumb_imgs", org.jooq.impl.SQLDataType.VARCHAR.length(200).nullable(false).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "缩略图；用逗号分隔");
+
+    /**
+     * The column <code>onecode.t_item.cover_image</code>.
+     */
+    public final TableField<TItemRecord, String> COVER_IMAGE = createField("cover_image", org.jooq.impl.SQLDataType.VARCHAR.length(300), this, "");
 
     /**
      * The column <code>onecode.t_item.isbn</code>. 多个用逗号分隔

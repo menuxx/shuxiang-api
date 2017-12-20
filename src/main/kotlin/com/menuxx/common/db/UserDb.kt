@@ -37,10 +37,13 @@ class UserDb(private val dsl: DSLContext) {
      * 根据 openid 获取用户信息
      */
     fun findUserByOpenid(openid: String) : User? {
-        return dsl.select().from(tUser)
+        val record = dsl.select().from(tUser)
                 .leftJoin(tWxUser)
                 .on(tUser.WX_USER_ID.eq(tWxUser.ID))
-                .where(tWxUser.OPENID.eq(openid)).fetchOne()?.into(User::class.java)
+                .where(tWxUser.OPENID.eq(openid)).fetchOne()
+        val user = record?.into(User::class.java)
+        user?.wxUser = record?.into(WXUser::class.java)
+        return user
     }
 
     fun fetchUserByIdList(idList: List<Int>) : List<User> {
@@ -52,8 +55,8 @@ class UserDb(private val dsl: DSLContext) {
     /**
      * 更新微信用户
      */
-    private fun updateWXUser(wxUser: WXUser) : Int {
-        return dsl.update(tWxUser).set(dsl.newRecord(tWxUser, wxUser)).where(tWxUser.ID.eq(UInteger.valueOf(wxUser.id))).execute()
+    private fun updateWXUserByOpenId(wxUser: WXUser, openid: String) : Int {
+        return dsl.update(tWxUser).set(dsl.newRecord(tWxUser, wxUser)).where(tWxUser.OPENID.eq(openid)).execute()
     }
 
     /**
@@ -129,7 +132,7 @@ class UserDb(private val dsl: DSLContext) {
      */
     @Transactional
     fun updateUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
-        val updateOk = updateWXUser(wxUser) == 1
+        val updateOk = updateWXUserByOpenId(wxUser, wxUser.openid) == 1
         if ( updateOk ) {
             val user = findUserByOpenid(wxUser.openid)!!
             user.userName = wxUser.nickname

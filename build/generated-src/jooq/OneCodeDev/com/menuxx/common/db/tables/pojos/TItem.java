@@ -25,7 +25,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TItem implements Serializable {
 
-    private static final long serialVersionUID = -1677190690;
+    private static final long serialVersionUID = -998734529;
 
     private final UInteger  id;
     private final UInteger  merchantId;
@@ -33,6 +33,7 @@ public class TItem implements Serializable {
     private final String    name;
     private final Integer   price;
     private final String    thumbImgs;
+    private final String    coverImage;
     private final String    isbn;
     private final String    press;
     private final String    authors;
@@ -49,6 +50,7 @@ public class TItem implements Serializable {
         this.name = value.name;
         this.price = value.price;
         this.thumbImgs = value.thumbImgs;
+        this.coverImage = value.coverImage;
         this.isbn = value.isbn;
         this.press = value.press;
         this.authors = value.authors;
@@ -66,6 +68,7 @@ public class TItem implements Serializable {
         String    name,
         Integer   price,
         String    thumbImgs,
+        String    coverImage,
         String    isbn,
         String    press,
         String    authors,
@@ -81,6 +84,7 @@ public class TItem implements Serializable {
         this.name = name;
         this.price = price;
         this.thumbImgs = thumbImgs;
+        this.coverImage = coverImage;
         this.isbn = isbn;
         this.press = press;
         this.authors = authors;
@@ -113,6 +117,10 @@ public class TItem implements Serializable {
 
     public String getThumbImgs() {
         return this.thumbImgs;
+    }
+
+    public String getCoverImage() {
+        return this.coverImage;
     }
 
     public String getIsbn() {
@@ -157,6 +165,7 @@ public class TItem implements Serializable {
         sb.append(", ").append(name);
         sb.append(", ").append(price);
         sb.append(", ").append(thumbImgs);
+        sb.append(", ").append(coverImage);
         sb.append(", ").append(isbn);
         sb.append(", ").append(press);
         sb.append(", ").append(authors);

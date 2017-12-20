@@ -12,6 +12,8 @@ public class WXUser {
 
     private String openid;
 
+    private String refreshToken;
+
     private String country;
 
     private String province;
@@ -56,6 +58,14 @@ public class WXUser {
 
     public void setOpenid(String openid) {
         this.openid = openid == null ? null : openid.trim();
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getCountry() {

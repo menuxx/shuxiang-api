@@ -37,7 +37,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TVipChannel extends TableImpl<TVipChannelRecord> {
 
-    private static final long serialVersionUID = -1671348316;
+    private static final long serialVersionUID = 1957150356;
 
     /**
      * The reference instance of <code>onecode.t_vip_channel</code>
@@ -83,9 +83,9 @@ public class TVipChannel extends TableImpl<TVipChannelRecord> {
     public final TableField<TVipChannelRecord, String> OWNER_NAME = createField("owner_name", org.jooq.impl.SQLDataType.VARCHAR.length(30), this, "大v名字");
 
     /**
-     * The column <code>onecode.t_vip_channel.owner_avatar_url</code>. 头像 images/vip-channels/
+     * The column <code>onecode.t_vip_channel.owner_avatar</code>. 头像 images/vip-channels/
      */
-    public final TableField<TVipChannelRecord, String> OWNER_AVATAR_URL = createField("owner_avatar_url", org.jooq.impl.SQLDataType.VARCHAR.length(300), this, "头像 images/vip-channels/");
+    public final TableField<TVipChannelRecord, String> OWNER_AVATAR = createField("owner_avatar", org.jooq.impl.SQLDataType.VARCHAR.length(300), this, "头像 images/vip-channels/");
 
     /**
      * The column <code>onecode.t_vip_channel.gift_txt</code>. 赠言

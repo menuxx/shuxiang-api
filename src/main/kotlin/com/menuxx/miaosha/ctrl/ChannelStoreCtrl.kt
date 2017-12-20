@@ -9,21 +9,23 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.menuxx.AllOpen
 import com.menuxx.Const
 import com.menuxx.apiserver.bean.ApiResp
-import com.menuxx.common.db.UserDb
 import com.menuxx.common.db.VipChannelDb
+import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
+import com.menuxx.miaosha.queue.msg.ObtainUserMsg
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
-import com.menuxx.weixin.auth.AUser
+import com.menuxx.weixin.auth.AuthUser
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ValueOperations
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.async.DeferredResult
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -35,11 +37,11 @@ import java.util.*
 @RestController
 @RequestMapping("/channel_store")
 class ChannelStoreCtrl(
-        private val userDb: UserDb,
+        private val aliyunProps: AliyunProps,
         private val channelDb: VipChannelDb,
         @Autowired @Qualifier("channelUserProducer") private val channelUserProducer: ProducerBean,
         private val objectMapper: ObjectMapper,
-        private val intRedisTemplate: RedisTemplate<String, Int>
+        @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
 ) {
 
     private val logger = LoggerFactory.getLogger(ChannelStoreCtrl::class.java)
@@ -51,13 +53,17 @@ class ChannelStoreCtrl(
     data class LoopResult(val stateCode: Int, val msg: String)
     @GetMapping("/{channelId}/long_loop_state")
     fun longLoopState(@PathVariable channelId: Int, @RequestParam loopRefId: String) : LoopResult {
-        val currentUser = SecurityContextHolder.getContext().authentication as AUser
+        val currentUser = SecurityContextHolder.getContext().authentication.principal as AuthUser
         val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: throw NotFoundException("用户状态不能进行该操作[LOOG_LOOP_USER_NOT_EXISTS]")
         // 验证 loopRefId 是否一致，不一致，无法发起轮询
         // 正常请款修改，是正确的
         return if ( user.loopRefId == loopRefId ) {
-            val confirmState = intRedisTemplate.opsForValue().get(loopRefId)
-            LoopResult(confirmState, "SUCCESS")
+            val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
+            if ( data != null ) {
+                LoopResult(data["confirmState"] as Int, "SUCCESS")
+            } else {
+                LoopResult(0, "WAIT")
+            }
         } else {
             LoopResult(-1, "FAIL")
         }
@@ -83,8 +89,7 @@ class ChannelStoreCtrl(
      */
     @PutMapping("/aaa/aa")
     fun requestConsumeObtain() {
-        val currentUser = SecurityContextHolder.getContext().authentication as AUser
-
+        val currentUser = SecurityContextHolder.getContext().authentication.principal as AuthUser
     }
     /**
      * 请求持有，就是对某个 channel_item 加锁，目前加锁最长时间 Const.MaxObtainSeconds 30 秒
@@ -99,8 +104,9 @@ class ChannelStoreCtrl(
     data class TryObtain(val loopRefId: String?, val messageId: String, val errCode: Int, val errMsg: String?)
     @GetMapping("/{channelId}/obtain")
     fun requestObtain(@PathVariable channelId: Int) : DeferredResult<TryObtain> {
-        val currentUser = SecurityContextHolder.getContext().authentication as AUser
+        val currentUser = SecurityContextHolder.getContext().authentication.principal as AuthUser
         val msg = Message()
+        msg.topic = aliyunProps.ons.obtainItemTopicName
         msg.tag = "FromMp" // 从服务号抢购
         msg.key = "/channel_store/$channelId/obtain"    // url
 
@@ -108,9 +114,7 @@ class ChannelStoreCtrl(
         val loopRefId = "$channelId:" + UUID.randomUUID().toString()
 
         // 消息实体 json 格式
-        msg.body = objectMapper.writeValueAsBytes(
-                mapOf("userId" to currentUser.id, "channelId" to channelId, "loopRefId" to loopRefId)
-        )
+        msg.body = objectMapper.writeValueAsBytes(ObtainUserMsg(userId = currentUser.id, channelId = channelId, loopRefId = loopRefId))
 
         // 已不返回，降低线程池压力
         val asyncResult = DeferredResult<TryObtain>()
@@ -148,20 +152,6 @@ class ChannelStoreCtrl(
         } catch (ex: LaunchException) {
             ApiResp(ex.code, ex.message!!)
         }
-    }
-
-    /**
-     * 查看 channel_store 中的数据
-     */
-    @GetMapping("/{channelId}")
-    fun lookChannelStore(@PathVariable channelId: Int) : Map<String, Any>? {
-        val store = ChannelItemStore.getChannelStore(channelId)
-        val partners = ChannelUserStore.getUserGroup(channelId).getConsumedUsers()
-        if ( store != null ) {
-            val counter = store.counter.get()
-            return mapOf("counter" to counter, "partners" to partners)
-        }
-        throw NotFoundException("没有找到对应 channel_store, 该活动还没有启动")
     }
 
 }

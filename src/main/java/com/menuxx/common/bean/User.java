@@ -20,6 +20,8 @@ public class User {
 
     private Integer enable;
 
+    private WXUser wxUser;
+
     private Date updateAt;
 
     private Date createAt;
@@ -102,5 +104,13 @@ public class User {
 
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
+    }
+
+    public WXUser getWxUser() {
+        return wxUser;
+    }
+
+    public void setWxUser(WXUser wxUser) {
+        this.wxUser = wxUser;
     }
 }

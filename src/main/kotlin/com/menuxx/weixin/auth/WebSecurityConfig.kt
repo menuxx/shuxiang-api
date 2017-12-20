@@ -1,6 +1,8 @@
 package com.menuxx.weixin.auth
 
+import com.menuxx.weixin.prop.AuthTokenProps
 import com.menuxx.weixin.prop.WeiXinProps
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpMethod
@@ -9,7 +11,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.NoOpPasswordEncoder
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -18,13 +28,46 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
  */
 
 @Configuration
+@EnableConfigurationProperties(AuthTokenProps::class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class WebSecurityConfig(
+        private val userDetailsService: UserDetailsService,
         private val wxProps: WeiXinProps,
+        private val authTokenProps: AuthTokenProps,
         private val env: Environment,
-        private val wxFilter: WXAuthenticationFilter
+        private val unauthorizedHandler: EntryPointUnauthorizedHandler
 ) : WebSecurityConfigurerAdapter() {
+
+    @Bean
+    @Throws(Exception::class)
+    override fun authenticationManagerBean(): AuthenticationManager {
+        return super.authenticationManagerBean()
+    }
+
+    @Autowired
+    @Throws(Exception::class)
+    fun configureAuthentication(builder: AuthenticationManagerBuilder) {
+        builder.userDetailsService(userDetailsService)
+                // 密码不作任何加密，因为用户的密码是 微信的 refreshToken
+                .passwordEncoder(NoOpPasswordEncoder.getInstance())
+    }
+
+    /**
+     * 会话令牌处理器
+     */
+    @Bean
+    fun tokenProcessor() : TokenProcessor {
+        return TokenProcessor(authTokenProps.secret!!, authTokenProps.expiration!!)
+    }
+
+    @Bean
+    @Throws(Exception::class)
+    fun authenticationTokenFilter(): AuthenticationTokenFilter {
+        val filter = AuthenticationTokenFilter(authTokenProps.header!!, userDetailsService, tokenProcessor())
+        filter.setAuthenticationManager(authenticationManagerBean())
+        return filter
+    }
 
     override fun configure(web: WebSecurity) {
         web.ignoring().antMatchers(
@@ -42,31 +85,21 @@ class WebSecurityConfig(
 
     override fun configure(http: HttpSecurity) {
 
-        // 授权异常处理
-        http.exceptionHandling()
-                .authenticationEntryPoint(WebAuthenticationEntryPoint(wxProps.appId))
+        http
+            .csrf().disable()
+            .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)
                 .and()
-                .authorizeRequests()
-                // 此处 url 跳过授权
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+            .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
-                // 其他的都需要授权
-                .anyRequest().authenticated().and()
+                .anyRequest().authenticated()
 
-        // if (env.activeProfiles.contains("production")) {
-            // 使用正式
-            // http.addFilterBefore(wxFilter, UsernamePasswordAuthenticationFilter::class.java)
-        // } else {
-            // 使用模拟
-            // http.addFilterBefore(MockWXAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
-        // }
-                .logout()
-                .logoutRequestMatcher(AntPathRequestMatcher("/auth/logout"))
+        http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter::class.java)
+
     }
-
-    //    @Autowired
-//    @Throws(Exception::class)
-//    fun configureGlobal(builder: AuthenticationManagerBuilder) {
-//        builder.userDetailsService(adminService).passwordEncoder(BCryptPasswordEncoder())
-//    }
 
 }

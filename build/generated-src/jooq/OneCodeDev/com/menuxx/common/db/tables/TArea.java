@@ -36,7 +36,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TArea extends TableImpl<TAreaRecord> {
 
-    private static final long serialVersionUID = -1789177720;
+    private static final long serialVersionUID = 1191352538;
 
     /**
      * The reference instance of <code>onecode.t_area</code>
@@ -75,6 +75,11 @@ public class TArea extends TableImpl<TAreaRecord> {
      * The column <code>onecode.t_area.sort_weight</code>. 排序权重
      */
     public final TableField<TAreaRecord, Integer> SORT_WEIGHT = createField("sort_weight", org.jooq.impl.SQLDataType.INTEGER, this, "排序权重");
+
+    /**
+     * The column <code>onecode.t_area.postal_code</code>. 邮编
+     */
+    public final TableField<TAreaRecord, String> POSTAL_CODE = createField("postal_code", org.jooq.impl.SQLDataType.VARCHAR.length(20), this, "邮编");
 
     /**
      * Create a <code>onecode.t_area</code> table reference
@@ -127,7 +132,7 @@ public class TArea extends TableImpl<TAreaRecord> {
      */
     @Override
     public List<UniqueKey<TAreaRecord>> getKeys() {
-        return Arrays.<UniqueKey<TAreaRecord>>asList(Keys.KEY_T_AREA_PRIMARY);
+        return Arrays.<UniqueKey<TAreaRecord>>asList(Keys.KEY_T_AREA_PRIMARY, Keys.KEY_T_AREA_POSTAL_CODE);
     }
 
     /**

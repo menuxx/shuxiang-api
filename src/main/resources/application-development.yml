@@ -1,4 +1,7 @@
 
+auth-token:
+  secret: qidj983f8u2dh2
+
 logging:
   level:
     com.menuxx: INFO

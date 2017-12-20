@@ -45,7 +45,7 @@ class MQConfigure(
     fun channelUserProducer() : ProducerBean {
         val producerBean = ProducerBean()
         val props = Properties()
-        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.obtainItemTopicName)
+        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.payProducerId)
         props.setProperty(PropertyKeyConst.AccessKey, aliyunProps.ons.accessKeyId)
         props.setProperty(PropertyKeyConst.SecretKey, aliyunProps.ons.accessKeySecret)
         producerBean.properties = props
@@ -58,8 +58,8 @@ class MQConfigure(
     fun registerRequestObtainListener(listener: RequestObtainListener, subscriptionTable: HashMap<Subscription, MessageListener>) {
         val sub = Subscription()
         sub.topic = aliyunProps.ons.obtainItemTopicName
-        // 只监来自服务好的消息
-        sub.expression = "FromServiceNo"
+        // 只监来自服务号的消息
+        sub.expression = "FromMp"
         subscriptionTable.put(sub, listener)
     }
 

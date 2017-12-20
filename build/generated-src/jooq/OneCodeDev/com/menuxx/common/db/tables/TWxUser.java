@@ -37,7 +37,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TWxUser extends TableImpl<TWxUserRecord> {
 
-    private static final long serialVersionUID = -474861073;
+    private static final long serialVersionUID = 1142089890;
 
     /**
      * The reference instance of <code>onecode.t_wx_user</code>
@@ -73,6 +73,11 @@ public class TWxUser extends TableImpl<TWxUserRecord> {
     public final TableField<TWxUserRecord, String> OPENID = createField("openid", org.jooq.impl.SQLDataType.VARCHAR.length(128).nullable(false).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "微信唯一识别id");
 
     /**
+     * The column <code>onecode.t_wx_user.refresh_token</code>.
+     */
+    public final TableField<TWxUserRecord, String> REFRESH_TOKEN = createField("refresh_token", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
+
+    /**
      * The column <code>onecode.t_wx_user.country</code>. 县区
      */
     public final TableField<TWxUserRecord, String> COUNTRY = createField("country", org.jooq.impl.SQLDataType.VARCHAR.length(20), this, "县区");
@@ -100,12 +105,12 @@ public class TWxUser extends TableImpl<TWxUserRecord> {
     /**
      * The column <code>onecode.t_wx_user.create_at</code>. 创建时间
      */
-    public final TableField<TWxUserRecord, Timestamp> CREATE_AT = createField("create_at", org.jooq.impl.SQLDataType.TIMESTAMP, this, "创建时间");
+    public final TableField<TWxUserRecord, Timestamp> CREATE_AT = createField("create_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "创建时间");
 
     /**
      * The column <code>onecode.t_wx_user.update_at</code>. 更新时间
      */
-    public final TableField<TWxUserRecord, Timestamp> UPDATE_AT = createField("update_at", org.jooq.impl.SQLDataType.TIMESTAMP, this, "更新时间");
+    public final TableField<TWxUserRecord, Timestamp> UPDATE_AT = createField("update_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "更新时间");
 
     /**
      * Create a <code>onecode.t_wx_user</code> table reference

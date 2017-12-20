@@ -22,7 +22,7 @@ public class VipChannel {
     private String ownerName;
 
     @NotNull
-    private String ownerAvatarUrl;
+    private String ownerAvatar;
 
     @NotNull
     private String giftTxt;
@@ -99,12 +99,12 @@ public class VipChannel {
         this.ownerName = ownerName == null ? null : ownerName.trim();
     }
 
-    public String getOwnerAvatarUrl() {
-        return ownerAvatarUrl;
+    public String getOwnerAvatar() {
+        return ownerAvatar;
     }
 
-    public void setOwnerAvatarUrl(String ownerAvatarUrl) {
-        this.ownerAvatarUrl = ownerAvatarUrl == null ? null : ownerAvatarUrl.trim();
+    public void setOwnerAvatar(String ownerAvatar) {
+        this.ownerAvatar = ownerAvatar == null ? null : ownerAvatar.trim();
     }
 
     public String getGiftTxt() {

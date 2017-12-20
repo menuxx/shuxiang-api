@@ -106,7 +106,7 @@ object ChannelItemStore {
         val channel = getChannelStore(channelId)?.data ?: return null
         val freeItems = channel.filter { entry ->
             val obtainTime = entry.value.obtainTime ?: Instant.now()
-            entry.value.obtainUserId == null || Duration.between(obtainTime, Instant.now()).seconds > 30
+            ( (entry.value.obtainUserId == null || entry.value.obtainUserId == 0) || Duration.between(obtainTime, Instant.now()).seconds > 30)
         }
         if ( freeItems.isEmpty() ) {
             return null

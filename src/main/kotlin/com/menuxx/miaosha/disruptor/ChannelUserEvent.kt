@@ -1,5 +1,7 @@
 package com.menuxx.miaosha.disruptor
 
+import com.menuxx.NoArg
+
 /**
  * 作者: yinchangsheng@gmail.com
  * 创建于: 2017/12/10
@@ -16,11 +18,11 @@ enum class ConfirmState(val state: Int) {
     ConsumeFail(6)       // 消费失败
 }
 
+@NoArg
 data class ChannelUserEvent(
         var userId: Int?,
         var channelId: Int?,
         var loopRefId: String?,
-        var avatarUrl: String?,
         var confirmState: ConfirmState = ConfirmState.NoObtain,
         var consumeToken: String?
 )

@@ -31,7 +31,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> implements Record14<UInteger, Integer, Integer, Integer, Integer, String, String, String, UInteger, UInteger, Timestamp, Timestamp, Timestamp, Timestamp> {
 
-    private static final long serialVersionUID = -869398612;
+    private static final long serialVersionUID = -1069430734;
 
     /**
      * Setter for <code>onecode.t_vip_channel.id</code>.
@@ -124,17 +124,17 @@ public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> im
     }
 
     /**
-     * Setter for <code>onecode.t_vip_channel.owner_avatar_url</code>. 头像 images/vip-channels/
+     * Setter for <code>onecode.t_vip_channel.owner_avatar</code>. 头像 images/vip-channels/
      */
-    public TVipChannelRecord setOwnerAvatarUrl(String value) {
+    public TVipChannelRecord setOwnerAvatar(String value) {
         set(6, value);
         return this;
     }
 
     /**
-     * Getter for <code>onecode.t_vip_channel.owner_avatar_url</code>. 头像 images/vip-channels/
+     * Getter for <code>onecode.t_vip_channel.owner_avatar</code>. 头像 images/vip-channels/
      */
-    public String getOwnerAvatarUrl() {
+    public String getOwnerAvatar() {
         return (String) get(6);
     }
 
@@ -328,7 +328,7 @@ public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> im
      */
     @Override
     public Field<String> field7() {
-        return TVipChannel.T_VIP_CHANNEL.OWNER_AVATAR_URL;
+        return TVipChannel.T_VIP_CHANNEL.OWNER_AVATAR;
     }
 
     /**
@@ -440,7 +440,7 @@ public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> im
      */
     @Override
     public String value7() {
-        return getOwnerAvatarUrl();
+        return getOwnerAvatar();
     }
 
     /**
@@ -558,7 +558,7 @@ public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> im
      */
     @Override
     public TVipChannelRecord value7(String value) {
-        setOwnerAvatarUrl(value);
+        setOwnerAvatar(value);
         return this;
     }
 
@@ -661,7 +661,7 @@ public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> im
     /**
      * Create a detached, initialised TVipChannelRecord
      */
-    public TVipChannelRecord(UInteger id, Integer expressFee, Integer payFee, Integer status, Integer stock, String ownerName, String ownerAvatarUrl, String giftTxt, UInteger itemId, UInteger merchantId, Timestamp createAt, Timestamp updateAt, Timestamp expiredTime, Timestamp startTime) {
+    public TVipChannelRecord(UInteger id, Integer expressFee, Integer payFee, Integer status, Integer stock, String ownerName, String ownerAvatar, String giftTxt, UInteger itemId, UInteger merchantId, Timestamp createAt, Timestamp updateAt, Timestamp expiredTime, Timestamp startTime) {
         super(TVipChannel.T_VIP_CHANNEL);
 
         set(0, id);
@@ -670,7 +670,7 @@ public class TVipChannelRecord extends UpdatableRecordImpl<TVipChannelRecord> im
         set(3, status);
         set(4, stock);
         set(5, ownerName);
-        set(6, ownerAvatarUrl);
+        set(6, ownerAvatar);
         set(7, giftTxt);
         set(8, itemId);
         set(9, merchantId);

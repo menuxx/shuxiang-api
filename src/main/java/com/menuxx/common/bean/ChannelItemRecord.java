@@ -14,6 +14,8 @@ public class ChannelItemRecord {
 
     private Date obtainTime;
 
+    private Integer consumeUserId;
+
     public ChannelItemRecord(Integer id, Integer channelId, Integer itemId, Integer obtainUserId, Date obtainTime) {
         this.id = id;
         this.channelId = channelId;
@@ -63,5 +65,13 @@ public class ChannelItemRecord {
 
     public void setObtainTime(Date obtainTime) {
         this.obtainTime = obtainTime;
+    }
+
+    public Integer getConsumeUserId() {
+        return consumeUserId;
+    }
+
+    public void setConsumeUserId(Integer consumeUserId) {
+        this.consumeUserId = consumeUserId;
     }
 }

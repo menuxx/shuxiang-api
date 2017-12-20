@@ -40,8 +40,8 @@ class VipChannelDb(
                 .fetchOne()
 
         if ( channelItemRecord != null ) {
-            val channelItem = channelItemRecord.into(VipChannel::class.java)
-            channelItem.item = channelItemRecord.into(Item::class.java)
+            val channelItem = channelItemRecord.into(tVipChannel).into(VipChannel::class.java)
+            channelItem.item = channelItemRecord.into(tItem).into(Item::class.java)
             return channelItem
         }
 

@@ -25,7 +25,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TVipChannel implements Serializable {
 
-    private static final long serialVersionUID = -1345241151;
+    private static final long serialVersionUID = 838060112;
 
     private final UInteger  id;
     private final Integer   expressFee;
@@ -33,7 +33,7 @@ public class TVipChannel implements Serializable {
     private final Integer   status;
     private final Integer   stock;
     private final String    ownerName;
-    private final String    ownerAvatarUrl;
+    private final String    ownerAvatar;
     private final String    giftTxt;
     private final UInteger  itemId;
     private final UInteger  merchantId;
@@ -49,7 +49,7 @@ public class TVipChannel implements Serializable {
         this.status = value.status;
         this.stock = value.stock;
         this.ownerName = value.ownerName;
-        this.ownerAvatarUrl = value.ownerAvatarUrl;
+        this.ownerAvatar = value.ownerAvatar;
         this.giftTxt = value.giftTxt;
         this.itemId = value.itemId;
         this.merchantId = value.merchantId;
@@ -66,7 +66,7 @@ public class TVipChannel implements Serializable {
         Integer   status,
         Integer   stock,
         String    ownerName,
-        String    ownerAvatarUrl,
+        String    ownerAvatar,
         String    giftTxt,
         UInteger  itemId,
         UInteger  merchantId,
@@ -81,7 +81,7 @@ public class TVipChannel implements Serializable {
         this.status = status;
         this.stock = stock;
         this.ownerName = ownerName;
-        this.ownerAvatarUrl = ownerAvatarUrl;
+        this.ownerAvatar = ownerAvatar;
         this.giftTxt = giftTxt;
         this.itemId = itemId;
         this.merchantId = merchantId;
@@ -115,8 +115,8 @@ public class TVipChannel implements Serializable {
         return this.ownerName;
     }
 
-    public String getOwnerAvatarUrl() {
-        return this.ownerAvatarUrl;
+    public String getOwnerAvatar() {
+        return this.ownerAvatar;
     }
 
     public String getGiftTxt() {
@@ -157,7 +157,7 @@ public class TVipChannel implements Serializable {
         sb.append(", ").append(status);
         sb.append(", ").append(stock);
         sb.append(", ").append(ownerName);
-        sb.append(", ").append(ownerAvatarUrl);
+        sb.append(", ").append(ownerAvatar);
         sb.append(", ").append(giftTxt);
         sb.append(", ").append(itemId);
         sb.append(", ").append(merchantId);

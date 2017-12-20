@@ -39,13 +39,6 @@ class RedisConfig {
         return redisTemplate
     }
 
-    @Bean("intRedisTemplate")
-    fun intRedisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Int> {
-        val redisTemplate = RedisTemplate<String, Int>()
-        redisTemplate.connectionFactory = connectionFactory
-        return redisTemplate
-    }
-
     @Bean("objOperations")
     fun objOperations(@Autowired @Qualifier("objRedisTemplate") redisTemplate: RedisTemplate<String, Any>): ValueOperations<String, Any> {
         return redisTemplate.opsForValue()

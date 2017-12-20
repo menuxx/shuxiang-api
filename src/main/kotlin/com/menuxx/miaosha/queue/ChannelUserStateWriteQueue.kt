@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 
 @AllOpen
 class ChannelUserStateWriteQueue(
-        private val intRedisTemplate: RedisTemplate<String, Int>,
+        private val objRedisTemplate: RedisTemplate<String, Any>,
         private val channelItemDb: ChannelItemRecordDb
 ) {
 
@@ -53,15 +53,16 @@ class ChannelUserStateWriteQueue(
     @Transactional
     fun persisState(event: UserObtainItemState, action: Int) {
         // 写入缓存状态
-        intRedisTemplate.opsForValue().set(event.loopRefId, event.confirmState)
+        objRedisTemplate.opsForValue().set(event.loopRefId, event.copy())
         when(action) {
             CommitActionObtain -> {
                 // 设置超时时间
-                intRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
+                objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
                 // 写入数据库状态
                 channelItemDb.itemObtain(event.userId, event.channelItemId)
             }
             CommitActionConsume -> {
+                objRedisTemplate.expire(event.loopRefId, 3600, TimeUnit.SECONDS)
                 // 写入数据库状态
                 channelItemDb.itemConsumed(event.channelItemId)
             }

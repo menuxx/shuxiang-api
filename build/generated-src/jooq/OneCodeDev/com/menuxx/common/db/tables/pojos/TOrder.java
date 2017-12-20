@@ -25,7 +25,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TOrder implements Serializable {
 
-    private static final long serialVersionUID = 1200140499;
+    private static final long serialVersionUID = 84475884;
 
     private final UInteger  id;
     private final UInteger  merchantId;
@@ -41,6 +41,11 @@ public class TOrder implements Serializable {
     private final Integer   status;
     private final Timestamp createAt;
     private final Timestamp updateAt;
+    private final String    receiverPhoneNumber;
+    private final String    receiverName;
+    private final String    receiverAddress;
+    private final String    receiverDetailInfo;
+    private final String    receiverPostalCode;
 
     public TOrder(TOrder value) {
         this.id = value.id;
@@ -57,6 +62,11 @@ public class TOrder implements Serializable {
         this.status = value.status;
         this.createAt = value.createAt;
         this.updateAt = value.updateAt;
+        this.receiverPhoneNumber = value.receiverPhoneNumber;
+        this.receiverName = value.receiverName;
+        this.receiverAddress = value.receiverAddress;
+        this.receiverDetailInfo = value.receiverDetailInfo;
+        this.receiverPostalCode = value.receiverPostalCode;
     }
 
     public TOrder(
@@ -73,7 +83,12 @@ public class TOrder implements Serializable {
         Integer   paid,
         Integer   status,
         Timestamp createAt,
-        Timestamp updateAt
+        Timestamp updateAt,
+        String    receiverPhoneNumber,
+        String    receiverName,
+        String    receiverAddress,
+        String    receiverDetailInfo,
+        String    receiverPostalCode
     ) {
         this.id = id;
         this.merchantId = merchantId;
@@ -89,6 +104,11 @@ public class TOrder implements Serializable {
         this.status = status;
         this.createAt = createAt;
         this.updateAt = updateAt;
+        this.receiverPhoneNumber = receiverPhoneNumber;
+        this.receiverName = receiverName;
+        this.receiverAddress = receiverAddress;
+        this.receiverDetailInfo = receiverDetailInfo;
+        this.receiverPostalCode = receiverPostalCode;
     }
 
     public UInteger getId() {
@@ -147,6 +167,26 @@ public class TOrder implements Serializable {
         return this.updateAt;
     }
 
+    public String getReceiverPhoneNumber() {
+        return this.receiverPhoneNumber;
+    }
+
+    public String getReceiverName() {
+        return this.receiverName;
+    }
+
+    public String getReceiverAddress() {
+        return this.receiverAddress;
+    }
+
+    public String getReceiverDetailInfo() {
+        return this.receiverDetailInfo;
+    }
+
+    public String getReceiverPostalCode() {
+        return this.receiverPostalCode;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("TOrder (");
@@ -165,6 +205,11 @@ public class TOrder implements Serializable {
         sb.append(", ").append(status);
         sb.append(", ").append(createAt);
         sb.append(", ").append(updateAt);
+        sb.append(", ").append(receiverPhoneNumber);
+        sb.append(", ").append(receiverName);
+        sb.append(", ").append(receiverAddress);
+        sb.append(", ").append(receiverDetailInfo);
+        sb.append(", ").append(receiverPostalCode);
 
         sb.append(")");
         return sb.toString();

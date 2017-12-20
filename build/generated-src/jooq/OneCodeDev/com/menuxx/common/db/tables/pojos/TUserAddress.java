@@ -25,16 +25,15 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TUserAddress implements Serializable {
 
-    private static final long serialVersionUID = -267180059;
+    private static final long serialVersionUID = -1066716321;
 
     private final UInteger  id;
     private final UInteger  userId;
-    private final Integer   defaultApply;
     private final String    city;
     private final String    country;
     private final String    province;
     private final String    detailInfo;
-    private final String    telNumber;
+    private final String    phoneNumber;
     private final String    postalCode;
     private final String    receiverName;
     private final Integer   primary;
@@ -45,12 +44,11 @@ public class TUserAddress implements Serializable {
     public TUserAddress(TUserAddress value) {
         this.id = value.id;
         this.userId = value.userId;
-        this.defaultApply = value.defaultApply;
         this.city = value.city;
         this.country = value.country;
         this.province = value.province;
         this.detailInfo = value.detailInfo;
-        this.telNumber = value.telNumber;
+        this.phoneNumber = value.phoneNumber;
         this.postalCode = value.postalCode;
         this.receiverName = value.receiverName;
         this.primary = value.primary;
@@ -62,12 +60,11 @@ public class TUserAddress implements Serializable {
     public TUserAddress(
         UInteger  id,
         UInteger  userId,
-        Integer   defaultApply,
         String    city,
         String    country,
         String    province,
         String    detailInfo,
-        String    telNumber,
+        String    phoneNumber,
         String    postalCode,
         String    receiverName,
         Integer   primary,
@@ -77,12 +74,11 @@ public class TUserAddress implements Serializable {
     ) {
         this.id = id;
         this.userId = userId;
-        this.defaultApply = defaultApply;
         this.city = city;
         this.country = country;
         this.province = province;
         this.detailInfo = detailInfo;
-        this.telNumber = telNumber;
+        this.phoneNumber = phoneNumber;
         this.postalCode = postalCode;
         this.receiverName = receiverName;
         this.primary = primary;
@@ -97,10 +93,6 @@ public class TUserAddress implements Serializable {
 
     public UInteger getUserId() {
         return this.userId;
-    }
-
-    public Integer getDefaultApply() {
-        return this.defaultApply;
     }
 
     public String getCity() {
@@ -119,8 +111,8 @@ public class TUserAddress implements Serializable {
         return this.detailInfo;
     }
 
-    public String getTelNumber() {
-        return this.telNumber;
+    public String getPhoneNumber() {
+        return this.phoneNumber;
     }
 
     public String getPostalCode() {
@@ -153,12 +145,11 @@ public class TUserAddress implements Serializable {
 
         sb.append(id);
         sb.append(", ").append(userId);
-        sb.append(", ").append(defaultApply);
         sb.append(", ").append(city);
         sb.append(", ").append(country);
         sb.append(", ").append(province);
         sb.append(", ").append(detailInfo);
-        sb.append(", ").append(telNumber);
+        sb.append(", ").append(phoneNumber);
         sb.append(", ").append(postalCode);
         sb.append(", ").append(receiverName);
         sb.append(", ").append(primary);

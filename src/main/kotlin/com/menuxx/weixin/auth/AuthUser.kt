@@ -15,7 +15,7 @@ class AGrantedAuthority(private val authorize: String) : GrantedAuthority {
     }
 }
 
-class AUser(
+class AuthUser(
         val id: Int,
         val userName: String,
         val nickName: String,

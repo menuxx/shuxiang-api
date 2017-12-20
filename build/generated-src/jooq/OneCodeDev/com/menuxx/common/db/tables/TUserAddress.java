@@ -37,7 +37,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class TUserAddress extends TableImpl<TUserAddressRecord> {
 
-    private static final long serialVersionUID = -908715913;
+    private static final long serialVersionUID = -1190072393;
 
     /**
      * The reference instance of <code>onecode.t_user_address</code>
@@ -63,11 +63,6 @@ public class TUserAddress extends TableImpl<TUserAddressRecord> {
     public final TableField<TUserAddressRecord, UInteger> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED, this, "关联用户id");
 
     /**
-     * The column <code>onecode.t_user_address.default_apply</code>. 默认使用
-     */
-    public final TableField<TUserAddressRecord, Integer> DEFAULT_APPLY = createField("default_apply", org.jooq.impl.SQLDataType.INTEGER, this, "默认使用");
-
-    /**
      * The column <code>onecode.t_user_address.city</code>. 城市
      */
     public final TableField<TUserAddressRecord, String> CITY = createField("city", org.jooq.impl.SQLDataType.VARCHAR.length(50).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "城市");
@@ -88,9 +83,9 @@ public class TUserAddress extends TableImpl<TUserAddressRecord> {
     public final TableField<TUserAddressRecord, String> DETAIL_INFO = createField("detail_info", org.jooq.impl.SQLDataType.VARCHAR.length(200).nullable(false).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "详细收货地址信息");
 
     /**
-     * The column <code>onecode.t_user_address.tel_number</code>. 联系电话
+     * The column <code>onecode.t_user_address.phone_number</code>. 联系电话
      */
-    public final TableField<TUserAddressRecord, String> TEL_NUMBER = createField("tel_number", org.jooq.impl.SQLDataType.VARCHAR.length(16).nullable(false).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "联系电话");
+    public final TableField<TUserAddressRecord, String> PHONE_NUMBER = createField("phone_number", org.jooq.impl.SQLDataType.VARCHAR.length(16).nullable(false).defaultValue(org.jooq.impl.DSL.inline("", org.jooq.impl.SQLDataType.VARCHAR)), this, "联系电话");
 
     /**
      * The column <code>onecode.t_user_address.postal_code</code>. 邮编
@@ -108,9 +103,9 @@ public class TUserAddress extends TableImpl<TUserAddressRecord> {
     public final TableField<TUserAddressRecord, Integer> PRIMARY = createField("primary", org.jooq.impl.SQLDataType.INTEGER, this, "首选地址标注");
 
     /**
-     * The column <code>onecode.t_user_address.status</code>. 0 已删除
+     * The column <code>onecode.t_user_address.status</code>. -1 已删除
      */
-    public final TableField<TUserAddressRecord, Integer> STATUS = createField("status", org.jooq.impl.SQLDataType.INTEGER, this, "0 已删除");
+    public final TableField<TUserAddressRecord, Integer> STATUS = createField("status", org.jooq.impl.SQLDataType.INTEGER, this, "-1 已删除");
 
     /**
      * The column <code>onecode.t_user_address.create_at</code>.
