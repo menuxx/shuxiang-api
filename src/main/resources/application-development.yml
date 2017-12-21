@@ -5,5 +5,6 @@ auth-token:
 logging:
   level:
     com.menuxx: INFO
-    org.springframework: ERROR
+    com.aliyun: DEBUG
+    org.springframework: DEBUG
     org.jooq: DEBUG

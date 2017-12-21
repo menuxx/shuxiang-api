@@ -33,11 +33,11 @@ class MiaoShaMQConfigure(
      * 1。支付的回调 队列监听器中会发送消息（需要支付的情况下）
      * 2。不需要支付的情况下，会在控制其中直接发送消费一个持有的请求
      */
-    @Bean(name = ["channelItemConsumeProducer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
-    fun channelItemConsumeProducer() : ProducerBean {
+    @Bean(name = ["obtainConsumeProducer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
+    fun obtainConsumeProducer() : ProducerBean {
         val producerBean = ProducerBean()
         val props = Properties()
-        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.shardingOrderProducerId)
+        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.consumeObtainProducerId)
         props.setProperty(PropertyKeyConst.AccessKey, aliyunProps.ons.accessKeyId)
         props.setProperty(PropertyKeyConst.SecretKey, aliyunProps.ons.accessKeySecret)
         producerBean.properties = props
@@ -49,11 +49,11 @@ class MiaoShaMQConfigure(
      * 将所有 抢购用户 的信息推送到 消息队列
      * 消费 支付免支付，抢购的消费者
      */
-    @Bean(name = ["channelItemConsumeConsumer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
-    fun channelItemConsumeConsumer() : ConsumerBean {
+    @Bean(name = ["obtainConsumeConsumer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
+    fun obtainConsumeConsumer() : ConsumerBean {
         val consumerBean = ConsumerBean()
         val props = Properties()
-        props.setProperty(PropertyKeyConst.ConsumerId, aliyunProps.ons.shardingOrderConsumerId)
+        props.setProperty(PropertyKeyConst.ConsumerId, aliyunProps.ons.consumeObtainConsumerId)
         props.setProperty(PropertyKeyConst.AccessKey, aliyunProps.ons.accessKeyId)
         props.setProperty(PropertyKeyConst.SecretKey, aliyunProps.ons.accessKeySecret)
         // 消费者的 特性在此配置
@@ -70,36 +70,21 @@ class MiaoShaMQConfigure(
      */
     fun registerObtainConsumeListener(subscriptionTable: HashMap<Subscription, MessageListener>) {
         val sub = Subscription()
-        sub.topic = aliyunProps.ons.publicTopic
+        sub.topic = aliyunProps.ons.consumeObtainTopicName
         // 只监来自服务号的消息
         sub.expression = MsgTags.TagObtainConsume
         subscriptionTable.put(sub, obtainConsumeListener)
     }
 
     /**
-     * 渠道状态消息生产者
-     * 负责发布当前渠道的状态，通过mqtt，可实时在新页面上呈现当前渠道的状态
-     */
-    @Bean(name = ["channelStatePublishProducer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
-    fun channelStatePublishProducer() : ProducerBean {
-        val producerBean = ProducerBean()
-        val props = Properties()
-        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.shardingOrderProducerId)
-        props.setProperty(PropertyKeyConst.AccessKey, aliyunProps.ons.accessKeyId)
-        props.setProperty(PropertyKeyConst.SecretKey, aliyunProps.ons.accessKeySecret)
-        producerBean.properties = props
-        return producerBean
-    }
-
-    /**
      * 渠道抢购
      * 将所有 抢购用户 的信息推送到 消息队列
      */
-    @Bean(name = ["channelUserProducer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
-    fun channelUserProducer() : ProducerBean {
+    @Bean(name = ["requestObtainProducer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
+    fun requestObtainProducer() : ProducerBean {
         val producerBean = ProducerBean()
         val props = Properties()
-        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.publicProducerId)
+        props.setProperty(PropertyKeyConst.ProducerId, aliyunProps.ons.obtainItemProducerId)
         props.setProperty(PropertyKeyConst.AccessKey, aliyunProps.ons.accessKeyId)
         props.setProperty(PropertyKeyConst.SecretKey, aliyunProps.ons.accessKeySecret)
         producerBean.properties = props
@@ -109,23 +94,23 @@ class MiaoShaMQConfigure(
     /**
      * 注册请求持有的监听器
      */
-    fun registerRequestObtainListener(listener: RequestObtainListener, subscriptionTable: HashMap<Subscription, MessageListener>) {
+    fun registerRequestObtainListener(subscriptionTable: HashMap<Subscription, MessageListener>) {
         val sub = Subscription()
-        sub.topic = aliyunProps.ons.publicTopic
+        sub.topic = aliyunProps.ons.obtainItemTopicName
         // 只监来自服务号的消息
         sub.expression = MsgTags.TagFromMpRequestObtain
-        subscriptionTable.put(sub, listener)
+        subscriptionTable.put(sub, requestObtainListener)
     }
 
     /**
      * 渠道抢购
      * 将所有 抢购用户 的信息推送到 消息队列
      */
-    @Bean(name = ["channelUserConsumer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
-    fun channelUserConsumer() : ConsumerBean {
+    @Bean(name = ["requestObtainConsumer"], autowire = Autowire.BY_NAME, initMethod = "start", destroyMethod = "shutdown")
+    fun requestObtainConsumer() : ConsumerBean {
         val consumerBean = ConsumerBean()
         val props = Properties()
-        props.setProperty(PropertyKeyConst.ConsumerId, aliyunProps.ons.publicConsumerId)
+        props.setProperty(PropertyKeyConst.ConsumerId, aliyunProps.ons.obtainItemConsumerId)
         props.setProperty(PropertyKeyConst.AccessKey, aliyunProps.ons.accessKeyId)
         props.setProperty(PropertyKeyConst.SecretKey, aliyunProps.ons.accessKeySecret)
         // 消费者的 特性在此配置
@@ -133,7 +118,7 @@ class MiaoShaMQConfigure(
         // 初始化 hashMap
         consumerBean.subscriptionTable = hashMapOf()
         // 注册
-        registerRequestObtainListener(requestObtainListener, consumerBean.subscriptionTable as HashMap<Subscription, MessageListener>)
+        registerRequestObtainListener(consumerBean.subscriptionTable as HashMap<Subscription, MessageListener>)
         return consumerBean
     }
 

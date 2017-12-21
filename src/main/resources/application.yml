@@ -68,16 +68,26 @@ aliyun:
     access-key-id: LTAIJ3GVZZrQhLcZ
     access-key-secret: FBS4lFAG7mq0h4cLikCCmAAoIeaBMF
 
-    # 全局无序 topic
-    public-topic: PublicTopic
-    # 全局无序生产者
-    public-producer-id: PID_public_yth
-    public-consumer-id: CID_public_yth
+    # 支付队列
+    pay-topic-name: Topic_pay_yth
+    pay-producer-id: PID_pay_yth
+    pay-consumer-id: CID_pay_yth
 
-    # 分区有序 topic
-    sharding-order-topic: ShardingOrderTopic
-    sharding-order-producer-id: PID_sharding_order
-    sharding-order-consumer-id: CID_sharding_order
+    # 抢书渠道状态实时监控队列
+    consume-obtain-topic-name: Topic_consume_obtain_yth
+    consume-obtain-producer-id: PID_consume_obtain_yth
+    consume-obtain-consumer-id: CID_consume_obtain_yth
+
+    # 抢书削峰队列
+    obtain-item-topic-name: Topic_obtain_item_yth
+    obtain-item-producer-id: PID_obtain_item_yth
+    obtain-item-consumer-id: CID_obtain_item_yth
+
+    # 发送短信或者邮箱或者的队列
+    # tag : sms 短信, mail 邮件消息
+    sender-topic-name: Sender_topic_yth
+    sender-producer-id: PID_sender_yth
+    sender-consumer-id: CID_sender_yth
 
 weixin:
   mp:
@@ -86,9 +96,9 @@ weixin:
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
   pay:
-    notify-url: http://wxtest.qurenjia.com/weixin_event_handler/pay_notify
-    mch-id: 1486563372
-    pay-secret: 3444F98CD4AB436BBC180085EF4C9S9A
+    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
+    mch-id: 1487141332
+    pay-secret: C63230BFEAAF1915494D2AA123832B34
 
 auth-token:
   secret: ewydjwiefj23fg2y12g7e

@@ -8,12 +8,13 @@ public class Item {
     public Item() {
     }
 
-    public Item(Integer id, Integer merchantId, Integer status, String name, String thumbImgs, String isbn, String press, String authors, String translators, String describe, String shopUrl, Date createAt, Date updateAt) {
+    public Item(Integer id, Integer merchantId, Integer status, String name, String thumbImgs, String coverImage, String isbn, String press, String authors, String translators, String describe, String shopUrl, Date createAt, Date updateAt) {
         this.id = id;
         this.merchantId = merchantId;
         this.status = status;
         this.name = name;
         this.thumbImgs = thumbImgs;
+        this.coverImage = coverImage;
         this.isbn = isbn;
         this.press = press;
         this.authors = authors;
@@ -35,6 +36,8 @@ public class Item {
 
     private String thumbImgs;
 
+    private String coverImage;
+
     @NotNull
     private String isbn;
 
@@ -55,6 +58,14 @@ public class Item {
     private Date createAt;
 
     private Date updateAt;
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
 
     public Integer getId() {
         return id;

@@ -29,7 +29,8 @@ class SmsSenderListener(
     private val logger = LoggerFactory.getLogger(SmsSenderListener::class.java)
 
     override fun consume(message: Message, context: ConsumeContext): Action {
-        return when ( message.tag ) {
+        val nextTag = message.getUserProperties("NextTag")
+        return when ( nextTag ) {
             MsgTags.TagConsumeSuccess -> {
                 // 你成功获得了一本新书{1}，随后我们会寄出到你填写的地址，请保持{2}联系畅通。
                 val msg = objectMapper.readValue(message.body, ConsumeSuccessMsg::class.java)

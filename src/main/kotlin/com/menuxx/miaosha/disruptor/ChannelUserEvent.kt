@@ -21,7 +21,7 @@ enum class ConfirmState(val state: Int) {
 data class ChannelUserEvent(
         var userId: Int,
         var channelId: Int,
-        var loopRefId: String,
+        var loopRefId: String?,
         var confirmState: ConfirmState = ConfirmState.NoObtain,
         var orderId: Int?   // 后期会产生
 )

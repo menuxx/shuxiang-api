@@ -7,11 +7,14 @@ import com.menuxx.common.db.ChannelItemRecordDb
 import com.menuxx.common.db.OrderDb
 import com.menuxx.miaosha.bean.UserObtainItemState
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -20,6 +23,7 @@ import java.util.concurrent.TimeUnit
  */
 
 @AllOpen
+@Component
 class ChannelUserStateWriteQueue(
         private val objRedisTemplate: RedisTemplate<String, Any>,
         private val channelItemDb: ChannelItemRecordDb,
@@ -73,6 +77,7 @@ class ChannelUserStateWriteQueue(
         }
     }
 
+    @PreDestroy
     fun shutdown() {
         obtainConsumerPool.shutdown()
         obtainProductPool.shutdown()
@@ -82,6 +87,7 @@ class ChannelUserStateWriteQueue(
     }
 
     // 初始化队列
+    @PostConstruct
     fun start() {
         // 持有队列消费者
         val obtainConsumer = {

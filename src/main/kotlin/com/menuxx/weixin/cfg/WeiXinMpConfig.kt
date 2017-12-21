@@ -71,7 +71,6 @@ class WeiXinMpConfig(
     @ConditionalOnMissingBean
     fun wxPayService() : WxPayService {
         val payConfig = WxPayConfig()
-        payConfig.appId = wxProps.mp.appId
         // http 5 秒过期
         payConfig.httpConnectionTimeout = 5 * 1000
         payConfig.httpTimeout = 5 * 1000

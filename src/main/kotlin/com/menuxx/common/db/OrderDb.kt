@@ -47,6 +47,13 @@ class OrderDb(
         return newOrder
     }
 
+    fun updateOrderPaid(orderId: Int, paid: Int) : Int {
+        return dsl.update(tOrder)
+                .set(tOrder.PAID, paid)
+                .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
+                .execute()
+    }
+
     fun updateOrderConsumed(orderId: Int, status: Int, queueNum: Int) : Int {
         return dsl.update(tOrder)
                 .set(tOrder.STATUS, Order.CONSUMED)

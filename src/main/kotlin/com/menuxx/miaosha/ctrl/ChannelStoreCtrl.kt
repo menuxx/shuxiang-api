@@ -6,8 +6,8 @@ import com.aliyun.openservices.ons.api.SendCallback
 import com.aliyun.openservices.ons.api.SendResult
 import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest
-import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderResult
 import com.github.binarywang.wxpay.service.WxPayService
 import com.menuxx.*
 import com.menuxx.apiserver.bean.ApiResp
@@ -52,8 +52,8 @@ class ChannelStoreCtrl(
         private val orderChargeDb: OrderChargeDb,
         private val wxPayService: WxPayService,
         private val orderService: ChannelOrderService,
-        @Autowired @Qualifier("channelItemConsumeProducer") private val channelItemConsumeProducer: ProducerBean,
-        @Autowired @Qualifier("channelUserProducer") private val channelUserProducer: ProducerBean,
+        @Autowired @Qualifier("obtainConsumeProducer") private val obtainConsumeProducer: ProducerBean,
+        @Autowired @Qualifier("requestObtainProducer") private val requestObtainProducer: ProducerBean,
         private val objectMapper: ObjectMapper,
         @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
 ) {
@@ -71,6 +71,7 @@ class ChannelStoreCtrl(
         val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: throw NotFoundException("用户状态不能进行该操作[LOOG_LOOP_USER_NOT_EXISTS]")
         // 验证 loopRefId 是否一致，不一致，无法发起轮询
         // 正常请款修改，是正确的
+        logger.debug("loopRefId: UserLoopRefId: ${user.loopRefId}, RequestLoopRefId: $loopRefId")
         return if ( user.loopRefId == loopRefId ) {
             val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
             if ( data != null ) {
@@ -102,7 +103,7 @@ class ChannelStoreCtrl(
      * 由消息队列输入
      */
     data class OrderConsumeRequestData(val addressId: Int)
-    data class OrderConsumeResultData(var wxPayment: WxPayUnifiedOrderResult?, val orderId: Int, val code: Int, val msg: String)
+    data class OrderConsumeResultData(var wxPayment: WxPayMpOrderResult?, val orderId: Int, val code: Int, val msg: String)
     @PutMapping("/{channelId}/consume")
     fun requestConsumeObtain(@PathVariable channelId: Int, @RequestBody @Valid consumeData: OrderConsumeRequestData) : DeferredResult<OrderConsumeResultData> {
         val asyncResult = DeferredResult<OrderConsumeResultData>()
@@ -120,13 +121,10 @@ class ChannelStoreCtrl(
         // 如果不收费，就不拉起微信支付
         if ( order.payAmount == 0 ) {
             // 往消息队列中，确认该订单的完成
-            val msg = Message()
-            msg.topic = aliyunProps.ons.publicTopic
-            msg.tag = MsgTags.TagObtainConsume
-            msg.key = "NoFeeConsume_${order.orderNo}"
-            msg.body = objectMapper.writeValueAsBytes(ObtainConsumedMsg(channelId = channelId, userId = userId, orderId = order.id, loopRefId = null))
+            val msgBody = objectMapper.writeValueAsBytes(ObtainConsumedMsg(channelId = channelId, userId = userId, orderId = order.id, loopRefId = null))
+            val msg = Message(aliyunProps.ons.consumeObtainTopicName, MsgTags.TagObtainConsume, "NoFeeConsume_${order.orderNo}", msgBody)
             // 下单完成发送消息，给 Const.QueueTagTradeObtain 消费者处理
-            channelItemConsumeProducer.sendAsync(msg, object : SendCallback {
+            obtainConsumeProducer.sendAsync(msg, object : SendCallback {
                 override fun onSuccess(sendResult: SendResult) {
                     asyncResult.setResult(OrderConsumeResultData(null, 1, order.id, "下单完成"))
                 }
@@ -142,7 +140,7 @@ class ChannelStoreCtrl(
             }
             val payReq = WxPayUnifiedOrderRequest()
             // 注意该处的 tag 标识
-            payReq.notifyURL = "${wxProps.pay.notifyUrl}?tag=${MsgTags.TagObtainConsume}"
+            payReq.notifyURL = "${wxProps.pay.notifyUrl}/${MsgTags.TagObtainConsume}"
             payReq.outTradeNo = orderCharge.outTradeNo
             payReq.attach = orderCharge.attach
             payReq.body = orderCharge.body
@@ -154,8 +152,8 @@ class ChannelStoreCtrl(
             payReq.spbillCreateIp = InetAddress.getLocalHost().hostAddress
             payReq.nonceStr = orderCharge.nonceStr
             // 需要前端建立的会话数据
-            val prepayResult = wxPayService.unifiedOrder(payReq)
-            asyncResult.setResult(OrderConsumeResultData(wxPayment = prepayResult, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
+            val wxPayment = wxPayService.createOrder<WxPayMpOrderResult>(payReq)
+            asyncResult.setResult(OrderConsumeResultData(wxPayment = wxPayment, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
         }
         return asyncResult
     }
@@ -174,21 +172,18 @@ class ChannelStoreCtrl(
     @GetMapping("/{channelId}/obtain")
     fun requestObtain(@PathVariable channelId: Int) : DeferredResult<TryObtain> {
         val currentUser = getCurrentUser()
-        val msg = Message()
-        msg.topic = aliyunProps.ons.publicTopic
-        msg.tag = MsgTags.TagFromMpRequestObtain // 从服务号抢购
-        msg.key = "RequestObtain_$channelId"    // url
+        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id)
+        // 长轮询引用id, 第二次就是用原来的 id
+        val loopRefId = if ( user == null ) { "$channelId:" + UUID.randomUUID().toString() } else { user.loopRefId!! }
 
-        // 长轮询引用id
-        val loopRefId = "$channelId:" + UUID.randomUUID().toString()
+        val msgBody = objectMapper.writeValueAsBytes(ObtainUserMsg(userId = currentUser.id, channelId = channelId, loopRefId = loopRefId))
 
-        // 消息实体 json 格式
-        msg.body = objectMapper.writeValueAsBytes(ObtainUserMsg(userId = currentUser.id, channelId = channelId, loopRefId = loopRefId))
+        val msg = Message(aliyunProps.ons.obtainItemTopicName, MsgTags.TagFromMpRequestObtain, "RequestObtain_${channelId}_${currentUser.id}", msgBody)
 
         // 已不返回，降低线程池压力
         val asyncResult = DeferredResult<TryObtain>()
         // 消息队列发送持有请求消息
-        channelUserProducer.sendAsync(msg, object : SendCallback {
+        requestObtainProducer.sendAsync(msg, object : SendCallback {
             override fun onSuccess(result: SendResult) {
                 asyncResult.setResult(TryObtain(
                         loopRefId = loopRefId,

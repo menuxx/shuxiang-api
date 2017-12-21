@@ -33,7 +33,7 @@ class RequestObtainListener(
             Action.CommitMessage
         } catch (ex: Exception) {
             logger.error("ProducerDisruptor: ${ex.message}")
-            Action.ReconsumeLater
+            Action.CommitMessage
         }
     }
 

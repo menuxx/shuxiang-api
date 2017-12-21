@@ -7,12 +7,15 @@ import com.aliyun.openservices.ons.api.SendResult
 import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.binarywang.wxpay.service.WxPayService
+import com.google.common.io.ByteStreams
 import com.menuxx.common.prop.AliyunProps
+import com.menuxx.miaosha.queue.MsgTags
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.async.DeferredResult
+import java.nio.charset.Charset
+import javax.servlet.http.HttpServletRequest
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -30,17 +33,16 @@ class WeiXinEventHandlerCtrl(
         private val objectMapper: ObjectMapper
 ) {
 
-    @PostMapping(path = ["/pay_notify"], produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun payNotify(@RequestBody orderNotifyEventOfString: String, @RequestParam("tag") tag: String) : DeferredResult<String> {
-        val result = wxPayService.parseOrderNotifyResult(orderNotifyEventOfString)
-        val msg = Message()
-        msg.topic = aliyunProps.ons.publicTopic
-        msg.tag = tag
-        msg.key = "WeiXinOrderPay_${result.outTradeNo}"
-        msg.body = objectMapper.writeValueAsBytes(result)
+    @PostMapping("/pay_notify/{tag}")
+    fun payNotify(request: HttpServletRequest, @PathVariable tag: String) : DeferredResult<String> {
+        val notifyBody = String(ByteStreams.toByteArray(request.inputStream), Charset.forName("UTF-8"))
+        val result = wxPayService.parseOrderNotifyResult(notifyBody)
+        val msgBody = objectMapper.writeValueAsBytes(result)
+        val msg = Message(aliyunProps.ons.payTopicName, MsgTags.TagTradeOrder, "WeiXinOrderPay_${result.outTradeNo}", msgBody)
+        msg.putUserProperties("NextTag", tag)
         val asyncResult = DeferredResult<String>()
         wxPayMsgProducer.sendAsync(msg, object : SendCallback {
-            override fun onSuccess(sendResult: SendResult?) {
+            override fun onSuccess(sendResult: SendResult) {
                 asyncResult.setResult("SUCCESS")
             }
             override fun onException(context: OnExceptionContext) {

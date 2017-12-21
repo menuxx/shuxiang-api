@@ -1,7 +1,5 @@
 package com.menuxx.common.bean;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.menuxx.weixin.util.WXDateDeserializer;
 

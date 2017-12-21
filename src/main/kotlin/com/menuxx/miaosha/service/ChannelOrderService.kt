@@ -36,7 +36,7 @@ class ChannelOrderService(
         charge.body = if (order.orderName.length > 128) { order.orderName.slice(IntRange(0, 123)) + "..." } else { order.orderName }
         charge.tradeType = WxPayConstants.TradeType.JSAPI
         charge.deviceInfo = "WechatMpWeb"
-        charge.attach = "channelId=${order.channelId}&userId=${order.userId}"
+        charge.attach = "channelId=${order.channelId}&userId=${order.userId}&orderId=${order.id}"
         // 生成订单编号 32 位
         charge.outTradeNo = genChannelOrderNo(userId = order.userId, channelId = order.channelId)
         // 生成随机按号 32 位
@@ -67,7 +67,7 @@ class ChannelOrderService(
         order.count = 1
         order.userId = userId
         order.merchantId = channel.merchantId
-        order.orderName = "${channel.ownerName}赠于${user.userName}"
+        order.orderName = "${channel.ownerName}赠于${user.userName}${channel.item.name}"
         order.orderNo = genChannelOrderNo(userId, channelId)
         order.payAmount = totalFee
         order.totalAmount = totalFee

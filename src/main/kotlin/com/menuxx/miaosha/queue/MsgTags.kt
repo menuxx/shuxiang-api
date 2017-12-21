@@ -12,9 +12,11 @@ object MsgTags {
 
     const val TagObtainConsume = "ChannelItem_ObtainConsume"
 
-    const val TagTradeObtain = "TradeObtain"
+    const val TagTradeOrder = "TradeOrder"
 
-    const val TagCaptchaSms = "SMS_CaptchaSms"
+    const val TagSmsSender = "Sender"
+
+    const val TagCaptchaSms = "SMS_Captcha"
 
     const val TagConsumeSuccess = "SMS_ConsumeSuccess"
 

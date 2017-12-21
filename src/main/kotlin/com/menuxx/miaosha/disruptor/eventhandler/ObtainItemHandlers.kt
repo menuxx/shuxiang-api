@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
 /**
@@ -25,12 +26,13 @@ import java.util.concurrent.TimeUnit
  * 创建于: 2017/12/8
  * 微信: yin80871901
  */
+@Component
 class ChannelUserEventPostObtainHandler(
         private val aliyunProps: AliyunProps,
         private val orderDb: OrderDb,
         private val objectMapper: ObjectMapper,
         private val objRedisTemplate: RedisTemplate<String, Any>,
-        private val publicProducer: ProducerBean
+        @Autowired @Qualifier("senderProducer") private val senderProducer: ProducerBean
         ) : EventHandler<ChannelUserEvent> {
 
     private val logger = LoggerFactory.getLogger(ChannelUserEventPostObtainHandler::class.java)
@@ -38,14 +40,11 @@ class ChannelUserEventPostObtainHandler(
     /**
      * 发送订单消费提醒
      */
-    fun sendConsumedSmsMsg(orderId: Int) {
+    private fun sendConsumedSmsMsg(orderId: Int) {
         val order = orderDb.getOrderDetail(orderId)!!
-        val sendSmsMsg = Message()
-        sendSmsMsg.topic = aliyunProps.ons.publicTopic
-        sendSmsMsg.body = objectMapper.writeValueAsBytes(ConsumeSuccessMsg(mobile = order.receiverPhoneNumber, itemName = order.vipChannel.item.name, receiverPhoneNumber = order.receiverPhoneNumber))
-        sendSmsMsg.key = "ObtainConsumedMsg_${order.orderNo}"
-        sendSmsMsg.tag = MsgTags.TagConsumeSuccess
-        publicProducer.sendOneway(sendSmsMsg)
+        val msgBody = objectMapper.writeValueAsBytes(ConsumeSuccessMsg(mobile = order.receiverPhoneNumber, itemName = order.vipChannel.item.name, receiverPhoneNumber = order.receiverPhoneNumber))
+        val sendSmsMsg = Message(aliyunProps.ons.senderTopicName, MsgTags.TagConsumeSuccess, "ObtainConsumedMsg_${order.orderNo}", msgBody)
+        senderProducer.sendOneway(sendSmsMsg)
     }
 
     override fun onEvent(event: ChannelUserEvent, sequence: Long, endOfBatch: Boolean) {
@@ -67,7 +66,7 @@ class ChannelUserEventPostObtainHandler(
             ConfirmState.Finish -> {
                 logger.info("Finish, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
-                        loopRefId = event.loopRefId,
+                        loopRefId = event.loopRefId!!,
                         userId = event.userId,
                         channelItemId = event.channelId,
                         confirmState = ConfirmState.Finish.state,
@@ -80,7 +79,7 @@ class ChannelUserEventPostObtainHandler(
             ConfirmState.FreeObtain -> {
                 logger.info("FreeObtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
-                        loopRefId = event.loopRefId,
+                        loopRefId = event.loopRefId!!,
                         userId = event.userId,
                         channelItemId = event.channelId,
                         confirmState = ConfirmState.FreeObtain.state,
@@ -93,7 +92,7 @@ class ChannelUserEventPostObtainHandler(
             ConfirmState.ObtainConsumeAgain -> {
                 logger.warn("ObtainConsumeAgain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
-                        loopRefId = event.loopRefId,
+                        loopRefId = event.loopRefId!!,
                         userId = event.userId,
                         channelItemId = event.channelId,
                         confirmState = ConfirmState.ObtainConsumeAgain.state,
@@ -117,10 +116,13 @@ class ChannelUserEventPostObtainHandler(
 /**
  * 通过 channelItemStore 在内存中完成单线程资源抢占
  */
+@Component
 class ChannelUserEventHandler(
         private val userStateWriteQueue: ChannelUserStateWriteQueue
 )
     : EventHandler<ChannelUserEvent> {
+
+    private final val logger = LoggerFactory.getLogger(ChannelUserEventHandler::class.java)
 
     /**
      * 维护用户状态
@@ -144,6 +146,11 @@ class ChannelUserEventHandler(
         // 用户没有来过
         val sessionUser = channelGroup.getAndInsertUser(userId, event.copy())
 
+        // 当 loopRefId 不存在的时候 只有第一次必须有 (获得obtain的时候)
+        event.loopRefId = event.loopRefId ?: sessionUser.loopRefId
+
+        logger.debug("event: loopRefId: ${event.loopRefId}, userId: $userId, channelId: $channelId; sessionUser.confirmState: ${sessionUser.confirmState}")
+
         // 该出不能外空，否则，加载模块 有 bug
         val channelStore = ChannelItemStore.getChannelStore(channelId)!!
 
@@ -157,7 +164,7 @@ class ChannelUserEventHandler(
                 if (channelItem != null) {
                     // 提交到 状态持久化 队列
                     userStateWriteQueue.commitObtainState(UserObtainItemState(
-                            loopRefId = event.loopRefId,
+                            loopRefId = event.loopRefId!!,
                             userId = event.userId,
                             channelItemId = channelItem.id,
                             confirmState = ConfirmState.Obtain.state,
@@ -185,7 +192,7 @@ class ChannelUserEventHandler(
                     ChannelItemStore.consumeObtainFromChannel(channelId, channelItem.id)
                     // 持久化导数据库
                     userStateWriteQueue.commitConsumeState(UserObtainItemState(
-                            loopRefId = event.loopRefId,
+                            loopRefId = event.loopRefId!!,
                             userId = event.userId,
                             channelItemId = channelItem.id,
                             confirmState = ConfirmState.Obtain.state,
@@ -194,11 +201,13 @@ class ChannelUserEventHandler(
                     ))
                 } else {
                     // 超过保留时间，被其他人抢走了
+                    sessionUser.confirmState = ConfirmState.FreeObtain
                     event.confirmState = ConfirmState.FreeObtain
                 }
             }
             ConfirmState.ObtainConsumed -> {
                 // 已消费，通知不能重复消费
+                sessionUser.confirmState = ConfirmState.ObtainConsumeAgain
                 event.confirmState = ConfirmState.ObtainConsumeAgain
             }
             else -> {
