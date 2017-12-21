@@ -10,6 +10,7 @@ import com.menuxx.common.db.tables.TVipChannel
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -17,27 +18,62 @@ import org.springframework.stereotype.Service
  * 微信: yin80871901
  */
 @Service
-class OrderDb(private val dsl: DSLContext) {
+class OrderDb(
+        private val dsl: DSLContext,
+        private val orderItemDb: OrderItemDb
+) {
 
     private final val tOrder = TOrder.T_ORDER
+    private final val tVipChannel = TVipChannel.T_VIP_CHANNEL
+    private final val tItem = TItem.T_ITEM
+
+    fun getUserChannelOrder(userId: Int, channelId: Int) : Order? {
+        val order = dsl.select().from(tOrder)
+                .where(tOrder.USER_ID.eq(UInteger.valueOf(userId)).and(tOrder.CHANNEL_ID.eq(UInteger.valueOf(channelId))))
+                .fetchOne()?.into(Order::class.java)
+        if ( order != null ) {
+            order.items = orderItemDb.findOrderItems(order.id)
+        }
+        return order
+    }
+
+    @Transactional
+    fun insertOrder(order: Order) : Order {
+        val newOrder = dsl.insertInto(tOrder).set(dsl.newRecord(tOrder, order)).returning().fetchOne().into(Order::class.java)
+        newOrder.items = order.items.map {
+            it.orderId = newOrder.id
+            orderItemDb.insertOrderItem(it)
+        }
+        return newOrder
+    }
+
+    fun updateOrderConsumed(orderId: Int, status: Int, queueNum: Int) : Int {
+        return dsl.update(tOrder)
+                .set(tOrder.STATUS, Order.CONSUMED)
+                .set(tOrder.QUEUE_NUM, queueNum)
+                .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
+                .execute()
+    }
+
+    fun getOrderById(orderId: Int) : Order? {
+        return dsl.select().from(tOrder).where(tOrder.ID.eq(UInteger.valueOf(orderId)))?.fetchOne()?.into(Order::class.java)
+    }
 
     /**
      * 获取订单详情，包括订单渠道，订单商品
      */
-    fun getOrderDetail(orderId: Int) : Order {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
-        val tItem = TItem.T_ITEM
-        return dsl.select()
+    fun getOrderDetail(orderId: Int) : Order? {
+        val record = dsl.select()
                 .from(tOrder)
                 .leftJoin(tVipChannel).on(tOrder.CHANNEL_ID.eq(tVipChannel.ID))
                 .leftJoin(tItem).on(tItem.ID.eq(tVipChannel.ITEM_ID))
                 .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
-                .fetchOne().let {
-                    val order = it.into(Order::class.java)
-                    order.vipChannel = it.into(VipChannel::class.java)
-                    order.vipChannel.item = it.into(Item::class.java)
-                    order
-                }
+                .fetchOne()
+
+        val order = record?.into(tOrder)?.into(Order::class.java)
+        order?.vipChannel = record?.into(tVipChannel)?.into(VipChannel::class.java)
+        order?.vipChannel?.item = record?.into(tItem)?.into(Item::class.java)
+        return order
     }
 
     /**
@@ -46,8 +82,6 @@ class OrderDb(private val dsl: DSLContext) {
      * 支持分页
      */
     fun loadOrders(creatorId: Int, channelId: Int?, page: PageParam) : List<Order> {
-        val tVipChannel = TVipChannel.T_VIP_CHANNEL
-        val tItem = TItem.T_ITEM
         // where 条件
         val condition = if (channelId != null) {
             // 筛选 商户
@@ -67,9 +101,9 @@ class OrderDb(private val dsl: DSLContext) {
                 .limit(page.getLimit())
                 .offset(page.getOffset())
                 .fetchArray().map {
-                    val order = it.into(Order::class.java)
-                    order.vipChannel = it.into(VipChannel::class.java)
-                    order.vipChannel.item = it.into(Item::class.java)
+                    val order = it.into(tOrder).into(Order::class.java)
+                    // order.vipChannel = it.into(VipChannel::class.java)
+                    // order.vipChannel.item = it.into(Item::class.java)
                     order
                 }
     }

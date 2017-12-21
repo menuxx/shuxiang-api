@@ -1,3 +1,4 @@
+import com.menuxx.genRandomString
 import org.junit.Test
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
@@ -10,6 +11,13 @@ import java.nio.charset.Charset
 
 
 class BufferTest {
+
+    @Test
+    fun test2() {
+        (0..100).map {
+            println(genRandomString(it))
+        }
+    }
 
     @Test
     fun test1() {

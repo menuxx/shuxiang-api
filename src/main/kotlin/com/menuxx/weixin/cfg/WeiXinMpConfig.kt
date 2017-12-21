@@ -1,5 +1,7 @@
 package com.menuxx.weixin.cfg
 
+import com.github.binarywang.wxpay.config.WxPayConfig
+import com.github.binarywang.wxpay.service.WxPayService
 import com.menuxx.weixin.prop.WeiXinProps
 import me.chanjar.weixin.mp.api.WxMpConfigStorage
 import me.chanjar.weixin.mp.api.WxMpInRedisConfigStorage
@@ -24,7 +26,7 @@ import java.net.URI
 @ConditionalOnClass(WxMpService::class)
 @EnableConfigurationProperties(WeiXinProps::class)
 class WeiXinMpConfig(
-        private val weiXinProps: WeiXinProps,
+        private val wxProps: WeiXinProps,
         private val redisProps: RedisProperties
 ) {
 
@@ -44,10 +46,12 @@ class WeiXinMpConfig(
     @ConditionalOnMissingBean
     fun configStorageProd() : WxMpConfigStorage {
         val configStorage = WxMpInRedisConfigStorage(getRedisPool())
-        configStorage.appId = weiXinProps.appId
-        configStorage.secret = weiXinProps.appSecret
-        configStorage.token = weiXinProps.token
-        configStorage.aesKey = weiXinProps.aesKey
+        configStorage.jsapiTicketExpiresTime = 7200 * 1000
+        configStorage.expiresTime = 7200 * 1000
+        configStorage.appId = wxProps.mp.appId
+        configStorage.secret = wxProps.mp.appSecret
+        configStorage.token = wxProps.mp.token
+        configStorage.aesKey = wxProps.mp.aesKey
         return configStorage
     }
 
@@ -58,6 +62,26 @@ class WeiXinMpConfig(
         val wxMpService = me.chanjar.weixin.mp.api.impl.WxMpServiceImpl()
         wxMpService.wxMpConfigStorage = configStorage
         return wxMpService
+    }
+
+    /**
+     * 初始化微信支付服务
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    fun wxPayService() : WxPayService {
+        val payConfig = WxPayConfig()
+        payConfig.appId = wxProps.mp.appId
+        // http 5 秒过期
+        payConfig.httpConnectionTimeout = 5 * 1000
+        payConfig.httpTimeout = 5 * 1000
+        // 支付账户必要信息
+        payConfig.mchId = wxProps.pay.mchId
+        payConfig.mchKey = wxProps.pay.paySecret
+        payConfig.appId = wxProps.mp.appId
+        val wxPayService = com.github.binarywang.wxpay.service.impl.WxPayServiceImpl()
+        wxPayService.config = payConfig
+        return wxPayService
     }
 
 }

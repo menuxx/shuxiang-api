@@ -14,6 +14,7 @@ class ChannelUserEventTranslator : EventTranslatorOneArg<ChannelUserEvent, ByteB
     override fun translateTo(event: ChannelUserEvent, sequence: Long, byteBuffer: ByteBuffer) {
         event.userId = byteBuffer.int
         event.channelId = byteBuffer.int
+        event.orderId = byteBuffer.int
         event.loopRefId = Charset.forName("UTF-8").decode(byteBuffer).toString()
     }
 }

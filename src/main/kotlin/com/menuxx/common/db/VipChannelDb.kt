@@ -52,8 +52,8 @@ class VipChannelDb(
         return dsl.select().from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
                 .offset(page.getOffset()).limit(page.getLimit()).fetchArray().map {
-            val channel = it.into(VipChannel::class.java)
-            val item = it.into(Item::class.java)
+            val channel = it.into(tVipChannel).into(VipChannel::class.java)
+            val item = it.into(tItem).into(Item::class.java)
             channel.item = item
             channel
         }
@@ -113,9 +113,7 @@ class VipChannelDb(
                     channelId = item.channelId,
                     itemId = item.itemId,
                     obtainUserId = item.obtainUserId,
-                    obtainTime = item.obtainTime?.toInstant(),
-                    preConsumeToken = null,
-                    consumeToken = null
+                    obtainTime = item.obtainTime?.toInstant()
             )
         }
         if (itemWithIds.size == channel.stock) {

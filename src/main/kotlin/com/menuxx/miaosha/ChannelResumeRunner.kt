@@ -32,9 +32,7 @@ class ChannelResumeRunner(
                         channelId = item.channelId,
                         itemId = item.itemId,
                         obtainUserId = item.obtainUserId,
-                        obtainTime = item.obtainTime?.toInstant(),
-                        preConsumeToken = null,
-                        consumeToken = null
+                        obtainTime = item.obtainTime?.toInstant()
                 )
             })
         }

@@ -1,13 +1,8 @@
 package com.menuxx
 
-import com.menuxx.common.db.ChannelItemRecordDb
-import com.menuxx.miaosha.ChannelResumeRunner
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.cache.annotation.EnableCaching
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
@@ -21,15 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 )
 @ComponentScan
 @EnableTransactionManagement
-class Application {
-
-    @Bean
-    @Autowired
-    fun launch(channelItemRecordDb: ChannelItemRecordDb): CommandLineRunner {
-        return ChannelResumeRunner(channelItemRecordDb)
-    }
-
-}
+class Application
 
 fun main(args: Array<String>) {
     SpringApplication.run(Application::class.java, *args)

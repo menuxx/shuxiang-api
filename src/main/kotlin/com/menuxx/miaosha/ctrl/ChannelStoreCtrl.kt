@@ -6,25 +6,33 @@ import com.aliyun.openservices.ons.api.SendCallback
 import com.aliyun.openservices.ons.api.SendResult
 import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.menuxx.AllOpen
-import com.menuxx.Const
+import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest
+import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderResult
+import com.github.binarywang.wxpay.service.WxPayService
+import com.menuxx.*
 import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.common.db.OrderChargeDb
+import com.menuxx.common.db.OrderDb
 import com.menuxx.common.db.VipChannelDb
 import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
+import com.menuxx.miaosha.queue.MsgTags
+import com.menuxx.miaosha.queue.msg.ObtainConsumedMsg
 import com.menuxx.miaosha.queue.msg.ObtainUserMsg
+import com.menuxx.miaosha.service.ChannelOrderService
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
-import com.menuxx.weixin.auth.AuthUser
+import com.menuxx.weixin.prop.WeiXinProps
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.ValueOperations
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.async.DeferredResult
+import java.net.InetAddress
 import java.util.*
+import javax.validation.Valid
 import kotlin.collections.LinkedHashMap
 
 /**
@@ -38,7 +46,13 @@ import kotlin.collections.LinkedHashMap
 @RequestMapping("/channel_store")
 class ChannelStoreCtrl(
         private val aliyunProps: AliyunProps,
+        private val wxProps: WeiXinProps,
         private val channelDb: VipChannelDb,
+        private val orderDb: OrderDb,
+        private val orderChargeDb: OrderChargeDb,
+        private val wxPayService: WxPayService,
+        private val orderService: ChannelOrderService,
+        @Autowired @Qualifier("channelItemConsumeProducer") private val channelItemConsumeProducer: ProducerBean,
         @Autowired @Qualifier("channelUserProducer") private val channelUserProducer: ProducerBean,
         private val objectMapper: ObjectMapper,
         @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
@@ -53,7 +67,7 @@ class ChannelStoreCtrl(
     data class LoopResult(val stateCode: Int, val msg: String)
     @GetMapping("/{channelId}/long_loop_state")
     fun longLoopState(@PathVariable channelId: Int, @RequestParam loopRefId: String) : LoopResult {
-        val currentUser = SecurityContextHolder.getContext().authentication.principal as AuthUser
+        val currentUser = getCurrentUser()
         val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: throw NotFoundException("用户状态不能进行该操作[LOOG_LOOP_USER_NOT_EXISTS]")
         // 验证 loopRefId 是否一致，不一致，无法发起轮询
         // 正常请款修改，是正确的
@@ -87,10 +101,65 @@ class ChannelStoreCtrl(
      * 消费持有，一般伴随支付，为了让支付更可靠，引入消息队列机制，消费成功后，通知 message handler 消费持有
      * 由消息队列输入
      */
-    @PutMapping("/aaa/aa")
-    fun requestConsumeObtain() {
-        val currentUser = SecurityContextHolder.getContext().authentication.principal as AuthUser
+    data class OrderConsumeRequestData(val addressId: Int)
+    data class OrderConsumeResultData(var wxPayment: WxPayUnifiedOrderResult?, val orderId: Int, val code: Int, val msg: String)
+    @PutMapping("/{channelId}/consume")
+    fun requestConsumeObtain(@PathVariable channelId: Int, @RequestBody @Valid consumeData: OrderConsumeRequestData) : DeferredResult<OrderConsumeResultData> {
+        val asyncResult = DeferredResult<OrderConsumeResultData>()
+        val currentUser = getCurrentUser()
+        // 找到该用户在渠道中的持有
+        val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("还没有抢到，没有什么需要支付")
+        val userId = channelItem.obtainUserId!!
+
+        var order = orderDb.getUserChannelOrder(userId, channelId)
+        if ( order == null ) {
+            val newOrder = orderService.createChannelOrder(channelId, userId, consumeData.addressId)
+            order = orderDb.insertOrder(newOrder)
+        }
+
+        // 如果不收费，就不拉起微信支付
+        if ( order.payAmount == 0 ) {
+            // 往消息队列中，确认该订单的完成
+            val msg = Message()
+            msg.topic = aliyunProps.ons.publicTopic
+            msg.tag = MsgTags.TagObtainConsume
+            msg.key = "NoFeeConsume_${order.orderNo}"
+            msg.body = objectMapper.writeValueAsBytes(ObtainConsumedMsg(channelId = channelId, userId = userId, orderId = order.id, loopRefId = null))
+            // 下单完成发送消息，给 Const.QueueTagTradeObtain 消费者处理
+            channelItemConsumeProducer.sendAsync(msg, object : SendCallback {
+                override fun onSuccess(sendResult: SendResult) {
+                    asyncResult.setResult(OrderConsumeResultData(null, 1, order.id, "下单完成"))
+                }
+                override fun onException(context: OnExceptionContext) {
+                    asyncResult.setErrorResult(context.exception)
+                }
+            })
+        } else {
+            var orderCharge = orderChargeDb.findChargeRecordByOutTradeNo(order.orderNo)
+            if ( orderCharge == null ) {
+                val dbOrderCharge = orderService.createChannelOrderCharge(order, currentUser.openid)
+                orderCharge = orderChargeDb.insertChargeRecord(dbOrderCharge)
+            }
+            val payReq = WxPayUnifiedOrderRequest()
+            // 注意该处的 tag 标识
+            payReq.notifyURL = "${wxProps.pay.notifyUrl}?tag=${MsgTags.TagObtainConsume}"
+            payReq.outTradeNo = orderCharge.outTradeNo
+            payReq.attach = orderCharge.attach
+            payReq.body = orderCharge.body
+            payReq.openid = orderCharge.openid
+            payReq.totalFee = orderCharge.totalFee
+            payReq.timeExpire = formatWXTime(orderCharge.timeExpire)    // 过期时间
+            payReq.tradeType = orderCharge.tradeType
+            payReq.deviceInfo = orderCharge.deviceInfo
+            payReq.spbillCreateIp = InetAddress.getLocalHost().hostAddress
+            payReq.nonceStr = orderCharge.nonceStr
+            // 需要前端建立的会话数据
+            val prepayResult = wxPayService.unifiedOrder(payReq)
+            asyncResult.setResult(OrderConsumeResultData(wxPayment = prepayResult, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
+        }
+        return asyncResult
     }
+
     /**
      * 请求持有，就是对某个 channel_item 加锁，目前加锁最长时间 Const.MaxObtainSeconds 30 秒
      * 超过加锁时间后，其他用户可以抢
@@ -104,11 +173,11 @@ class ChannelStoreCtrl(
     data class TryObtain(val loopRefId: String?, val messageId: String, val errCode: Int, val errMsg: String?)
     @GetMapping("/{channelId}/obtain")
     fun requestObtain(@PathVariable channelId: Int) : DeferredResult<TryObtain> {
-        val currentUser = SecurityContextHolder.getContext().authentication.principal as AuthUser
+        val currentUser = getCurrentUser()
         val msg = Message()
-        msg.topic = aliyunProps.ons.obtainItemTopicName
-        msg.tag = "FromMp" // 从服务号抢购
-        msg.key = "/channel_store/$channelId/obtain"    // url
+        msg.topic = aliyunProps.ons.publicTopic
+        msg.tag = MsgTags.TagFromMpRequestObtain // 从服务号抢购
+        msg.key = "RequestObtain_$channelId"    // url
 
         // 长轮询引用id
         val loopRefId = "$channelId:" + UUID.randomUUID().toString()

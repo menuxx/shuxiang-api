@@ -2,6 +2,7 @@ package com.menuxx.weixin.prop
 
 import com.menuxx.NoArg
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -10,8 +11,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 
 @NoArg
-@ConfigurationProperties("weixin.mp")
+@ConfigurationProperties("weixin")
 data class WeiXinProps(
+        @NestedConfigurationProperty
+        var mp: WeiXinMpProps,
+        @NestedConfigurationProperty
+        var pay: WeiXinPayProps
+)
+
+@NoArg
+data class WeiXinMpProps(
         /**
          * 设置微信公众号的appid
          */
@@ -28,4 +37,11 @@ data class WeiXinProps(
          * 设置微信公众号的EncodingAESKey
          */
         val aesKey: String
+)
+
+@NoArg
+data class WeiXinPayProps(
+        var mchId: String,
+        var paySecret: String,
+        var notifyUrl: String
 )

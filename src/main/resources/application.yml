@@ -54,7 +54,8 @@ ronglian:
   auth-token: e1de26cde6e24dd28dfedcd81467d1f0
   sms-tpls:
     captcha-id: 198719
-    buy-success-id: 221811
+    consume-success-id: 221811  # 抢购成功通知
+    delivery-success-id: 225360  # 配送通知
 
 qiniu:
   bucket: menuxx
@@ -67,31 +68,16 @@ aliyun:
     access-key-id: LTAIJ3GVZZrQhLcZ
     access-key-secret: FBS4lFAG7mq0h4cLikCCmAAoIeaBMF
 
-    # 支付队列
-    pay-topic-name: Topic_Payed_yth
-    pay-producer-id: PID_Payed_yth
-    pay-consumer-id: CID_Payed_yth
+    # 全局无序 topic
+    public-topic: PublicTopic
+    # 全局无序生产者
+    public-producer-id: PID_public_yth
+    public-consumer-id: CID_public_yth
 
-    # 抢书渠道状态实时监控队列
-    channel-state-topic-name: Topic_channel_state_yth
-    channel-state-producer-id: PID_channel_state_yth
-    channel-state-consumer-id: CID_channel_state_yth
-
-    # 抢书削峰队列
-    obtain-item-topic-name: Topic_obtain_item_yth
-    obtain-item-producer-id: PID_obtain_item_yth
-    obtain-item-consumer-id: CID_obtain_item_yth
-
-    # 发送短信或者邮箱或者的队列
-    # tag : sms 短信, mail 邮件消息
-    sender-topic-name: Sender_topic_yth
-    sender-producer-id: PID_sender_yth
-    sender-consumer-id: CID_sender_yth
-
-    # 微信信消息 的队列
-    wx-msg-topic-name: WXMsg_topic_yth
-    wx-msg-producer-id: PID_wxmsg_yth
-    wx-msg-consumer-id: CID_wxmsg_yth
+    # 分区有序 topic
+    sharding-order-topic: ShardingOrderTopic
+    sharding-order-producer-id: PID_sharding_order
+    sharding-order-consumer-id: CID_sharding_order
 
 weixin:
   mp:
@@ -99,6 +85,10 @@ weixin:
     app-secret: 5882869733213d929bee994933dae42b
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
+  pay:
+    notify-url: http://wxtest.qurenjia.com/weixin_event_handler/pay_notify
+    mch-id: 1486563372
+    pay-secret: 3444F98CD4AB436BBC180085EF4C9S9A
 
 auth-token:
   secret: ewydjwiefj23fg2y12g7e

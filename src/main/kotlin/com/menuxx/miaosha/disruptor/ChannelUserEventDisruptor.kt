@@ -33,7 +33,7 @@ class ChannelUserEventDisruptor(channelUserEventHandler: ChannelUserEventHandler
         val ringBufferSize = 65536
 
         // 时间创建工厂
-        val eventFactory = { ChannelUserEvent(null, null, null, ConfirmState.NoObtain, null) }
+        val eventFactory = { ChannelUserEvent::class.java.newInstance() }
 
         // 线程工厂
         val threadFactory : (runnable: Runnable) -> Thread = { runnable -> Thread(runnable, "Channel-User-Event-Thread(" + threadCounter.incrementAndGet() + ")") }
@@ -50,12 +50,16 @@ class ChannelUserEventDisruptor(channelUserEventHandler: ChannelUserEventHandler
 
     /**
      * 将抢购用户信息推入到高速缓存
+     * loopRefId 在第一次的时候会有 loopRefId
      */
-    fun product(userId: Int, channelId: Int, loopRefId: String) {
+    fun product(userId: Int, channelId: Int, orderId: Int, loopRefId: String?) {
         val byteBuffer = ByteBuffer.allocate(256)
         byteBuffer.putInt(userId)
         byteBuffer.putInt(channelId)
-        byteBuffer.put(ByteBuffer.wrap(loopRefId.toByteArray(Charset.forName("UTF-8"))))
+        byteBuffer.putInt(orderId)
+        if ( loopRefId != null ) {
+            byteBuffer.put(ByteBuffer.wrap(loopRefId.toByteArray(Charset.forName("UTF-8"))))
+        }
         byteBuffer.flip()
         producer.product(byteBuffer)
     }

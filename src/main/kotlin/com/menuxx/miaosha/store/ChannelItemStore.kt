@@ -1,10 +1,10 @@
 package com.menuxx.miaosha.store
 
+import com.menuxx.Const
 import com.menuxx.miaosha.bean.ChannelItem
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -45,20 +45,6 @@ object ChannelItemStore {
         Store.put(channelId, itemStore)
     }
 
-    /**
-     * 给摸个 channelItem 申请一个 消费令牌
-     */
-    fun genItemFreeToken(channelId: Int, channelItemId: Int) : String? {
-        val channelItems = getChannelStore(channelId)?.data
-        return if ( channelItems == null || channelItems[channelItemId] == null) {
-            null
-        } else {
-            val consumeToken = UUID.randomUUID().toString()
-            channelItems[channelItemId]?.preConsumeToken = consumeToken
-            consumeToken
-        }
-    }
-
     fun putChannelItems(channelId: Int, items: List<ChannelItem>) {
         items.forEach { item ->
             putToChannelItems(channelId, item)
@@ -84,7 +70,7 @@ object ChannelItemStore {
     fun searchObtainFromChannel(userId: Int, channelId: Int) : ChannelItem? {
         val channel = getChannelStore(channelId)?.data
         return channel?.search(Math.floor( (channel.size / 2000).toDouble() ).toLong(), { _, v ->
-            if (v.consumeToken != null && v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < 30) {
+            if (v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < 30) {
                 v
             } else {
                 null
@@ -93,10 +79,7 @@ object ChannelItemStore {
     }
 
     fun consumeObtainFromChannel(channelId: Int, itemId: Int) : ChannelItem? {
-        val channel = getChannelStore(channelId)?.data
-        val channelItem = channel?.get(itemId)
-        channelItem?.consumeToken = channelItem?.preConsumeToken
-        return channelItem
+        return getChannelStore(channelId)?.data?.remove(itemId)
     }
 
     /**
@@ -106,14 +89,14 @@ object ChannelItemStore {
         val channel = getChannelStore(channelId)?.data ?: return null
         val freeItems = channel.filter { entry ->
             val obtainTime = entry.value.obtainTime ?: Instant.now()
-            ( (entry.value.obtainUserId == null || entry.value.obtainUserId == 0) || Duration.between(obtainTime, Instant.now()).seconds > 30)
+            ( (entry.value.obtainUserId == null || entry.value.obtainUserId == 0) || Duration.between(obtainTime, Instant.now()).seconds > Const.MaxObtainSeconds)
         }
         if ( freeItems.isEmpty() ) {
             return null
         }
         val obtainKey = freeItems.keys.first()
         val obtain = freeItems[obtainKey]!!
-        // g更新持有人和持有时间
+        // 更新持有人和持有时间
         obtain.obtainUserId = userId
         obtain.obtainTime = Instant.now()
         return obtain

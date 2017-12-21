@@ -1,5 +1,10 @@
 package com.menuxx.common.bean;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.menuxx.weixin.util.WXDateDeserializer;
+
 import java.util.Date;
 
 public class OrderCharge {
@@ -18,31 +23,42 @@ public class OrderCharge {
 
     private String nonceStr;
 
-    private String sign;
-
     private String prepayId;
 
     private String tradeType;
 
     private Integer totalFee;
 
+    private Integer settlementTotalFee;
+
     private String feeType;
+
+    private Integer cashFee;
+
+    private String cashFeeType;
 
     private String attach;
 
     private String body;
 
+    private String sign;
+
     private String signType;
-
-    private String limitPay;
-
-    private String notifyUrl;
 
     private String goodsTag;
 
+    @JsonDeserialize(using = WXDateDeserializer.class)
     private Date timeExpire;
 
     private Date timeStart;
+
+    /**
+     * 这个值会从微信支付回调数据中 反序列化得到
+     * 为保证正常序列化 自定义了 值读入是的反序列化标准
+     * time_expire 也是这样
+     */
+    @JsonDeserialize(using = WXDateDeserializer.class)
+    private Date timeEnd;
 
     private String spbillCreateIp;
 
@@ -51,6 +67,8 @@ public class OrderCharge {
     private String errCode;
 
     private String resultCode;
+
+    private String transactionId;
 
     private String detail;
 
@@ -110,14 +128,6 @@ public class OrderCharge {
         this.nonceStr = nonceStr == null ? null : nonceStr.trim();
     }
 
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign == null ? null : sign.trim();
-    }
-
     public String getPrepayId() {
         return prepayId;
     }
@@ -142,12 +152,36 @@ public class OrderCharge {
         this.totalFee = totalFee;
     }
 
+    public Integer getSettlementTotalFee() {
+        return settlementTotalFee;
+    }
+
+    public void setSettlementTotalFee(Integer settlementTotalFee) {
+        this.settlementTotalFee = settlementTotalFee;
+    }
+
     public String getFeeType() {
         return feeType;
     }
 
     public void setFeeType(String feeType) {
         this.feeType = feeType == null ? null : feeType.trim();
+    }
+
+    public Integer getCashFee() {
+        return cashFee;
+    }
+
+    public void setCashFee(Integer cashFee) {
+        this.cashFee = cashFee;
+    }
+
+    public String getCashFeeType() {
+        return cashFeeType;
+    }
+
+    public void setCashFeeType(String cashFeeType) {
+        this.cashFeeType = cashFeeType == null ? null : cashFeeType.trim();
     }
 
     public String getAttach() {
@@ -166,28 +200,20 @@ public class OrderCharge {
         this.body = body == null ? null : body.trim();
     }
 
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign == null ? null : sign.trim();
+    }
+
     public String getSignType() {
         return signType;
     }
 
     public void setSignType(String signType) {
         this.signType = signType == null ? null : signType.trim();
-    }
-
-    public String getLimitPay() {
-        return limitPay;
-    }
-
-    public void setLimitPay(String limitPay) {
-        this.limitPay = limitPay == null ? null : limitPay.trim();
-    }
-
-    public String getNotifyUrl() {
-        return notifyUrl;
-    }
-
-    public void setNotifyUrl(String notifyUrl) {
-        this.notifyUrl = notifyUrl == null ? null : notifyUrl.trim();
     }
 
     public String getGoodsTag() {
@@ -246,6 +272,14 @@ public class OrderCharge {
         this.resultCode = resultCode == null ? null : resultCode.trim();
     }
 
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId == null ? null : transactionId.trim();
+    }
+
     public String getDetail() {
         return detail;
     }
@@ -253,4 +287,13 @@ public class OrderCharge {
     public void setDetail(String detail) {
         this.detail = detail == null ? null : detail.trim();
     }
+
+    public Date getTimeEnd() {
+        return timeEnd;
+    }
+
+    public void setTimeEnd(Date timeEnd) {
+        this.timeEnd = timeEnd;
+    }
+
 }

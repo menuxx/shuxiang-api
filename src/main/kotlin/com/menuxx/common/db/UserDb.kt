@@ -33,6 +33,16 @@ class UserDb(private val dsl: DSLContext) {
     private final val tUserAuthority = TUserAuthority.T_USER_AUTHORITY
     private final val tAuthority = TAuthority.T_AUTHORITY
 
+    fun getUserDetailById(userId: Int) : User? {
+        val record = dsl.select().from(tUser)
+                .leftJoin(tWxUser).on(tUser.WX_USER_ID.eq(tWxUser.ID))
+                .where(tUser.ID.eq(UInteger.valueOf(userId)))
+                .fetchOne()
+        val user = record?.into(tUser)?.into(User::class.java)
+        user?.wxUser = record?.into(tWxUser)?.into(WXUser::class.java)
+        return user
+    }
+
     /**
      * 根据 openid 获取用户信息
      */
@@ -41,8 +51,8 @@ class UserDb(private val dsl: DSLContext) {
                 .leftJoin(tWxUser)
                 .on(tUser.WX_USER_ID.eq(tWxUser.ID))
                 .where(tWxUser.OPENID.eq(openid)).fetchOne()
-        val user = record?.into(User::class.java)
-        user?.wxUser = record?.into(WXUser::class.java)
+        val user = record?.into(tUser)?.into(User::class.java)
+        user?.wxUser = record?.into(tWxUser)?.into(WXUser::class.java)
         return user
     }
 
@@ -82,8 +92,8 @@ class UserDb(private val dsl: DSLContext) {
                 .where(tUserAuthority.USER_ID.eq(userId))
                 .fetchArray().map {
             // 将对象填充完整
-            val userAuth = it.into(UserAuthority::class.java)
-            userAuth.authority = it.into(Authority::class.java)
+            val userAuth = it.into(tUserAuthority).into(UserAuthority::class.java)
+            userAuth.authority = it.into(tAuthority).into(Authority::class.java)
             userAuth
         }
     }

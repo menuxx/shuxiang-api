@@ -30,8 +30,8 @@ class OrderCtrl(private val orderDb: OrderDb) {
     /**
      * 获取订单详情
      */
-    @GetMapping("/orderId")
-    fun getMerchantOrderDetail(@PathVariable orderId: Int) : Order {
+    @GetMapping("/{orderId}")
+    fun getMerchantOrderDetail(@PathVariable orderId: Int) : Order? {
         return orderDb.getOrderDetail(orderId)
     }
 

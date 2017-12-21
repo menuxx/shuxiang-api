@@ -3,8 +3,10 @@ package com.menuxx.apiserver.ctrl
 import com.menuxx.AllOpen
 import com.menuxx.Const
 import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.apiserver.exception.NotFoundException
 import com.menuxx.common.bean.UserAddress
 import com.menuxx.common.db.UserAddressDb
+import com.menuxx.getCurrentUser
 import com.menuxx.weixin.auth.AuthUser
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
@@ -22,7 +24,7 @@ class UserAddressCtrl(private val userAddressDb: UserAddressDb) {
 
     @GetMapping
     fun loadAddresses() : List<UserAddress> {
-        val currentUser = SecurityContextHolder.getContext().authentication as AuthUser
+        val currentUser = getCurrentUser()
         return userAddressDb.loadMyAddress(currentUser.id)
     }
 
@@ -30,20 +32,20 @@ class UserAddressCtrl(private val userAddressDb: UserAddressDb) {
      * 获取默认地址
      */
     @GetMapping("/primary")
-    fun getPrimaryAddress() : UserAddress? {
-        val currentUser = SecurityContextHolder.getContext().authentication as AuthUser
-        return userAddressDb.getPrimaryAddress(currentUser.id)
+    fun getPrimaryAddress() : UserAddress {
+        val currentUser = getCurrentUser()
+        return userAddressDb.getPrimaryAddress(currentUser.id) ?: throw NotFoundException("用户没有默认地址")
     }
 
     @PostMapping
     fun addAddress(address: UserAddress) : UserAddress {
-        val currentUser = SecurityContextHolder.getContext().authentication as AuthUser
+        val currentUser = getCurrentUser()
         return userAddressDb.insertAddress(currentUser.id, address)
     }
 
     @PutMapping("/{addressId}")
     fun updateAddress(@PathVariable addressId: Int, address: UserAddress) : ApiResp {
-        val currentUser = SecurityContextHolder.getContext().authentication as AuthUser
+        val currentUser = getCurrentUser()
         val rNum = userAddressDb.updateAddress(currentUser.id, addressId, address)
         return if (rNum > 0 ) {
             ApiResp(Const.NotErrorCode, "更新成功")
@@ -54,7 +56,7 @@ class UserAddressCtrl(private val userAddressDb: UserAddressDb) {
 
     @DeleteMapping("/{addressId}")
     fun delAddress(@PathVariable addressId: Int) : ApiResp {
-        val currentUser = SecurityContextHolder.getContext().authentication as AuthUser
+        val currentUser = getCurrentUser()
         val rNum = userAddressDb.delAddress(currentUser.id, addressId)
         return if (rNum > 0) {
             ApiResp(Const.NotErrorCode, "delete ok!")

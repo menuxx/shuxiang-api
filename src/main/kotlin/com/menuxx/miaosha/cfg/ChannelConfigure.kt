@@ -1,6 +1,10 @@
 package com.menuxx.miaosha.cfg
 
+import com.aliyun.openservices.ons.api.bean.ProducerBean
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.menuxx.common.db.ChannelItemRecordDb
+import com.menuxx.common.db.OrderDb
+import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.disruptor.ChannelUserEventDisruptor
 import com.menuxx.miaosha.disruptor.eventhandler.ChannelUserEventHandler
 import com.menuxx.miaosha.disruptor.eventhandler.ChannelUserEventPostObtainHandler
@@ -19,7 +23,9 @@ import org.springframework.data.redis.core.RedisTemplate
 
 @Configuration
 class ChannelConfigure(
-        @Autowired @Qualifier("objRedisTemplate") val objRedisTemplate: RedisTemplate<String, Any>
+        @Autowired @Qualifier("objRedisTemplate") private val objRedisTemplate: RedisTemplate<String, Any>,
+        @Autowired @Qualifier("publicProducer") private val publicProducer: ProducerBean,
+        private val orderDb: OrderDb
 ) {
 
     /**
@@ -27,7 +33,7 @@ class ChannelConfigure(
      */
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     fun channelUserStateWriteQueue(channelItemDb: ChannelItemRecordDb) : ChannelUserStateWriteQueue {
-        return ChannelUserStateWriteQueue(objRedisTemplate, channelItemDb)
+        return ChannelUserStateWriteQueue(objRedisTemplate, channelItemDb, orderDb)
     }
 
     /**
@@ -42,8 +48,8 @@ class ChannelConfigure(
      * 后置处理器，用来 发布时间，状态标记
      */
     @Bean
-    fun channelUserEventPostObtainHandler() : ChannelUserEventPostObtainHandler {
-        return ChannelUserEventPostObtainHandler(objRedisTemplate)
+    fun channelUserEventPostObtainHandler(aliyunProps: AliyunProps, objectMapper: ObjectMapper) : ChannelUserEventPostObtainHandler {
+        return ChannelUserEventPostObtainHandler(aliyunProps, orderDb, objectMapper, objRedisTemplate, publicProducer)
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")

@@ -13,5 +13,8 @@ data class UserObtainItemState(
         var loopRefId: String,
         var userId: Int,
         var channelItemId: Int,
-        var confirmState: Int
+        var confirmState: Int,
+        // 消费后产生
+        var orderId: Int?,
+        var queueNum: Int?
 )

@@ -19,19 +19,21 @@ class SMSSender(private val rongLianProps: RongLianProps) {
 
     private val logger = LoggerFactory.getLogger(SMSSender::class.java)
 
-    private fun sendSmsByTplId(mobile: String, tplId: String, data: Array<String>) : Boolean {
+    @Throws(SmsException::class)
+    private fun sendSmsByTplId(mobile: String, tplId: String, data: Array<String>) {
         return try {
             val json = smsClient.sendSms(mobile, tplId, data)
             logger.info("tplId: $tplId, dateCreated: ${json.getString("dateCreated")}, smsMessageSid: ${json.getString("smsMessageSid")}")
-            true
         } catch (ex: SmsException) {
             logger.error("tplId: $tplId, errorMsg: ${ex.message}")
-            false
+            throw ex
         }
     }
 
     fun sendCaptcha(mobile: String, data: Array<String>) = sendSmsByTplId(mobile, rongLianProps.smsTpls.captchaId, data)
 
-    fun sendOrderSuccess(mobile: String, data: Array<String>) = sendSmsByTplId(mobile, rongLianProps.smsTpls.buySuccessId, data)
+    fun sendConsumeSuccess(mobile: String, data: Array<String>) = sendSmsByTplId(mobile, rongLianProps.smsTpls.consumeSuccessId, data)
+
+    fun sendDeliverySuccess(mobile: String, data: Array<String>) = sendSmsByTplId(mobile, rongLianProps.smsTpls.deliverySuccessId, data)
 
 }

@@ -2,7 +2,9 @@ package com.menuxx.miaosha.queue
 
 import com.menuxx.AllOpen
 import com.menuxx.Const
+import com.menuxx.common.bean.Order
 import com.menuxx.common.db.ChannelItemRecordDb
+import com.menuxx.common.db.OrderDb
 import com.menuxx.miaosha.bean.UserObtainItemState
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +22,8 @@ import java.util.concurrent.TimeUnit
 @AllOpen
 class ChannelUserStateWriteQueue(
         private val objRedisTemplate: RedisTemplate<String, Any>,
-        private val channelItemDb: ChannelItemRecordDb
+        private val channelItemDb: ChannelItemRecordDb,
+        private val orderDb: OrderDb
 ) {
 
     private val CommitActionObtain = 1
@@ -64,7 +67,8 @@ class ChannelUserStateWriteQueue(
             CommitActionConsume -> {
                 objRedisTemplate.expire(event.loopRefId, 3600, TimeUnit.SECONDS)
                 // 写入数据库状态
-                channelItemDb.itemConsumed(event.channelItemId)
+                channelItemDb.itemConsumed(event.channelItemId, event.orderId!!)
+                orderDb.updateOrderConsumed(orderId = event.orderId!!, status = Order.CONSUMED, queueNum = event.queueNum!!)
             }
         }
     }

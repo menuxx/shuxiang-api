@@ -17,8 +17,6 @@ class ChannelUserGroup {
 
     fun getUser(userId: Int) = ChannelUserGroup.UserGroup[userId]
 
-    fun getConsumedUsers() = ChannelUserGroup.UserGroup.filter { it.value.consumeToken != null }
-
     fun getAndInsertUser(userId: Int, channelUser: ChannelUserEvent) : ChannelUserEvent {
         var user = ChannelUserGroup.UserGroup[userId]
         if ( user == null ) {

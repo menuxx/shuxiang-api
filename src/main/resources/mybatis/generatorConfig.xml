@@ -39,6 +39,13 @@
         <!--<table schema="onecode" tableName="t_order" domainObjectName="Order">-->
             <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
         <!--</table>-->
+        <!--<table schema="onecode" tableName="t_order_charge" domainObjectName="OrderCharge">-->
+            <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
+        <!--</table>-->
+
+        <!--<table schema="onecode" tableName="t_order_item" domainObjectName="OrderItem">-->
+        <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
+        <!--</table>-->
 
         <!--<table schema="onecode" tableName="t_authority" domainObjectName="Authority">-->
             <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
@@ -49,10 +56,6 @@
         <!--</table>-->
 
         <!--<table schema="onecode" tableName="i_item" domainObjectName="Item">-->
-            <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
-        <!--</table>-->
-
-        <!--<table schema="onecode" tableName="t_order_charge" domainObjectName="OrderCharge">-->
             <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
         <!--</table>-->
 

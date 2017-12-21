@@ -10,7 +10,15 @@ import com.menuxx.NoArg
 
 @NoArg
 data class ObtainUserMsg(
-        var userId: Int?,
-        var channelId: Int?,
+        var userId: Int,
+        var channelId: Int,
         var loopRefId: String
+)
+
+@NoArg
+data class ObtainConsumedMsg(
+        var userId: Int,
+        var channelId: Int,
+        var orderId: Int,
+        var loopRefId: String?
 )

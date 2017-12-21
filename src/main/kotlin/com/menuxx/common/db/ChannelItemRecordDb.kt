@@ -18,9 +18,8 @@ import java.time.Instant
 @Service
 class ChannelItemRecordDb(private val dsl: DSLContext) {
 
-    val ObtainStatusNot = 0 // 未持有
-    val ObtainConsumeStatusNotCounsumed = 0
-    val ObtainConsumeStatusCounsumed = 1
+    private val ObtainStatusNot = UInteger.valueOf(0) // 未持有
+    private val NotHaveOrderId = UInteger.valueOf(0) // 没有 order_id
 
     private final val tChannelItemRecord = TChannelItemRecord.T_CHANNEL_ITEM_RECORD
 
@@ -28,9 +27,9 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
      * 标注为消费状态
      * 启动状态恢复，就不会恢复该记录
      */
-    fun itemConsumed(itemId: Int) : Int {
+    fun itemConsumed(itemId: Int, orderId: Int) : Int {
         return dsl.update(tChannelItemRecord)
-                .set(tChannelItemRecord.OBTAIN_CONSUMED, 1)
+                .set(tChannelItemRecord.ORDER_ID, UInteger.valueOf(orderId))
                 .where(tChannelItemRecord.ID.eq(UInteger.valueOf(itemId))).execute()
     }
 
@@ -53,23 +52,16 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
         // 如果 OBTAIN_TIME 大于 当前时间 - 30秒 就是 过期的持有结果
         val expiredTime = Instant.now().minusSeconds(Const.MaxObtainSeconds.toLong())
         return dsl.select().from(tChannelItemRecord).where(
-                tChannelItemRecord.OBTAIN_USER_ID.eq(UInteger.valueOf(ObtainStatusNot)) // 找出未持有的
+                tChannelItemRecord.OBTAIN_USER_ID.eq(ObtainStatusNot) // 找出未持有的
                         .or(
+                                // 没有消费但过了持有时间的
                                 tChannelItemRecord.OBTAIN_TIME.lessThan(Timestamp.from(expiredTime))
-                                        .and(tChannelItemRecord.OBTAIN_CONSUMED.eq(ObtainConsumeStatusCounsumed))
-                        )   // 找出超过持有时间的未消费的
-                        .and(tChannelItemRecord.OBTAIN_CONSUMED.eq(ObtainConsumeStatusNotCounsumed)) // 找出未消费的
+                                        .and(tChannelItemRecord.ORDER_ID.ne(NotHaveOrderId))
+                        )
         ).orderBy(tChannelItemRecord.ID.asc()).fetchArray().map {
             it.into(ChannelItemRecord::class.java)
         }
     }
-
-    /**
-     * 加载所有已经启动但是尚未结束的 channel item record 到内存
-     * 1. 找到所有符合要求的渠道
-     */
-    // fun loadAllChannelItems() : List<ChannelItemRecord> {
-    // }
 
     fun loadChannelItems(channelId: Int) : List<ChannelItemRecord> {
         return dsl.select().from(tChannelItemRecord).where(tChannelItemRecord.CHANNEL_ID.eq(UInteger.valueOf(channelId)))

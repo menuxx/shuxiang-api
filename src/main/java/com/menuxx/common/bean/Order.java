@@ -1,8 +1,19 @@
 package com.menuxx.common.bean;
 
 import java.util.Date;
+import java.util.List;
 
 public class Order {
+
+    // 1 已创建, 未付款 2 已消费(付款)，未发货, 3，已发货 4， 已签收
+
+    public static final int CREATED = 1;
+
+    public static final int CONSUMED = 2;
+
+    public static final int DELIVERYD = 3;
+
+    public static final int RECEIVED = 4;
 
     private Integer id;
 
@@ -10,7 +21,8 @@ public class Order {
 
     private Integer channelId;
 
-    // 渠道详情
+    private Integer queueNum;
+
     private VipChannel vipChannel;
 
     private Integer userId;
@@ -21,9 +33,11 @@ public class Order {
 
     private Integer expressType;
 
-    private String itemName;
+    private String orderName;
 
     private Integer payAmount;
+
+    private Integer totalAmount;
 
     private Integer count;
 
@@ -31,9 +45,29 @@ public class Order {
 
     private Integer status;
 
+    private List<OrderItem> items;
+
     private Date createAt;
 
     private Date updateAt;
+
+    private String receiverPhoneNumber;
+
+    private String receiverName;
+
+    private String receiverAreaAddress;
+
+    private String receiverDetailInfo;
+
+    private String receiverPostalCode;
+
+    public Integer getQueueNum() {
+        return queueNum;
+    }
+
+    public void setQueueNum(Integer queueNum) {
+        this.queueNum = queueNum;
+    }
 
     public VipChannel getVipChannel() {
         return vipChannel;
@@ -41,6 +75,14 @@ public class Order {
 
     public void setVipChannel(VipChannel vipChannel) {
         this.vipChannel = vipChannel;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 
     public Integer getId() {
@@ -99,12 +141,12 @@ public class Order {
         this.expressType = expressType;
     }
 
-    public String getItemName() {
-        return itemName;
+    public String getOrderName() {
+        return orderName;
     }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName == null ? null : itemName.trim();
+    public void setOrderName(String orderName) {
+        this.orderName = orderName == null ? null : orderName.trim();
     }
 
     public Integer getPayAmount() {
@@ -113,6 +155,14 @@ public class Order {
 
     public void setPayAmount(Integer payAmount) {
         this.payAmount = payAmount;
+    }
+
+    public Integer getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Integer totalAmount) {
+        this.totalAmount = totalAmount;
     }
 
     public Integer getCount() {
@@ -153,5 +203,45 @@ public class Order {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public String getReceiverPhoneNumber() {
+        return receiverPhoneNumber;
+    }
+
+    public void setReceiverPhoneNumber(String receiverPhoneNumber) {
+        this.receiverPhoneNumber = receiverPhoneNumber == null ? null : receiverPhoneNumber.trim();
+    }
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName == null ? null : receiverName.trim();
+    }
+
+    public String getReceiverAreaAddress() {
+        return receiverAreaAddress;
+    }
+
+    public void setReceiverAreaAddress(String receiverAreaAddress) {
+        this.receiverAreaAddress = receiverAreaAddress == null ? null : receiverAreaAddress.trim();
+    }
+
+    public String getReceiverDetailInfo() {
+        return receiverDetailInfo;
+    }
+
+    public void setReceiverDetailInfo(String receiverDetailInfo) {
+        this.receiverDetailInfo = receiverDetailInfo == null ? null : receiverDetailInfo.trim();
+    }
+
+    public String getReceiverPostalCode() {
+        return receiverPostalCode;
+    }
+
+    public void setReceiverPostalCode(String receiverPostalCode) {
+        this.receiverPostalCode = receiverPostalCode == null ? null : receiverPostalCode.trim();
     }
 }

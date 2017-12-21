@@ -175,7 +175,7 @@ class Test1 {
         val startTime = System.currentTimeMillis()
 
         // 1 万次多线程并发
-        (1..10001).map { i ->
+        (1..10001).map { _ ->
             // 每个人两次，第二次，就是付款，确认下单
             es.submit {
                 cdl.countDown()

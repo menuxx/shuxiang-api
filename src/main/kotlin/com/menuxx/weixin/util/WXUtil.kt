@@ -1,5 +1,9 @@
 package com.menuxx.weixin.util
 
+import java.util.AbstractMap.SimpleImmutableEntry
+
+
+
 /**
  * 作者: yinchangsheng@gmail.com
  * 创建于: 2017/12/14

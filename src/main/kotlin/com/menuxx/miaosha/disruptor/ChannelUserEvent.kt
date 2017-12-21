@@ -14,15 +14,14 @@ enum class ConfirmState(val state: Int) {
     ObtainConsumed(2),  // 已消费 完成抢购
     ObtainConsumeAgain(3),  // 再次消费
     Finish(4),          // 抢完了，结束了
-    FreeObtain(5),       // 持有释放了
-    ConsumeFail(6)       // 消费失败
+    FreeObtain(5)       // 持有释放了
 }
 
 @NoArg
 data class ChannelUserEvent(
-        var userId: Int?,
-        var channelId: Int?,
-        var loopRefId: String?,
+        var userId: Int,
+        var channelId: Int,
+        var loopRefId: String,
         var confirmState: ConfirmState = ConfirmState.NoObtain,
-        var consumeToken: String?
+        var orderId: Int?   // 后期会产生
 )

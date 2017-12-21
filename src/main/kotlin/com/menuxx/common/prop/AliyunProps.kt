@@ -23,22 +23,13 @@ data class AliyunProps(
 data class AliyunONSProps(
         var accessKeyId: String, var accessKeySecret: String,
 
-        var payTopicName: String,
-        var payProducerId: String,
-        var payConsumerId: String,
+        // # 全局无序 topic
+        var publicTopic: String,
+        var publicProducerId: String,
+        var publicConsumerId: String,
 
-        var obtainItemTopicName: String,
-        var obtainItemProducerId: String,
-        var obtainItemConsumerId: String,
-
-        var channelStateTopicName: String,
-        var channelStateProducerId: String,
-        var channelStateConsumerId: String,
-
-        var senderTopicName: String,
-        var senderProducerId: String,
-
-        var wxMsgTopicName: String,
-        var wxMsgProducerId: String,
-        var wxMsgConsumerId: String
+        // # 分区有序 topic
+        var shardingOrderTopic: String,
+        var shardingOrderProducerId: String,
+        var shardingOrderConsumerId: String
 )

@@ -5,7 +5,6 @@ import com.aliyun.openservices.ons.api.ConsumeContext
 import com.aliyun.openservices.ons.api.Message
 import com.aliyun.openservices.ons.api.MessageListener
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.menuxx.miaosha.disruptor.ChannelUserEvent
 import com.menuxx.miaosha.disruptor.ChannelUserEventDisruptor
 import com.menuxx.miaosha.queue.msg.ObtainUserMsg
 import org.slf4j.LoggerFactory
@@ -30,10 +29,9 @@ class RequestObtainListener(
         // 提交到 disruptor
         return try {
             val event = objectMapper.readValue(message.body, ObtainUserMsg::class.java)
-            producerDisruptor.product(userId = event.userId!!, channelId = event.channelId!!, loopRefId = event.loopRefId!!)
+            producerDisruptor.product(userId = event.userId, channelId = event.channelId, orderId = 0, loopRefId = event.loopRefId)
             Action.CommitMessage
         } catch (ex: Exception) {
-            ex.printStackTrace()
             logger.error("ProducerDisruptor: ${ex.message}")
             Action.ReconsumeLater
         }

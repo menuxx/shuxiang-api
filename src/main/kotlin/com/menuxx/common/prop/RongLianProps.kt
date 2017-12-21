@@ -22,5 +22,6 @@ data class RongLianProps(
 @NoArg
 data class SMSTpls(
         var captchaId: String,
-        var buySuccessId: String
+        var consumeSuccessId: String,
+        var deliverySuccessId: String
 )

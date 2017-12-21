@@ -24,6 +24,10 @@ class UserAddressDb(private val dsl: DSLContext) {
 
     private final val tUserAddress = TUserAddress.T_USER_ADDRESS
 
+    fun getAddressById(addressId: Int) : UserAddress? {
+        return dsl.select().from(tUserAddress).where(tUserAddress.ID.eq(UInteger.valueOf(addressId))).fetchOne()?.into(UserAddress::class.java)
+    }
+
     fun loadMyAddress(userId: Int) : List<UserAddress> {
         return dsl.select().from(tUserAddress).where(
                 // 已删除的就不获取
