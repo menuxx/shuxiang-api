@@ -4,6 +4,7 @@ import com.menuxx.Const
 import com.menuxx.apiserver.PageParam
 import com.menuxx.common.bean.Item
 import com.menuxx.common.db.tables.TItem
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
@@ -24,7 +25,7 @@ class ItemDb (private val dsl: DSLContext) {
      */
     fun insetItem(item: Item) : Item {
         return dsl.insertInto(tItem)
-                .set(dsl.newRecord(tItem, item))
+                .set(nullSkipUpdate(dsl.newRecord(tItem, item)))
                 .returning().fetchOne().into(Item::class.java)
     }
 
@@ -34,7 +35,7 @@ class ItemDb (private val dsl: DSLContext) {
     @Transactional
     fun updateItem(itemId: Int, item: Item) : Item {
         dsl.update(tItem)
-                    .set(dsl.newRecord(tItem, item))
+                    .set(nullSkipUpdate(dsl.newRecord(tItem, item)))
                     // 过滤掉 状态为 0 的
                     .where(tItem.ID.eq(UInteger.valueOf(itemId)).and(tItem.STATUS.ne(Const.DbStatusDel)))
                     .execute()

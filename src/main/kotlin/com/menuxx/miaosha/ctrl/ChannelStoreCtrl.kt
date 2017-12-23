@@ -110,7 +110,7 @@ class ChannelStoreCtrl(
         val currentUser = getCurrentUser()
         // 找到该用户在渠道中的持有
         val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("还没有抢到，没有什么需要支付")
-        val userId = channelItem.obtainUserId!!
+        val userId = channelItem.second.obtainUserId!!
 
         var order = orderDb.getUserChannelOrder(userId, channelId)
         if ( order == null ) {

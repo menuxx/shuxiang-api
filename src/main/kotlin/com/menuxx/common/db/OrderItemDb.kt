@@ -2,6 +2,7 @@ package com.menuxx.common.db
 
 import com.menuxx.common.bean.OrderItem
 import com.menuxx.common.db.tables.TOrderItem
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
@@ -17,7 +18,7 @@ class OrderItemDb(private val dsl: DSLContext) {
     private val tOrderItem = TOrderItem.T_ORDER_ITEM
 
     fun insertOrderItem(item: OrderItem) : OrderItem {
-        return dsl.insertInto(tOrderItem).set(dsl.newRecord(tOrderItem, item)).returning().fetchOne().into(OrderItem::class.java)
+        return dsl.insertInto(tOrderItem).set( nullSkipUpdate(dsl.newRecord(tOrderItem, item)) ).returning().fetchOne().into(OrderItem::class.java)
     }
 
     fun findOrderItems(orderId: Int) : List<OrderItem> {

@@ -7,6 +7,7 @@ import com.menuxx.common.bean.VipChannel
 import com.menuxx.common.db.tables.TItem
 import com.menuxx.common.db.tables.TOrder
 import com.menuxx.common.db.tables.TVipChannel
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
@@ -39,7 +40,7 @@ class OrderDb(
 
     @Transactional
     fun insertOrder(order: Order) : Order {
-        val newOrder = dsl.insertInto(tOrder).set(dsl.newRecord(tOrder, order)).returning().fetchOne().into(Order::class.java)
+        val newOrder = dsl.insertInto(tOrder).set( nullSkipUpdate(dsl.newRecord(tOrder, order)) ).returning().fetchOne().into(Order::class.java)
         newOrder.items = order.items.map {
             it.orderId = newOrder.id
             orderItemDb.insertOrderItem(it)

@@ -43,7 +43,8 @@ class ChannelUserEventPostObtainHandler(
     private fun sendConsumedSmsMsg(orderId: Int) {
         val order = orderDb.getOrderDetail(orderId)!!
         val msgBody = objectMapper.writeValueAsBytes(ConsumeSuccessMsg(mobile = order.receiverPhoneNumber, itemName = order.vipChannel.item.name, receiverPhoneNumber = order.receiverPhoneNumber))
-        val sendSmsMsg = Message(aliyunProps.ons.senderTopicName, MsgTags.TagConsumeSuccess, "ObtainConsumedMsg_${order.orderNo}", msgBody)
+        val sendSmsMsg = Message(aliyunProps.ons.senderTopicName, MsgTags.TagSmsSender, "ObtainConsumedMsg_${order.orderNo}", msgBody)
+        sendSmsMsg.putUserProperties("NextTag", MsgTags.TagConsumeSuccess)
         senderProducer.sendOneway(sendSmsMsg)
     }
 
@@ -59,7 +60,6 @@ class ChannelUserEventPostObtainHandler(
             // 被持有(存储redis状态逻辑已经被上层实现)
             ConfirmState.Obtain -> {
                 logger.info("Obtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
-                // mqtt 通知 个数减少
             }
 
             // 已经抢完了
@@ -177,32 +177,37 @@ class ChannelUserEventHandler(
                 } else {
                     // 抢完了
                     event.confirmState = ConfirmState.Finish
+                    sessionUser.confirmState = ConfirmState.Finish
                 }
             }
             // 已持有，就申请消费
             ConfirmState.Obtain -> {
-                // 必去要持有一个 消费obtain  的令牌，才能执行该步骤
-                val channelItem = ChannelItemStore.searchObtainFromChannel(userId, channelId)
-                if ( channelItem != null ) {
-                    sessionUser.confirmState = ConfirmState.ObtainConsumed
-                    event.confirmState = ConfirmState.ObtainConsumed
-                    // 产生序号
-                    val queueNum = channelStore.counter.getAndIncrement()
-                    // 移除该用户信息
-                    ChannelItemStore.consumeObtainFromChannel(channelId, channelItem.id)
-                    // 持久化导数据库
-                    userStateWriteQueue.commitConsumeState(UserObtainItemState(
-                            loopRefId = event.loopRefId!!,
-                            userId = event.userId,
-                            channelItemId = channelItem.id,
-                            confirmState = ConfirmState.Obtain.state,
-                            orderId = event.orderId,
-                            queueNum = queueNum
-                    ))
-                } else {
-                    // 超过保留时间，被其他人抢走了
-                    sessionUser.confirmState = ConfirmState.FreeObtain
-                    event.confirmState = ConfirmState.FreeObtain
+                // orderId 为 0 就是没有正常消费，如果 不是 0 就是正常消费
+                if ( event.orderId != 0 ) {
+                    val entry = ChannelItemStore.searchObtainFromChannel(userId, channelId)
+                    if ( entry != null ) {
+                        val channelItemId = entry.first
+                        val channelItem = entry.second
+                        sessionUser.confirmState = ConfirmState.ObtainConsumed
+                        event.confirmState = ConfirmState.ObtainConsumed
+                        // 产生序号
+                        val queueNum = channelStore.counter.getAndIncrement()
+                        // 移除该用户信息
+                        ChannelItemStore.consumeObtainFromChannel(channelId, channelItemId)
+                        // 持久化导数据库
+                        userStateWriteQueue.commitConsumeState(UserObtainItemState(
+                                loopRefId = event.loopRefId!!,
+                                userId = event.userId,
+                                channelItemId = channelItem.id,
+                                confirmState = ConfirmState.ObtainConsumed.state,
+                                orderId = event.orderId,
+                                queueNum = queueNum
+                        ))
+                    } else {
+                        // 超过保留时间，被其他人抢走了
+                        sessionUser.confirmState = ConfirmState.FreeObtain
+                        event.confirmState = ConfirmState.FreeObtain
+                    }
                 }
             }
             ConfirmState.ObtainConsumed -> {

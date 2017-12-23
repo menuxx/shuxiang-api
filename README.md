@@ -10,11 +10,21 @@ server {
         server_name wxtest.qurenjia.com;
         listen 80 http2;
         access_log /var/log/nginx/access_shuxiang.log vhost;
+        # 微信应用
         location / {
           proxy_pass http://127.0.0.1:8080;
         }
+        # 应用调用的 api 集合
         location /api/ {
           proxy_pass http://127.0.0.1:8070;
+        }
+        # 商户出版社
+        location /merchant {
+            proxy_pass http://127.0.0.1:8081;
+        }
+        # 只支持其他域名的 wx 授权 code 回调
+        location = /wxauthcodetestredirect_2017 {
+            rewrite ^ http://wxdev.qurenjia.com permanent;
         }
 }
 ```

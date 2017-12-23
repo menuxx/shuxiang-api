@@ -9,6 +9,7 @@ import com.menuxx.common.db.tables.TUser
 import com.menuxx.common.db.tables.TUserAuthority
 import com.menuxx.common.db.tables.TWxUser
 import com.menuxx.weixin.exception.UserNotExistsException
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
@@ -66,21 +67,21 @@ class UserDb(private val dsl: DSLContext) {
      * 更新微信用户
      */
     private fun updateWXUserByOpenId(wxUser: WXUser, openid: String) : Int {
-        return dsl.update(tWxUser).set(dsl.newRecord(tWxUser, wxUser)).where(tWxUser.OPENID.eq(openid)).execute()
+        return dsl.update(tWxUser).set( nullSkipUpdate(dsl.newRecord(tWxUser, wxUser)) ).where(tWxUser.OPENID.eq(openid)).execute()
     }
 
     /**
      * 更新用户
      */
     private fun updateUser(user: User) : Int {
-        return dsl.update(tUser).set(dsl.newRecord(tUser, user)).where(tUser.ID.eq(UInteger.valueOf(user.id))).execute()
+        return dsl.update(tUser).set( nullSkipUpdate(dsl.newRecord(tUser, user)) ).where(tUser.ID.eq(UInteger.valueOf(user.id))).execute()
     }
 
     /**
      * 插入微信用户
      */
     private fun insertWXUser(wxUser: WXUser) : WXUser {
-        return dsl.insertInto(tWxUser).set(dsl.newRecord(tWxUser, wxUser)).returning().fetchOne().into(WXUser::class.java)
+        return dsl.insertInto(tWxUser).set( nullSkipUpdate(dsl.newRecord(tWxUser, wxUser)) ).returning().fetchOne().into(WXUser::class.java)
     }
 
     /**
@@ -112,7 +113,7 @@ class UserDb(private val dsl: DSLContext) {
      * 插入系统用户
      */
     private fun insertUser(user: User) : User {
-        return dsl.insertInto(tUser).set(dsl.newRecord(tUser, user)).returning().fetchOne().into(User::class.java)
+        return dsl.insertInto(tUser).set( nullSkipUpdate(dsl.newRecord(tUser, user)) ).returning().fetchOne().into(User::class.java)
     }
 
     /**

@@ -76,7 +76,7 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
         list.forEach { step.values(
                 UInteger.valueOf(it.channelId),
                 UInteger.valueOf(it.itemId)
-        ) }
+        )}
         return step.execute()
     }
 

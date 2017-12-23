@@ -9,6 +9,7 @@ import com.menuxx.common.db.tables.TVipChannel
 import com.menuxx.miaosha.bean.ChannelItem
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.store.ChannelItemStore
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
@@ -63,7 +64,11 @@ class VipChannelDb(
      * 新增渠道
      */
     fun insertVipChannel(vipChannel: VipChannel) : VipChannel {
-        return dsl.insertInto(tVipChannel).set(dsl.newRecord(tVipChannel, vipChannel)).returning().fetchOne().into(VipChannel::class.java)
+        return dsl.insertInto(tVipChannel)
+                .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vipChannel)) )
+                .returning()
+                .fetchOne()
+                .into(VipChannel::class.java)
     }
 
     /**
@@ -72,7 +77,7 @@ class VipChannelDb(
     @Transactional
     fun updateVipChannel(channelId: Int, vipChannel: VipChannel) : VipChannel? {
         dsl.update(tVipChannel)
-                    .set(dsl.newRecord(tVipChannel, vipChannel))
+                    .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vipChannel)) )
                     .where(tVipChannel.ID.eq(UInteger.valueOf(channelId))).execute()
         return getById(channelId)
     }

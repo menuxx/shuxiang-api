@@ -4,10 +4,12 @@ import com.menuxx.AllOpen
 import com.menuxx.Const
 import com.menuxx.common.bean.UserAddress
 import com.menuxx.common.db.tables.TUserAddress
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -53,8 +55,11 @@ class UserAddressDb(private val dsl: DSLContext) {
      * 创建一个用户地址，当用户没有默认的时候，就把现在插入的地址设置成默认地址
      */
     fun insertAddress(userId: Int, address: UserAddress) : UserAddress {
+        address.userId = userId
+        address.createAt = Date()
+        address.status = 1
         val pAddress = getPrimaryAddress(address.userId)
-        if ( pAddress != null ) { address.primary = UserAddressIsPrimary }
+        if ( pAddress == null ) { address.primary = UserAddressIsPrimary } else { address.primary = UserAddressNotPrimary }
         return dsl.insertInto(tUserAddress).set(dsl.newRecord(tUserAddress, address)).returning().fetchOne().into(UserAddress::class.java)
     }
 
@@ -66,9 +71,9 @@ class UserAddressDb(private val dsl: DSLContext) {
     @Transactional
     fun setAddressPrimary(userId: Int, addressId: Int) : Int {
         // 将该用户所有的 地址都设置成非默认
-        dsl.update(tUserAddress).set(tUserAddress.PRIMARY, UserAddressNotPrimary).where(tUserAddress.USER_ID.eq(UInteger.valueOf(userId)))
+        dsl.update(tUserAddress).set(tUserAddress.PRIMARY, UserAddressNotPrimary).where(tUserAddress.USER_ID.eq(UInteger.valueOf(userId))).execute()
         // 再将需要设置的 地址改成默认
-        return dsl.update(tUserAddress).set(tUserAddress.PRIMARY, 1).where(tUserAddress.ID.eq(UInteger.valueOf(addressId))).execute()
+        return dsl.update(tUserAddress).set(tUserAddress.PRIMARY, UserAddressIsPrimary).where(tUserAddress.ID.eq(UInteger.valueOf(addressId))).execute()
     }
 
     /**
@@ -76,8 +81,9 @@ class UserAddressDb(private val dsl: DSLContext) {
      */
     fun updateAddress(userId: Int, addressId: Int, address: UserAddress) : Int {
         address.userId = userId
+
         return dsl.update(tUserAddress)
-                .set(dsl.newRecord(tUserAddress, address))
+                .set(nullSkipUpdate(dsl.newRecord(tUserAddress, address)))
                 .where(
                         tUserAddress.ID.eq(UInteger.valueOf(addressId))
                                 .and(tUserAddress.USER_ID.eq(UInteger.valueOf(userId)))
@@ -89,7 +95,10 @@ class UserAddressDb(private val dsl: DSLContext) {
      * 删除用户的某个地址，假删除
      */
     fun delAddress(userId: Int, addressId: Int) : Int {
-        return dsl.update(tUserAddress).set(tUserAddress.STATUS, Const.DbStatusDel).where(tUserAddress.USER_ID.eq(UInteger.valueOf(userId))).execute()
+        return dsl.update(tUserAddress)
+                .set(tUserAddress.STATUS, Const.DbStatusDel)
+                .set(tUserAddress.PRIMARY, UserAddressNotPrimary)
+                .where(tUserAddress.USER_ID.eq(UInteger.valueOf(userId)).and(tUserAddress.ID.eq(UInteger.valueOf(addressId)))).execute()
     }
 
 }

@@ -2,6 +2,7 @@ package com.menuxx.common.db
 
 import com.menuxx.common.bean.OrderCharge
 import com.menuxx.common.db.tables.TOrderCharge
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
@@ -17,7 +18,7 @@ class OrderChargeDb(private val dsl: DSLContext) {
     private val tOrderCharge = TOrderCharge.T_ORDER_CHARGE
 
     fun insertChargeRecord(charge: OrderCharge) : OrderCharge {
-        return dsl.insertInto(tOrderCharge).set(dsl.newRecord(tOrderCharge, charge)).returning().fetchOne().into(OrderCharge::class.java)
+        return dsl.insertInto(tOrderCharge).set( nullSkipUpdate(dsl.newRecord(tOrderCharge, charge)) ).returning().fetchOne().into(OrderCharge::class.java)
     }
 
     fun findChargeRecordByOutTradeNo(outTradeNo: String): OrderCharge? {

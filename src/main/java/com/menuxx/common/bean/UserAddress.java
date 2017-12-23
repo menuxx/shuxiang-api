@@ -1,24 +1,33 @@
 package com.menuxx.common.bean;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class UserAddress {
+
     private Integer id;
 
     private Integer userId;
 
+    @NotNull
     private String city;
 
+    @NotNull
     private String country;
 
+    @NotNull
     private String province;
 
+    @NotNull
     private String detailInfo;
 
+    @NotNull
     private String phoneNumber;
 
+    @NotNull
     private String postalCode;
 
+    @NotNull
     private String receiverName;
 
     private Integer primary;

@@ -26,7 +26,6 @@ class AreaDb(private val dsl: DSLContext) {
      * 获取区域列表通过pid
      */
     fun loadAreasByPid(pid: Int) : List<Area> {
-
         return dsl.select().from(tArea).where(tArea.PID.eq(pid)).orderBy(tArea.SORT_WEIGHT.desc()).fetchArray().map {
             it.into(Area::class.java)
         }

@@ -7,9 +7,8 @@ import com.menuxx.apiserver.exception.NotFoundException
 import com.menuxx.common.bean.UserAddress
 import com.menuxx.common.db.UserAddressDb
 import com.menuxx.getCurrentUser
-import com.menuxx.weixin.auth.AuthUser
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -38,13 +37,13 @@ class UserAddressCtrl(private val userAddressDb: UserAddressDb) {
     }
 
     @PostMapping
-    fun addAddress(address: UserAddress) : UserAddress {
+    fun addAddress(@Valid @RequestBody address: UserAddress) : UserAddress {
         val currentUser = getCurrentUser()
         return userAddressDb.insertAddress(currentUser.id, address)
     }
 
     @PutMapping("/{addressId}")
-    fun updateAddress(@PathVariable addressId: Int, address: UserAddress) : ApiResp {
+    fun updateAddress(@PathVariable addressId: Int, @Valid @RequestBody address: UserAddress) : ApiResp {
         val currentUser = getCurrentUser()
         val rNum = userAddressDb.updateAddress(currentUser.id, addressId, address)
         return if (rNum > 0 ) {
@@ -62,6 +61,17 @@ class UserAddressCtrl(private val userAddressDb: UserAddressDb) {
             ApiResp(Const.NotErrorCode, "delete ok!")
         } else {
             ApiResp(401, "指定的地址不存在")
+        }
+    }
+
+    @PutMapping("/{addressId}/primary")
+    fun setAddressPrimary(@PathVariable addressId: Int) : ApiResp {
+        val currentUser = getCurrentUser()
+        val rNum = userAddressDb.setAddressPrimary(currentUser.id, addressId)
+        return if (rNum > 0) {
+            ApiResp(Const.NotErrorCode, "设置完成")
+        } else {
+            ApiResp(401, "设置的地址不存在")
         }
     }
 

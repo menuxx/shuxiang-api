@@ -5,8 +5,10 @@ import com.menuxx.miaosha.bean.ChannelItem
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.HashMap
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -67,19 +69,19 @@ object ChannelItemStore {
      * 2. 并且持有时间 发生在30秒之内
      * 3. 没有消费的 channelItem
      */
-    fun searchObtainFromChannel(userId: Int, channelId: Int) : ChannelItem? {
+    fun searchObtainFromChannel(userId: Int, channelId: Int) : Pair<Int, ChannelItem>? {
         val channel = getChannelStore(channelId)?.data
-        return channel?.search(Math.floor( (channel.size / 2000).toDouble() ).toLong(), { _, v ->
+        return channel?.search<Pair<Int, ChannelItem>>(Math.floor( (channel.size / 2000).toDouble() ).toLong(), { k, v ->
             if (v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < 30) {
-                v
+                Pair(k, v)
             } else {
                 null
             }
         })
     }
 
-    fun consumeObtainFromChannel(channelId: Int, itemId: Int) : ChannelItem? {
-        return getChannelStore(channelId)?.data?.remove(itemId)
+    fun consumeObtainFromChannel(channelId: Int, channelItemId: Int) : ChannelItem? {
+        return getChannelStore(channelId)?.data?.remove(channelItemId)
     }
 
     /**

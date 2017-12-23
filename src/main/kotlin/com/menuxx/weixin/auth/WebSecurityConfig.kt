@@ -97,6 +97,7 @@ class WebSecurityConfig(
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/weixin/config").permitAll()
+
                 .antMatchers(HttpMethod.POST, "/weixin_event_handler/**").permitAll() // 微信事件拦截不做权限验证
                 .anyRequest().authenticated()
 
