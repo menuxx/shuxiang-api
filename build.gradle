@@ -180,6 +180,10 @@ dependencies {
 
 	optional "org.springframework.boot:spring-boot-configuration-processor"
 
+	// http://poi.apache.org/
+	compile group: 'org.apache.poi', name: 'poi', version: '3.17'
+	testCompile group: 'org.apache.poi', name: 'poi', version: '3.17'
+
 	compile project(":ronglian")
 
 	compile 'com.github.binarywang:weixin-java-pay:2.9.0'
