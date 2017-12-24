@@ -49,7 +49,7 @@ class VChannelDb(
         return null
     }
 
-    fun loadVipChannels(merchantId: Int, page: PageParam) : List<VChannel> {
+    fun loadVChannels(merchantId: Int, page: PageParam) : List<VChannel> {
         return dsl.select().from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
                 .offset(page.getOffset()).limit(page.getLimit()).fetchArray().map {
@@ -63,7 +63,7 @@ class VChannelDb(
     /**
      * 新增渠道
      */
-    fun insertVipChannel(vChannel: VChannel) : VChannel {
+    fun insertVChannel(vChannel: VChannel) : VChannel {
         return dsl.insertInto(tVipChannel)
                 .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vChannel)) )
                 .returning()
@@ -75,7 +75,7 @@ class VChannelDb(
      * 更新渠道信息
      */
     @Transactional
-    fun updateVipChannel(channelId: Int, vChannel: VChannel) : VChannel? {
+    fun updateVChannel(channelId: Int, vChannel: VChannel) : VChannel? {
         dsl.update(tVipChannel)
                     .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vChannel)) )
                     .where(tVipChannel.ID.eq(UInteger.valueOf(channelId))).execute()

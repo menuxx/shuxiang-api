@@ -98,6 +98,7 @@ class ApiSecurityConfig(
             .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
+                .antMatchers("/wxauth/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/weixin/config").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/weixin_event_handler/**").permitAll() // 微信事件拦截不做权限验证

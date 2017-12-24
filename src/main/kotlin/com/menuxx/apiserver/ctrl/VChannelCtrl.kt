@@ -26,19 +26,19 @@ class VChannelCtrl(val vChannelDb: VChannelDb) {
 
     @GetMapping
     fun loadChannelOf(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<VChannel> {
-        return vChannelDb.loadVipChannels(1, PageParam(pageNum, pageSize))
+        return vChannelDb.loadVChannels(1, PageParam(pageNum, pageSize))
     }
 
     @PostMapping
     fun addChannel(@RequestBody @Valid vChannel: VChannel) : VChannel {
         vChannel.merchantId = 1
-        return vChannelDb.insertVipChannel(vChannel)
+        return vChannelDb.insertVChannel(vChannel)
     }
 
     @PutMapping("/{channelId}")
     fun updateChannel(@PathVariable channelId: Int, @RequestBody @Valid vChannel: VChannel) : VChannel? {
         vChannel.merchantId = 1
-        return vChannelDb.updateVipChannel(channelId, vChannel)
+        return vChannelDb.updateVChannel(channelId, vChannel)
     }
 
 }
