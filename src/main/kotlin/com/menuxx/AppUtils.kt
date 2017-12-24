@@ -1,6 +1,6 @@
 package com.menuxx
 
-import com.menuxx.weixin.auth.AuthUser
+import com.menuxx.apiserver.auth.AuthUser
 import org.springframework.security.core.context.SecurityContextHolder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -64,6 +64,20 @@ fun genRandomString32() = genRandomString(32)
 fun genRandomString(length: Int): String {
     var _length = length
     val characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJLMNOPQRSTUVWXYZ1234567890"
+    val result = StringBuilder()
+    while (_length > 0) {
+        val rand = Random()
+        result.append(characters[rand.nextInt(characters.length)])
+        _length--
+    }
+    return result.toString()
+}
+
+fun genRandomNumberString4() = genRandomNumberString(4)
+
+fun genRandomNumberString(length: Int): String {
+    var _length = length
+    val characters = "1234567890"
     val result = StringBuilder()
     while (_length > 0) {
         val rand = Random()

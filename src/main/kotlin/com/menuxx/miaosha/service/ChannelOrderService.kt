@@ -6,7 +6,7 @@ import com.menuxx.common.bean.OrderCharge
 import com.menuxx.common.bean.OrderItem
 import com.menuxx.common.db.UserAddressDb
 import com.menuxx.common.db.UserDb
-import com.menuxx.common.db.VipChannelDb
+import com.menuxx.common.db.VChannelDb
 import com.menuxx.genChannelOrderNo
 import com.menuxx.genRandomString32
 import org.springframework.stereotype.Service
@@ -20,7 +20,7 @@ import java.util.*
 
 @Service
 class ChannelOrderService(
-        private val channelDb: VipChannelDb,
+        private val channelDb: VChannelDb,
         private val userDb: UserDb,
         private val addressDb: UserAddressDb
 ) {

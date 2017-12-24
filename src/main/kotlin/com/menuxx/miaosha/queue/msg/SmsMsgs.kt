@@ -14,10 +14,3 @@ data class ConsumeSuccessMsg(
         var itemName: String,
         var receiverPhoneNumber: String
 )
-
-@NoArg
-data class DeliverySuccessMsg(
-        var mobile: String,
-        var expressName: String,
-        var expressNo: String
-)

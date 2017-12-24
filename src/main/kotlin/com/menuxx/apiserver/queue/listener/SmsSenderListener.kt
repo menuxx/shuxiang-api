@@ -1,14 +1,15 @@
-package com.menuxx.miaosha.queue.lisenter
+package com.menuxx.apiserver.queue.listener
 
 import com.aliyun.openservices.ons.api.Action
 import com.aliyun.openservices.ons.api.ConsumeContext
 import com.aliyun.openservices.ons.api.Message
 import com.aliyun.openservices.ons.api.MessageListener
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.menuxx.apiserver.queue.msg.DeliverySuccessMsg
+import com.menuxx.apiserver.queue.msg.LoginCaptchaMsg
 import com.menuxx.common.sms.SMSSender
 import com.menuxx.miaosha.queue.MsgTags
 import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
-import com.menuxx.miaosha.queue.msg.DeliverySuccessMsg
 import com.yingtaohuo.ronglian.SmsException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -52,7 +53,19 @@ class SmsSenderListener(
                     logger.error("发送配货信息($msg)失败：${ex.message}", ex)
                     Action.ReconsumeLater
                 }
-            } else -> Action.CommitMessage
+            }
+            MsgTags.TagCaptchaSms -> {
+                val msg = objectMapper.readValue(message.body, LoginCaptchaMsg::class.java)
+                return try {
+                    smsSender.sendCaptcha(mobile = msg.mobile, data = arrayOf(msg.captchaNo))
+                    Action.CommitMessage
+                } catch (ex: SmsException) {
+                    logger.error("登录验证码($msg)失败：${ex.message}", ex)
+                    // Action.ReconsumeLater TODO 测试验证码还没有审核通过
+                    Action.CommitMessage
+                }
+            }
+            else -> Action.CommitMessage
         }
     }
 

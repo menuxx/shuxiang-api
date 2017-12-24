@@ -3,9 +3,9 @@ package com.menuxx.common.db
 import com.menuxx.apiserver.PageParam
 import com.menuxx.common.bean.ChannelItemRecord
 import com.menuxx.common.bean.Item
-import com.menuxx.common.bean.VipChannel
+import com.menuxx.common.bean.VChannel
 import com.menuxx.common.db.tables.TItem
-import com.menuxx.common.db.tables.TVipChannel
+import com.menuxx.common.db.tables.TVChannel
 import com.menuxx.miaosha.bean.ChannelItem
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.store.ChannelItemStore
@@ -21,19 +21,19 @@ import org.springframework.transaction.annotation.Transactional
  * 微信: yin80871901
  */
 @Service
-class VipChannelDb(
+class VChannelDb(
         private val dsl: DSLContext,
         private val channelItemDb: ChannelItemRecordDb
 ) {
 
-    private final val tVipChannel = TVipChannel.T_VIP_CHANNEL
+    private final val tVipChannel = TVChannel.T_V_CHANNEL
     private final val tItem = TItem.T_ITEM
 
     val StatusCreated = 0
     val StatusStarted = 1
     val StatusFinishd = 2
 
-    fun getById(channelId: Int) : VipChannel? {
+    fun getById(channelId: Int) : VChannel? {
         val channelItemRecord = dsl.select()
                 .from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
@@ -41,7 +41,7 @@ class VipChannelDb(
                 .fetchOne()
 
         if ( channelItemRecord != null ) {
-            val channelItem = channelItemRecord.into(tVipChannel).into(VipChannel::class.java)
+            val channelItem = channelItemRecord.into(tVipChannel).into(VChannel::class.java)
             channelItem.item = channelItemRecord.into(tItem).into(Item::class.java)
             return channelItem
         }
@@ -49,11 +49,11 @@ class VipChannelDb(
         return null
     }
 
-    fun loadVipChannels(merchantId: Int, page: PageParam) : List<VipChannel> {
+    fun loadVipChannels(merchantId: Int, page: PageParam) : List<VChannel> {
         return dsl.select().from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
                 .offset(page.getOffset()).limit(page.getLimit()).fetchArray().map {
-            val channel = it.into(tVipChannel).into(VipChannel::class.java)
+            val channel = it.into(tVipChannel).into(VChannel::class.java)
             val item = it.into(tItem).into(Item::class.java)
             channel.item = item
             channel
@@ -63,21 +63,21 @@ class VipChannelDb(
     /**
      * 新增渠道
      */
-    fun insertVipChannel(vipChannel: VipChannel) : VipChannel {
+    fun insertVipChannel(vChannel: VChannel) : VChannel {
         return dsl.insertInto(tVipChannel)
-                .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vipChannel)) )
+                .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vChannel)) )
                 .returning()
                 .fetchOne()
-                .into(VipChannel::class.java)
+                .into(VChannel::class.java)
     }
 
     /**
      * 更新渠道信息
      */
     @Transactional
-    fun updateVipChannel(channelId: Int, vipChannel: VipChannel) : VipChannel? {
+    fun updateVipChannel(channelId: Int, vChannel: VChannel) : VChannel? {
         dsl.update(tVipChannel)
-                    .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vipChannel)) )
+                    .set( nullSkipUpdate(dsl.newRecord(tVipChannel, vChannel)) )
                     .where(tVipChannel.ID.eq(UInteger.valueOf(channelId))).execute()
         return getById(channelId)
     }

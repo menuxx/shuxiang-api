@@ -10,12 +10,23 @@ public class UserAuthority {
 
     private Integer userId;
 
+    private Integer userType;
+
     public UserAuthority() {
     }
 
-    public UserAuthority(Integer authorityId, Integer userId) {
+    public UserAuthority(Integer authorityId, Integer userId, Integer userType) {
         this.authorityId = authorityId;
+        this.userType = userType;
         this.userId = userId;
+    }
+
+    public Integer getUserType() {
+        return userType;
+    }
+
+    public void setUserType(Integer userType) {
+        this.userType = userType;
     }
 
     public Integer getId() {

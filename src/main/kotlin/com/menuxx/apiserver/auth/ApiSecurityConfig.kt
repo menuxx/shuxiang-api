@@ -1,25 +1,25 @@
-package com.menuxx.weixin.auth
+package com.menuxx.apiserver.auth
 
 import com.menuxx.weixin.prop.AuthTokenProps
 import com.menuxx.weixin.prop.WeiXinProps
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.crypto.password.NoOpPasswordEncoder
-import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -31,12 +31,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableConfigurationProperties(AuthTokenProps::class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-class WebSecurityConfig(
-        private val userDetailsService: UserDetailsService,
+class ApiSecurityConfig(
+        @Autowired @Qualifier("wxUserDetailService") private val wxUserDetailsService: UserDetailsService,
+        @Autowired @Qualifier("merchantUserDetailService") private val merchantUserDetailsService: UserDetailsService,
         private val wxProps: WeiXinProps,
         private val authTokenProps: AuthTokenProps,
         private val env: Environment,
-        private val unauthorizedHandler: EntryPointUnauthorizedHandler
+        private val unauthorizedHandler: EntryPointUnauthorizedHandler,
+        @Autowired @Qualifier("wxAuthenticationProvider") private val wxAuthenticationProvider: AuthenticationProvider,
+        @Autowired @Qualifier("merchantAuthenticationProvider") private val merchantAuthenticationProvider: AuthenticationProvider
 ) : WebSecurityConfigurerAdapter() {
 
     @Bean
@@ -48,9 +51,8 @@ class WebSecurityConfig(
     @Autowired
     @Throws(Exception::class)
     fun configureAuthentication(builder: AuthenticationManagerBuilder) {
-        builder.userDetailsService(userDetailsService)
-                // 密码不作任何加密，因为用户的密码是 微信的 refreshToken
-                .passwordEncoder(NoOpPasswordEncoder.getInstance())
+        builder.authenticationProvider(wxAuthenticationProvider)
+        builder.authenticationProvider(merchantAuthenticationProvider)
     }
 
     /**
@@ -58,13 +60,13 @@ class WebSecurityConfig(
      */
     @Bean
     fun tokenProcessor() : TokenProcessor {
-        return TokenProcessor(authTokenProps.secret!!, authTokenProps.expiration!!)
+        return TokenProcessor(authTokenProps.secret, authTokenProps.expiration)
     }
 
     @Bean
     @Throws(Exception::class)
     fun authenticationTokenFilter(): AuthenticationTokenFilter {
-        val filter = AuthenticationTokenFilter(authTokenProps.header!!, userDetailsService, tokenProcessor())
+        val filter = AuthenticationTokenFilter(authTokenProps.header, wxUserDetailsService, merchantUserDetailsService, tokenProcessor())
         filter.setAuthenticationManager(authenticationManagerBean())
         return filter
     }
@@ -96,7 +98,7 @@ class WebSecurityConfig(
             .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
-                .antMatchers("/weixin/config").permitAll()
+                .antMatchers(HttpMethod.GET, "/weixin/config").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/weixin_event_handler/**").permitAll() // 微信事件拦截不做权限验证
                 .anyRequest().authenticated()

@@ -3,7 +3,7 @@ package com.menuxx.common.bean;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-public class VipChannel {
+public class VChannel {
 
     private Integer id;
 

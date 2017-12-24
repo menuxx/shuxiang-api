@@ -12,6 +12,8 @@ public class MerchantUser {
 
     private String email;
 
+    private String captcha;
+
     private Date lastLoginTime;
 
     private String lastLoginIp;
@@ -28,6 +30,14 @@ public class MerchantUser {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(String captcha) {
+        this.captcha = captcha;
     }
 
     public String getPressName() {

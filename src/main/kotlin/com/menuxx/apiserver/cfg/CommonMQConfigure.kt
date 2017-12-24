@@ -7,7 +7,7 @@ import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.aliyun.openservices.ons.api.bean.Subscription
 import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.queue.MsgTags
-import com.menuxx.miaosha.queue.lisenter.SmsSenderListener
+import com.menuxx.apiserver.queue.listener.SmsSenderListener
 import org.springframework.beans.factory.annotation.Autowire
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

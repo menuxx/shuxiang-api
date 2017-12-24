@@ -28,3 +28,9 @@ server {
         }
 }
 ```
+### 设置 rabbitmq 为 web mangement 用户
+```
+rabbitmqctl add_user test test
+rabbitmqctl set_user_tags test administrator
+rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+```

@@ -1,9 +1,9 @@
 package com.menuxx.weixin.service
 
 import com.menuxx.common.db.UserDb
-import com.menuxx.weixin.auth.AGrantedAuthority
-import com.menuxx.weixin.auth.AuthUser
-import org.springframework.cache.annotation.Cacheable
+import com.menuxx.apiserver.auth.AGrantedAuthority
+import com.menuxx.apiserver.auth.AuthUser
+import com.menuxx.apiserver.auth.AuthUserTypeNormal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -21,16 +21,17 @@ class WXUserDetailService(private val userDb: UserDb) : UserDetailsService {
     /**
      * 此处的 userName 就是 openid
      */
-    // @Cacheable(value = ["authUserCache"], key = "#username")
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
         val user = userDb.findUserByOpenid(username)
         if ( user != null ) {
             val authorities = userDb.findAuthoritiesByUserId(user.id)
-            return AuthUser(id = user.id, userName = user.userName, nickName = user.userName, _password = user.wxUser.refreshToken,
-                enable = user.enable == 1,
+            return AuthUser(id = user.id, userName = user.userName, _password = user.wxUser.refreshToken,
+                    enable = user.enable == 1,
                     openid = username,
                     avatarUrl = user.avatarUrl,
+                    phoneNumber = user.phoneNumber,
+                    userType = AuthUserTypeNormal,
                     authorities = authorities.map { AGrantedAuthority(it.authority.name) }.toMutableList()
             )
         } else {

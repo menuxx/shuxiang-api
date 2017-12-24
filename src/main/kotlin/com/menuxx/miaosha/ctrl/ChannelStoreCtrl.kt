@@ -13,7 +13,7 @@ import com.menuxx.*
 import com.menuxx.apiserver.bean.ApiResp
 import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb
-import com.menuxx.common.db.VipChannelDb
+import com.menuxx.common.db.VChannelDb
 import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
@@ -47,7 +47,7 @@ import kotlin.collections.LinkedHashMap
 class ChannelStoreCtrl(
         private val aliyunProps: AliyunProps,
         private val wxProps: WeiXinProps,
-        private val channelDb: VipChannelDb,
+        private val channelDb: VChannelDb,
         private val orderDb: OrderDb,
         private val orderChargeDb: OrderChargeDb,
         private val wxPayService: WxPayService,
@@ -135,7 +135,7 @@ class ChannelStoreCtrl(
         } else {
             var orderCharge = orderChargeDb.findChargeRecordByOutTradeNo(order.orderNo)
             if ( orderCharge == null ) {
-                val dbOrderCharge = orderService.createChannelOrderCharge(order, currentUser.openid)
+                val dbOrderCharge = orderService.createChannelOrderCharge(order, currentUser.openid!!)
                 orderCharge = orderChargeDb.insertChargeRecord(dbOrderCharge)
             }
             val payReq = WxPayUnifiedOrderRequest()

@@ -3,11 +3,14 @@ package com.menuxx.common.bean;
 import java.util.Date;
 
 public class AdminUser {
+
     private Integer id;
 
     private String username;
 
     private String password;
+
+    private String phoneNumber;
 
     private Date lastLoginTime;
 
@@ -22,6 +25,14 @@ public class AdminUser {
     private Date createAt;
 
     private Date updateAt;
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     public Integer getId() {
         return id;

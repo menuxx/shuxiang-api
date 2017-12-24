@@ -1,5 +1,6 @@
 package com.menuxx.common.db
 
+import com.menuxx.apiserver.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.Authority
 import com.menuxx.common.bean.User
 import com.menuxx.common.bean.UserAuthority
@@ -90,7 +91,7 @@ class UserDb(private val dsl: DSLContext) {
     fun findAuthoritiesByUserId(userId: Int) : List<UserAuthority> {
         return dsl.select().from(tUserAuthority)
                 .leftJoin(tAuthority).on(tAuthority.ID.eq(tUserAuthority.AUTHORITY_ID))
-                .where(tUserAuthority.USER_ID.eq(userId))
+                .where(tUserAuthority.USER_ID.eq(userId).and(tUserAuthority.USER_TYPE.eq(AuthUserTypeNormal)))
                 .fetchArray().map {
             // 将对象填充完整
             val userAuth = it.into(tUserAuthority).into(UserAuthority::class.java)
@@ -134,7 +135,7 @@ class UserDb(private val dsl: DSLContext) {
         newUser.wxUserId = newSysUser.id
         val user = insertUser(newUser)
         // 该用户的身份为 普通用户
-        insertUserAuthority(UserAuthority(1, user.id))
+        insertUserAuthority(UserAuthority(1, user.id, AuthUserTypeNormal))
         return user
     }
 

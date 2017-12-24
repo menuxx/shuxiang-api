@@ -1,15 +1,15 @@
 package com.menuxx.weixin.ctrl
 
+import com.menuxx.apiserver.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.WXUser
 import com.menuxx.common.db.UserDb
-import com.menuxx.weixin.auth.TokenProcessor
+import com.menuxx.apiserver.auth.TokenProcessor
 import com.menuxx.weixin.util.getSex
 import me.chanjar.weixin.mp.api.WxMpService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -25,8 +25,8 @@ import javax.validation.constraints.NotNull
  */
 
 @RestController
-@RequestMapping("/auth")
-class AuhCtrl(
+@RequestMapping("/wxauth")
+class WXAuhCtrl(
         private val wxMpService: WxMpService,
         private val userDb: UserDb,
         private val authenticationManager: AuthenticationManager,
@@ -72,14 +72,14 @@ class AuhCtrl(
         wxUser.sex = getSex(wxUserInfo.sex)
         val sysUser = userDb.saveUserFromWXUser(wxUser, fromIp)
 
-        // 获取该用户在系统中的信息
+        // 尝试让该用户登录，从而验证该用户登录是否正确
         val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(
                 accessToken.openId,
                 accessToken.refreshToken
         ))
 
         SecurityContextHolder.getContext().authentication = authentication
-        val token = tokenProcessor.genToken(accessToken.openId, request.remoteAddr)
+        val token = tokenProcessor.genToken(accessToken.openId, AuthUserTypeNormal, request.remoteAddr)
 
         return Result(token, hashMapOf(
                 "id" to sysUser.id,

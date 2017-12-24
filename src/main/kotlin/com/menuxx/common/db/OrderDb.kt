@@ -3,10 +3,10 @@ package com.menuxx.common.db
 import com.menuxx.apiserver.PageParam
 import com.menuxx.common.bean.Item
 import com.menuxx.common.bean.Order
-import com.menuxx.common.bean.VipChannel
+import com.menuxx.common.bean.VChannel
 import com.menuxx.common.db.tables.TItem
 import com.menuxx.common.db.tables.TOrder
-import com.menuxx.common.db.tables.TVipChannel
+import com.menuxx.common.db.tables.TVChannel
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
@@ -25,7 +25,7 @@ class OrderDb(
 ) {
 
     private final val tOrder = TOrder.T_ORDER
-    private final val tVipChannel = TVipChannel.T_VIP_CHANNEL
+    private final val tVipChannel = TVChannel.T_V_CHANNEL
     private final val tItem = TItem.T_ITEM
 
     fun getUserChannelOrder(userId: Int, channelId: Int) : Order? {
@@ -63,6 +63,14 @@ class OrderDb(
                 .execute()
     }
 
+    fun updateOrderExpress(orderId: Int, expressNo: String, expressName: String) : Int {
+        return dsl.update(tOrder)
+                .set(tOrder.EXPRESS_NO, expressNo)
+                .set(tOrder.EXPRESS_NAME, expressName)
+                .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
+                .execute()
+    }
+
     fun getOrderById(orderId: Int) : Order? {
         return dsl.select().from(tOrder).where(tOrder.ID.eq(UInteger.valueOf(orderId)))?.fetchOne()?.into(Order::class.java)
     }
@@ -79,8 +87,8 @@ class OrderDb(
                 .fetchOne()
 
         val order = record?.into(tOrder)?.into(Order::class.java)
-        order?.vipChannel = record?.into(tVipChannel)?.into(VipChannel::class.java)
-        order?.vipChannel?.item = record?.into(tItem)?.into(Item::class.java)
+        order?.vChannel = record?.into(tVipChannel)?.into(VChannel::class.java)
+        order?.vChannel?.item = record?.into(tItem)?.into(Item::class.java)
         return order
     }
 

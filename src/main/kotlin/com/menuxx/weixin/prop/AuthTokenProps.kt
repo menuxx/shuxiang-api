@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @NoArg
 @ConfigurationProperties("auth-token")
 data class AuthTokenProps(
-        var secret: String?,
-        var header: String?,
-        var expiration: Int?
+        var secret: String,
+        var header: String,
+        var expiration: Int
 )

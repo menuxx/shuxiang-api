@@ -23,7 +23,7 @@ public class Order {
 
     private Integer queueNum;
 
-    private VipChannel vipChannel;
+    private VChannel vChannel;
 
     private Integer userId;
 
@@ -31,7 +31,7 @@ public class Order {
 
     private String expressNo;
 
-    private Integer expressType;
+    private String expressName;
 
     private String orderName;
 
@@ -69,12 +69,12 @@ public class Order {
         this.queueNum = queueNum;
     }
 
-    public VipChannel getVipChannel() {
-        return vipChannel;
+    public VChannel getVChannel() {
+        return vChannel;
     }
 
-    public void setVipChannel(VipChannel vipChannel) {
-        this.vipChannel = vipChannel;
+    public void setVChannel(VChannel vChannel) {
+        this.vChannel = vChannel;
     }
 
     public List<OrderItem> getItems() {
@@ -133,12 +133,12 @@ public class Order {
         this.expressNo = expressNo == null ? null : expressNo.trim();
     }
 
-    public Integer getExpressType() {
-        return expressType;
+    public String getExpressName() {
+        return expressName;
     }
 
-    public void setExpressType(Integer expressType) {
-        this.expressType = expressType;
+    public void setExpressType(String expressName) {
+        this.expressName = expressName;
     }
 
     public String getOrderName() {

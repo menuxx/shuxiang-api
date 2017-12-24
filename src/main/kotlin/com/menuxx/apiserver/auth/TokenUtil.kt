@@ -1,4 +1,4 @@
-package com.menuxx.weixin.auth
+package com.menuxx.apiserver.auth
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -12,16 +12,18 @@ import java.util.Date
  * 作者: yinchangsheng@gmail.com
  * 创建于: 2017/12/18
  * 微信: yin80871901
+ *
+ * 在 微信公众号中 subject 代表 openid
+ * 在 普通 api 中 subject 代表 手机号
  */
-
-class TokenProcessor(val secret: String, val expiration: Int) {
+class TokenProcessor(private val secret: String, private val expiration: Int) {
 
     private val logger = LoggerFactory.getLogger(TokenProcessor::class.java)
 
     /**
      * 获取所有 Claims
      */
-    fun getClaimsFromToken(token: String) : Claims? {
+    private fun getClaimsFromToken(token: String) : Claims? {
         return try {
             Jwts.parser()
                     .setSigningKey(secret.toByteArray(Charset.forName("UTF-8")))
@@ -34,9 +36,9 @@ class TokenProcessor(val secret: String, val expiration: Int) {
     }
 
     /**
-     * 获取 openid
+     * 获取 身份 key
      */
-    fun getOpenIdFromToken(token: String): String? {
+    fun getPrincipalFromToken(token: String): String? {
         return try {
             getClaimsFromToken(token)?.subject
         } catch (ex: Exception) {
@@ -78,6 +80,15 @@ class TokenProcessor(val secret: String, val expiration: Int) {
         }
     }
 
+    fun getUsertypeFromToken(token: String) : Int? {
+        return try {
+            getClaimsFromToken(token)?.get("usertype") as Int
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            null
+        }
+    }
+
     private fun generateCurrentDate(): Date {
         return Date(System.currentTimeMillis())
     }
@@ -101,8 +112,8 @@ class TokenProcessor(val secret: String, val expiration: Int) {
      * openId 用户在微信中的 openid
      * ipAddress 用户客户端的 ip 地址
      */
-    fun genToken(openId: String, ipAddress: String) : String {
-        val claims = hashMapOf("sub" to openId, "audience" to ipAddress, "created" to generateCurrentDate())
+    fun genToken(principal: String, userType: Int, ipAddress: String) : String {
+        val claims = hashMapOf("sub" to principal, "usertype" to userType, "audience" to ipAddress, "created" to generateCurrentDate())
         return generateToken(claims)
     }
 
@@ -141,13 +152,18 @@ class TokenProcessor(val secret: String, val expiration: Int) {
 
     /**
      * 验证 token
-     * 1. 验证 openid 是否一致
+     * 1. 根据用户类型 验证 主要信息是否一致 是否一致
      * 2. 验证 是否过期
      */
     fun validateToken(token: String, userDetails: UserDetails): Boolean {
         val authUser = userDetails as AuthUser
-        val openId = getOpenIdFromToken(token)
-        return openId == authUser.openid && !this.isTokenExpired(token)
+        val principal = getPrincipalFromToken(token)
+        return when (authUser.userType) {
+            AuthUserTypeNormal -> principal == authUser.openid && !this.isTokenExpired(token)
+            AuthUserTypeMerchant -> principal == authUser.phoneNumber && !this.isTokenExpired(token)
+            AuthUserTypeAdmin -> principal == authUser.userName && !this.isTokenExpired(token)
+            else -> false
+        }
     }
 
 
