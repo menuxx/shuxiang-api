@@ -39,7 +39,7 @@ public class VChannel {
 
     private Date updateAt;
 
-    private Date expiredTime;
+    private Date endTime;
 
     private Date startTime;
 
@@ -147,12 +147,12 @@ public class VChannel {
         this.updateAt = updateAt;
     }
 
-    public Date getExpiredTime() {
-        return expiredTime;
+    public Date getEndTime() {
+        return endTime;
     }
 
-    public void setExpiredTime(Date expiredTime) {
-        this.expiredTime = expiredTime;
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     public Date getStartTime() {

@@ -59,4 +59,20 @@ class OrderCtrl(
         }
     }
 
+    /**
+     * 核销发货清单
+     */
+    @GetMapping("/{orderId}/write_of_delivery_manifest")
+    fun writeOffDeliveryManifest() : ApiResp {
+        return ApiResp(405, "用户身份不能进行该操作...")
+    }
+
+    /**
+     * 下载发货清单
+     */
+    @GetMapping("/{orderId}/download_delivery_manifest")
+    fun downloadDeliveryManifest() : ApiResp {
+        return ApiResp(405, "用户身份不能进行该操作...")
+    }
+
 }

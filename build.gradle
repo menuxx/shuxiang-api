@@ -19,6 +19,13 @@ buildscript {
 	}
 }
 
+repositories {
+	maven { url "http://nexus.daocloud.io/repository/maven-public/" }
+	maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+	maven { url 'http://repo.spring.io/plugins-release' }
+	mavenCentral()
+}
+
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
@@ -172,6 +179,10 @@ project.tasks.getByName('compileJava').dependsOn -= 'generateOnecodeDevJooqSchem
 dependencies {
 
 	optional "org.springframework.boot:spring-boot-configuration-processor"
+
+	// http://poi.apache.org/
+	compile group: 'org.apache.poi', name: 'poi', version: '3.17'
+	testCompile group: 'org.apache.poi', name: 'poi', version: '3.17'
 
 	compile project(":ronglian")
 
