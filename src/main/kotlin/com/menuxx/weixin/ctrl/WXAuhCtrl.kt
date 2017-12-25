@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -30,6 +31,7 @@ class WXAuhCtrl(
         private val wxMpService: WxMpService,
         private val userDb: UserDb,
         private val authenticationManager: AuthenticationManager,
+        private val wxUserDetailService: UserDetailsService,
         private val tokenProcessor: TokenProcessor
         ) {
 
@@ -72,10 +74,14 @@ class WXAuhCtrl(
         wxUser.sex = getSex(wxUserInfo.sex)
         val sysUser = userDb.saveUserFromWXUser(wxUser, fromIp)
 
+        // 获取用户
+        val userDetail = wxUserDetailService.loadUserByUsername(wxUser.openid)
+
         // 尝试让该用户登录，从而验证该用户登录是否正确
         val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(
-                accessToken.openId,
-                accessToken.refreshToken
+                userDetail,
+                accessToken.refreshToken,
+                userDetail.authorities
         ))
 
         SecurityContextHolder.getContext().authentication = authentication

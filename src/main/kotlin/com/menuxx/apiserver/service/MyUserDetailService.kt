@@ -16,14 +16,15 @@ import org.springframework.stereotype.Service
  *
  * 超级管理员
  */
-//@Service("adminUserDetailService")
-//class AdminUserDetailService() : UserDetailsService {
-//
-//
-//    override fun loadUserByUsername(username: String): UserDetails {
-//    }
-//
-//}
+@Service("adminUserDetailService")
+class AdminUserDetailService : UserDetailsService {
+
+    @Throws(UsernameNotFoundException::class)
+    override fun loadUserByUsername(username: String): UserDetails? {
+        return null
+    }
+
+}
 
 /**
  * 商户详细信息

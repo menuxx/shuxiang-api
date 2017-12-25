@@ -71,7 +71,7 @@
             <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
         <!--</table>-->
 
-        <!--<table schema="onecode" tableName="t_vip_channel" domainObjectName="VipChannel">-->
+        <!--<table schema="onecode" tableName="t_v_channel" domainObjectName="VChannel">-->
             <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
         <!--</table>-->
 

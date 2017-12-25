@@ -28,9 +28,15 @@ server {
         }
 }
 ```
+
 ### 设置 rabbitmq 为 web mangement 用户
 ```
 rabbitmqctl add_user test test
 rabbitmqctl set_user_tags test administrator
 rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
 ```
+
+### 微信验证文件
+> 小程序二维码规则验证文件 static/bk/odtdiKTRCA.txt
+
+> 公众号域名验证文件 static/MP_verify_HbqV7XuhqgeCEAv9.txt
