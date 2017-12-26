@@ -56,7 +56,7 @@ class ChannelOrderService(
         // 获取渠道详细信息包括 item
         val channel = channelDb.getById(channelId)!!
         val user = userDb.getUserDetailById(userId)!!
-        val address = addressDb.getAddressById(addressId)!!
+        val address = addressDb.getUserAddressById(user.id, addressId)!!
 
         val totalFee = channel.payFee + channel.expressFee
 

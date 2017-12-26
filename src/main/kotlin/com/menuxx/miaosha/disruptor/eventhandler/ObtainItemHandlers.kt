@@ -182,10 +182,10 @@ class ChannelUserEventHandler(
             }
             // 已持有，就申请消费
             ConfirmState.Obtain -> {
-                // orderId 为 0 就是没有正常消费，如果 不是 0 就是正常消费
-                if ( event.orderId != 0 ) {
-                    val entry = ChannelItemStore.searchObtainFromChannel(userId, channelId)
-                    if ( entry != null ) {
+                val entry = ChannelItemStore.searchObtainFromChannel(userId, channelId)
+                if ( entry != null ) {
+                    // orderId 为 0 就是没有正常消费，如果 不是 0 就是正常消费
+                    if ( event.orderId != 0 ) {
                         val channelItemId = entry.first
                         val channelItem = entry.second
                         sessionUser.confirmState = ConfirmState.ObtainConsumed
@@ -203,11 +203,11 @@ class ChannelUserEventHandler(
                                 orderId = event.orderId,
                                 queueNum = queueNum
                         ))
-                    } else {
-                        // 超过保留时间，被其他人抢走了
-                        sessionUser.confirmState = ConfirmState.FreeObtain
-                        event.confirmState = ConfirmState.FreeObtain
                     }
+                } else {
+                    // 超过保留时间，被其他人抢走了
+                    sessionUser.confirmState = ConfirmState.FreeObtain
+                    event.confirmState = ConfirmState.FreeObtain
                 }
             }
             ConfirmState.ObtainConsumed -> {

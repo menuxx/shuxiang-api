@@ -121,7 +121,7 @@ class VChannelDb(
                     obtainTime = item.obtainTime?.toInstant()
             )
         }
-        if (itemWithIds.size == channel.stock) {
+        if (itemWithIds.size != channel.stock) {
             throw LaunchException(LaunchRecordRowsFail, "数据库记录输出条数不正确")
         }
         // 存储到 渠道存储中

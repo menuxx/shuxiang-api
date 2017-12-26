@@ -126,7 +126,7 @@ class ChannelStoreCtrl(
             // 下单完成发送消息，给 Const.QueueTagTradeObtain 消费者处理
             obtainConsumeProducer.sendAsync(msg, object : SendCallback {
                 override fun onSuccess(sendResult: SendResult) {
-                    asyncResult.setResult(OrderConsumeResultData(null, 1, order.id, "下单完成"))
+                    asyncResult.setResult(OrderConsumeResultData(null, order.id, Const.NotErrorCode, "下单完成"))
                 }
                 override fun onException(context: OnExceptionContext) {
                     asyncResult.setErrorResult(context.exception)
@@ -208,7 +208,7 @@ class ChannelStoreCtrl(
     /**
      * 加载渠道 到就绪状态
      */
-    @PutMapping("/{channelId}")
+    @PutMapping("/{channelId}/launch")
     fun channelReady(@PathVariable channelId: Int) : ApiResp {
         return try {
             channelDb.launchChannel(channelId)

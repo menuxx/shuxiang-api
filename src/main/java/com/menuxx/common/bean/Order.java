@@ -1,5 +1,7 @@
 package com.menuxx.common.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 import java.util.List;
 
@@ -23,9 +25,12 @@ public class Order {
 
     private Integer queueNum;
 
+    @JsonProperty("vChannel")
     private VChannel vChannel;
 
     private Integer userId;
+
+    private User user;
 
     private String orderNo;
 
@@ -60,6 +65,19 @@ public class Order {
     private String receiverDetailInfo;
 
     private String receiverPostalCode;
+
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setExpressName(String expressName) {
+        this.expressName = expressName;
+    }
 
     public Integer getQueueNum() {
         return queueNum;

@@ -69,9 +69,9 @@ class ChannelUserStateWriteQueue(
                 channelItemDb.itemObtain(event.userId, event.channelItemId)
             }
             CommitActionConsume -> {
-                objRedisTemplate.expire(event.loopRefId, 3600, TimeUnit.SECONDS)
+                objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
                 // 写入数据库状态
-                channelItemDb.itemConsumed(event.channelItemId, event.orderId!!)
+                channelItemDb.itemConsumed(event.channelItemId, event.orderId!!, event.queueNum!!)
                 orderDb.updateOrderConsumed(orderId = event.orderId!!, status = Order.CONSUMED, queueNum = event.queueNum!!)
             }
         }

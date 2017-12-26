@@ -41,7 +41,7 @@ class OrderCtrl(
      * 获取订单详情
      */
     @GetMapping("/{orderId}")
-    fun getMerchantOrderDetail(@PathVariable orderId: Int) : Order? {
+    fun getOrderDetail(@PathVariable orderId: Int) : Order? {
         return orderDb.getOrderDetail(orderId)
     }
 
@@ -62,7 +62,7 @@ class OrderCtrl(
     /**
      * 核销发货清单
      */
-    @GetMapping("/{orderId}/write_of_delivery_manifest")
+    @GetMapping("/{orderId}/write_off_delivery_manifest")
     fun writeOffDeliveryManifest() : ApiResp {
         return ApiResp(405, "用户身份不能进行该操作...")
     }

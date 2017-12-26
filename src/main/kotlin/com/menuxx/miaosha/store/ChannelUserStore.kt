@@ -11,17 +11,15 @@ import com.menuxx.miaosha.disruptor.ChannelUserEvent
 
 class ChannelUserGroup {
 
-    companion object {
-        @JvmStatic val UserGroup = HashMap<Int, ChannelUserEvent>()
-    }
+    private val UserGroup = HashMap<Int, ChannelUserEvent>()
 
-    fun getUser(userId: Int) = ChannelUserGroup.UserGroup[userId]
+    fun getUser(userId: Int) = UserGroup[userId]
 
     fun getAndInsertUser(userId: Int, channelUser: ChannelUserEvent) : ChannelUserEvent {
-        var user = ChannelUserGroup.UserGroup[userId]
+        var user = UserGroup[userId]
         if ( user == null ) {
             user = channelUser
-            ChannelUserGroup.UserGroup.put(userId, channelUser)
+            UserGroup.put(userId, channelUser)
         }
         return user
     }

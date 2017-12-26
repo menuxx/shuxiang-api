@@ -3,9 +3,11 @@ package com.menuxx.common.db
 import com.menuxx.apiserver.PageParam
 import com.menuxx.common.bean.Item
 import com.menuxx.common.bean.Order
+import com.menuxx.common.bean.User
 import com.menuxx.common.bean.VChannel
 import com.menuxx.common.db.tables.TItem
 import com.menuxx.common.db.tables.TOrder
+import com.menuxx.common.db.tables.TUser
 import com.menuxx.common.db.tables.TVChannel
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
@@ -24,8 +26,9 @@ class OrderDb(
         private val orderItemDb: OrderItemDb
 ) {
 
+    private final val tUser = TUser.T_USER
     private final val tOrder = TOrder.T_ORDER
-    private final val tVipChannel = TVChannel.T_V_CHANNEL
+    private final val tVChannel = TVChannel.T_V_CHANNEL
     private final val tItem = TItem.T_ITEM
 
     fun getUserChannelOrder(userId: Int, channelId: Int) : Order? {
@@ -81,13 +84,15 @@ class OrderDb(
     fun getOrderDetail(orderId: Int) : Order? {
         val record = dsl.select()
                 .from(tOrder)
-                .leftJoin(tVipChannel).on(tOrder.CHANNEL_ID.eq(tVipChannel.ID))
-                .leftJoin(tItem).on(tItem.ID.eq(tVipChannel.ITEM_ID))
+                .leftJoin(tUser).on(tOrder.USER_ID.eq(tUser.ID))
+                .leftJoin(tVChannel).on(tOrder.CHANNEL_ID.eq(tVChannel.ID))
+                .leftJoin(tItem).on(tItem.ID.eq(tVChannel.ITEM_ID))
                 .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
                 .fetchOne()
 
         val order = record?.into(tOrder)?.into(Order::class.java)
-        order?.vChannel = record?.into(tVipChannel)?.into(VChannel::class.java)
+        order?.user = record?.into(tUser)?.into(User::class.java)
+        order?.vChannel = record?.into(tVChannel)?.into(VChannel::class.java)
         order?.vChannel?.item = record?.into(tItem)?.into(Item::class.java)
         return order
     }
@@ -110,8 +115,8 @@ class OrderDb(
 
         return dsl.select()
                 .from(tOrder)
-                .leftJoin(tVipChannel).on(tOrder.CHANNEL_ID.eq(tVipChannel.ID))
-                .leftJoin(tItem).on(tItem.ID.eq(tVipChannel.ITEM_ID))
+                .leftJoin(tVChannel).on(tOrder.CHANNEL_ID.eq(tVChannel.ID))
+                .leftJoin(tItem).on(tItem.ID.eq(tVChannel.ITEM_ID))
                 .where(condition)
                 .orderBy(tOrder.CREATE_AT.desc())
                 .limit(page.getLimit())

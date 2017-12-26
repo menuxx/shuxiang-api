@@ -36,6 +36,12 @@ class UserAddressCtrl(private val userAddressDb: UserAddressDb) {
         return userAddressDb.getPrimaryAddress(currentUser.id) ?: throw NotFoundException("用户没有默认地址")
     }
 
+    @GetMapping("/{addressId}")
+    fun getAddress(@PathVariable addressId: Int) : UserAddress {
+        val currentUser = getCurrentUser()
+        return userAddressDb.getUserAddressById(currentUser.id, addressId) ?: throw NotFoundException("没有找到指定的地址")
+    }
+
     @PostMapping
     fun addAddress(@Valid @RequestBody address: UserAddress) : UserAddress {
         val currentUser = getCurrentUser()
