@@ -43,7 +43,7 @@ import kotlin.collections.LinkedHashMap
 
 @AllOpen
 @RestController
-@RequestMapping("/channel_store")
+@RequestMapping("/v_channel_store")
 class ChannelStoreCtrl(
         private val aliyunProps: AliyunProps,
         private val wxProps: WeiXinProps,

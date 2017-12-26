@@ -42,7 +42,7 @@ ronglian:
   account-sid: 8a216da857511049015774861894153f
   auth-token: 396ac293985c7ad33359d276c6a3b4eb
   sms-tpls:
-    captcha-id: 198719
+    captcha-id: 225789          # 登录短信
     consume-success-id: 225523  # 抢购成功通知
     delivery-success-id: 225525  # 配送通知
 

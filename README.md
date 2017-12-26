@@ -19,8 +19,8 @@ server {
           proxy_pass http://127.0.0.1:8070;
         }
         # 商户出版社
-        location /merchant {
-            proxy_pass http://127.0.0.1:8081;
+        location /merchant/ {
+            proxy_pass http://127.0.0.1:8083;
         }
         # 只支持其他域名的 wx 授权 code 回调
         location = /wxauthcodetestredirect_2017 {
