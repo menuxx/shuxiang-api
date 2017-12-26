@@ -66,9 +66,9 @@ class WXAuhCtrl(
         wxUser.openid = wxUserInfo.openId
         wxUser.refreshToken = accessToken.refreshToken
         wxUser.city = wxUserInfo.city
-        wxUser.country = wxUserInfo.country
-        wxUser.headimgurl = wxUserInfo.headImgUrl
-        wxUser.nickname = wxUserInfo.nickname
+        wxUser.country = wxUserInfo.country ?: "中国"
+        wxUser.headimgurl = wxUserInfo.headImgUrl ?: "https://file.menuxx.com/images/avatars/default_avatar.png"
+        wxUser.nickname = wxUserInfo.nickname ?: "未命名"
         wxUser.province = wxUserInfo.province
         wxUser.unionid = wxUserInfo.unionId
         wxUser.sex = getSex(wxUserInfo.sex)

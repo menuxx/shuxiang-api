@@ -4,6 +4,7 @@ import com.aliyun.openservices.ons.api.Message
 import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.lmax.disruptor.EventHandler
+import com.menuxx.Const
 import com.menuxx.common.db.OrderDb
 import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.bean.UserObtainItemState
@@ -109,7 +110,7 @@ class ChannelUserEventPostObtainHandler(
             }
         }
 
-        objRedisTemplate.expire(event.loopRefId, 60, TimeUnit.SECONDS)
+        objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
     }
 }
 

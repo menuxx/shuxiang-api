@@ -68,7 +68,7 @@ class ChannelStoreCtrl(
     @GetMapping("/{channelId}/long_loop_state")
     fun longLoopState(@PathVariable channelId: Int, @RequestParam loopRefId: String) : LoopResult {
         val currentUser = getCurrentUser()
-        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: throw NotFoundException("用户状态不能进行该操作[LOOG_LOOP_USER_NOT_EXISTS]")
+        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: return LoopResult(0, "WAIT")
         // 验证 loopRefId 是否一致，不一致，无法发起轮询
         // 正常请款修改，是正确的
         logger.debug("loopRefId: UserLoopRefId: ${user.loopRefId}, RequestLoopRefId: $loopRefId")
@@ -80,7 +80,7 @@ class ChannelStoreCtrl(
                 LoopResult(0, "WAIT")
             }
         } else {
-            LoopResult(-1, "FAIL")
+            LoopResult(-1, "FAIL loop token error.")
         }
     }
 
@@ -109,7 +109,7 @@ class ChannelStoreCtrl(
         val asyncResult = DeferredResult<OrderConsumeResultData>()
         val currentUser = getCurrentUser()
         // 找到该用户在渠道中的持有
-        val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("还没有抢到，没有什么需要支付")
+        val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("超时了，书要被抢完了")
         val userId = channelItem.second.obtainUserId!!
 
         var order = orderDb.getUserChannelOrder(userId, channelId)

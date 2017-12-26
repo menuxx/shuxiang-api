@@ -25,15 +25,15 @@ object ChannelItemStore {
     // 支持多频道
     @JvmStatic private val Store = hashMapOf<Int, StoreItem<ChannelItem>>()
 
-    fun createStoreItem(data: ConcurrentHashMap<Int, ChannelItem>?) : StoreItem<ChannelItem> {
-        return StoreItem(AtomicInteger(1), data ?: ConcurrentHashMap())
+    fun createStoreItem(initCount: Int, data: ConcurrentHashMap<Int, ChannelItem>?) : StoreItem<ChannelItem> {
+        return StoreItem(AtomicInteger(initCount), data ?: ConcurrentHashMap())
     }
 
     // 单个添加或替换 channel
     fun putToChannelItems(channelId: Int, item: ChannelItem) {
         var storeItem = Store[channelId]
         if ( storeItem == null ) {
-            storeItem = createStoreItem(null)
+            storeItem = createStoreItem(1, ConcurrentHashMap())
             storeItem.data.put(item.id, item)
             Store.put(channelId, storeItem)
         } else {
@@ -43,7 +43,7 @@ object ChannelItemStore {
 
     // 添加或替换 一批 items
     fun putChannelItems(channelId: Int, items: ConcurrentHashMap<Int, ChannelItem>) {
-        val itemStore = createStoreItem(items)
+        val itemStore = createStoreItem(1, items)
         Store.put(channelId, itemStore)
     }
 
@@ -72,7 +72,7 @@ object ChannelItemStore {
     fun searchObtainFromChannel(userId: Int, channelId: Int) : Pair<Int, ChannelItem>? {
         val channel = getChannelStore(channelId)?.data
         return channel?.search<Pair<Int, ChannelItem>>(Math.floor( (channel.size / 2000).toDouble() ).toLong(), { k, v ->
-            if (v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < 30) {
+            if (v.obtainUserId == userId && Duration.between(v.obtainTime, Instant.now()).seconds < Const.MaxObtainSeconds) {
                 Pair(k, v)
             } else {
                 null

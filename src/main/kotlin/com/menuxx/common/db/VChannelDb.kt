@@ -1,10 +1,14 @@
 package com.menuxx.common.db
 
+import com.menuxx.NoArg
 import com.menuxx.apiserver.PageParam
 import com.menuxx.common.bean.ChannelItemRecord
 import com.menuxx.common.bean.Item
+import com.menuxx.common.bean.User
 import com.menuxx.common.bean.VChannel
 import com.menuxx.common.db.tables.TItem
+import com.menuxx.common.db.tables.TOrder
+import com.menuxx.common.db.tables.TUser
 import com.menuxx.common.db.tables.TVChannel
 import com.menuxx.miaosha.bean.ChannelItem
 import com.menuxx.miaosha.exception.LaunchException
@@ -14,6 +18,7 @@ import org.jooq.DSLContext
 import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -28,6 +33,8 @@ class VChannelDb(
 
     private final val tVipChannel = TVChannel.T_V_CHANNEL
     private final val tItem = TItem.T_ITEM
+    private final val tOrder = TOrder.T_ORDER
+    private final val tUser = TUser.T_USER
 
     val StatusCreated = 0
     val StatusStarted = 1
@@ -127,6 +134,34 @@ class VChannelDb(
         // 存储到 渠道存储中
         ChannelItemStore.putChannelItems(channelId, itemWithIds)
         updateToStarted(channelId)
+    }
+
+    fun getChannelOrderUsersCount(channelId: Int) : Int {
+        return dsl.select().from(tOrder).where(
+                tOrder.STATUS.greaterOrEqual(2)
+                .and(tOrder.CHANNEL_ID.eq(UInteger.valueOf(channelId)))
+        ).count()
+    }
+
+    /**
+     * 获取渠道订单用户
+     */
+    @NoArg
+    data class QueueNumUser(var queueNum: Int, var user: User, var updateAt: Date)
+    fun loadChannelOrderUsers(channelId: Int, page: PageParam) : List<QueueNumUser> {
+        return dsl.select()
+                .from(tOrder)
+                .leftJoin(tUser).on(tUser.ID.eq(tOrder.USER_ID))
+                .where(
+                        tOrder.STATUS.greaterOrEqual(2)
+                                .and(tOrder.CHANNEL_ID.eq(UInteger.valueOf(channelId)))
+                )
+                .orderBy(tOrder.QUEUE_NUM.asc())
+                .limit(page.getLimit()).offset(page.getOffset()).fetchArray().map {
+            val order = it.into(tOrder).into(QueueNumUser::class.java)
+            order.user = it.into(tUser).into(User::class.java)
+            order
+        }
     }
 
 }
