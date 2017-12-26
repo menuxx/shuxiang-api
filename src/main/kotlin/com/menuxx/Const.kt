@@ -11,6 +11,6 @@ object Const {
 
     const val DbStatusDel = -1
 
-    const val MaxObtainSeconds = 30
+    const val MaxObtainSeconds = 120
 
 }
