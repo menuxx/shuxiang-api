@@ -42,7 +42,7 @@ class ChannelUserEventPostObtainHandler(
      * 发送订单消费提醒
      */
     private fun sendConsumedSmsMsg(orderId: Int) {
-        val order = orderDb.getOrderDetail(orderId)!!
+        val order = orderDb.getOrderDetails(orderId)!!
         val msgBody = objectMapper.writeValueAsBytes(ConsumeSuccessMsg(mobile = order.receiverPhoneNumber, itemName = order.vChannel.item.name, receiverPhoneNumber = order.receiverPhoneNumber))
         val sendSmsMsg = Message(aliyunProps.ons.senderTopicName, MsgTags.TagSmsSender, "ObtainConsumedMsg_${order.orderNo}", msgBody)
         sendSmsMsg.putUserProperties("NextTag", MsgTags.TagConsumeSuccess)
