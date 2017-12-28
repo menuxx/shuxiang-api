@@ -2,10 +2,7 @@ package com.menuxx.common.db
 
 import com.menuxx.NoArg
 import com.menuxx.apiserver.PageParam
-import com.menuxx.common.bean.ChannelItemRecord
-import com.menuxx.common.bean.Item
-import com.menuxx.common.bean.User
-import com.menuxx.common.bean.VChannel
+import com.menuxx.common.bean.*
 import com.menuxx.common.db.tables.TItem
 import com.menuxx.common.db.tables.TOrder
 import com.menuxx.common.db.tables.TUser
@@ -39,6 +36,13 @@ class VChannelDb(
     val StatusCreated = 0
     val StatusStarted = 1
     val StatusFinishd = 2
+
+    /**
+     * 通过 id 获取简单对象
+     */
+    fun getSimpleById(channelId: Int) : VChannel? {
+        return dsl.select().from(tVipChannel).where(tVipChannel.ID.eq(UInteger.valueOf(channelId))).fetchOneInto(VChannel::class.java)
+    }
 
     fun getById(channelId: Int) : VChannel? {
         val channelItemRecord = dsl.select()
@@ -136,6 +140,16 @@ class VChannelDb(
         updateToStarted(channelId)
     }
 
+    /**
+     * 获取渠道指定用户的订单
+     */
+    fun getChannelUserOrder(userId: Int, channelId: Int) : Order? {
+        return dsl.select().from(tOrder).where(tOrder.USER_ID.eq(UInteger.valueOf(userId)).and(tOrder.CHANNEL_ID.eq(UInteger.valueOf(channelId)))).fetchOneInto(Order::class.java)
+    }
+
+    /**
+     * 获取渠道内用户的数量
+     */
     fun getChannelOrderUsersCount(channelId: Int) : Int {
         return dsl.select().from(tOrder).where(
                 tOrder.STATUS.greaterOrEqual(2)

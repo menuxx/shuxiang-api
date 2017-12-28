@@ -81,13 +81,32 @@ class OrderDb(
     /**
      * 获取订单详情，包括订单渠道，订单商品
      */
-    fun getOrderDetail(orderId: Int) : Order? {
+    fun getOrderDetails(orderId: Int) : Order? {
         val record = dsl.select()
                 .from(tOrder)
                 .leftJoin(tUser).on(tOrder.USER_ID.eq(tUser.ID))
                 .leftJoin(tVChannel).on(tOrder.CHANNEL_ID.eq(tVChannel.ID))
                 .leftJoin(tItem).on(tItem.ID.eq(tVChannel.ITEM_ID))
                 .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
+                .fetchOne()
+
+        val order = record?.into(tOrder)?.into(Order::class.java)
+        order?.user = record?.into(tUser)?.into(User::class.java)
+        order?.vChannel = record?.into(tVChannel)?.into(VChannel::class.java)
+        order?.vChannel?.item = record?.into(tItem)?.into(Item::class.java)
+        return order
+    }
+
+    /**
+     * 获取指定用用户订单详情
+     */
+    fun getUserOrderDetails(orderId: Int, userId: Int) : Order? {
+        val record = dsl.select()
+                .from(tOrder)
+                .leftJoin(tUser).on(tOrder.USER_ID.eq(tUser.ID))
+                .leftJoin(tVChannel).on(tOrder.CHANNEL_ID.eq(tVChannel.ID))
+                .leftJoin(tItem).on(tItem.ID.eq(tVChannel.ITEM_ID))
+                .where(tOrder.ID.eq(UInteger.valueOf(orderId)).and(tUser.ID.eq(UInteger.valueOf(userId))))
                 .fetchOne()
 
         val order = record?.into(tOrder)?.into(Order::class.java)

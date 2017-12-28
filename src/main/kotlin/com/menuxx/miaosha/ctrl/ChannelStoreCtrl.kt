@@ -11,10 +11,12 @@ import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest
 import com.github.binarywang.wxpay.service.WxPayService
 import com.menuxx.*
 import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.common.bean.Order
 import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb
 import com.menuxx.common.db.VChannelDb
 import com.menuxx.common.prop.AliyunProps
+import com.menuxx.miaosha.disruptor.ConfirmState
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
 import com.menuxx.miaosha.queue.MsgTags
@@ -31,6 +33,7 @@ import org.springframework.data.redis.core.ValueOperations
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.async.DeferredResult
 import java.net.InetAddress
+import java.time.Instant
 import java.util.*
 import javax.validation.Valid
 import kotlin.collections.LinkedHashMap
@@ -84,6 +87,53 @@ class ChannelStoreCtrl(
         }
     }
 
+    /**
+     * 获取渠道用户状态
+     * 1: 如果用户传 loopRefId 就先去查 redis 中的状态，如果状态不存在 就按照下面的来
+     * 2: 就在订单表中查订单，如果订单创建时间没有超时，就是待销费状态(Obtain 已持有)，如果超时了就是(FreeObtain 持有释放)状态
+     * 3: 如果订单表中也没有，旧查看该渠道是否过期，如果过期，就是结束状态，如果没有过期，就是 NoObtain 状态
+     */
+    @GetMapping("/{channelId}/user_state")
+    fun getChannelUserState(@PathVariable channelId: Int, @RequestParam(required = false) loopRefId: String?) : LoopResult {
+        val currentUser = getCurrentUser()
+        if (loopRefId != null) {
+            val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
+            if (data != null) {
+                return LoopResult(data["confirmState"] as Int, "SUCCESS")
+            }
+        }
+        val order = channelDb.getChannelUserOrder(currentUser.id, channelId)
+        return if ( order != null ) {
+            // 如果订单已经消费 >= 2 的都是消费的状态
+            if ( order.status >= Order.CONSUMED ) {
+                // 如果已经消费
+                LoopResult(ConfirmState.ObtainConsumed.state, "SUCCESS")
+            } else {
+                // 如果没有消费，检查是否过期
+                val isExpired = order.createAt.toInstant().plusSeconds(Const.MaxObtainSeconds.toLong()).isAfter(Instant.now())
+                if ( isExpired ) {
+                    LoopResult(ConfirmState.FreeObtain.state, "SUCCESS")
+                } else {
+                    // 如果没有过期
+                    LoopResult(ConfirmState.Obtain.state, "SUCCESS")
+                }
+            }
+        } else {
+            val channel = channelDb.getSimpleById(channelId)
+            if ( channel != null ) {
+                // 如果渠道过期
+                val channelExpired = channel.endTime.after(Date(System.currentTimeMillis()))
+                if ( channelExpired ) {
+                    LoopResult(ConfirmState.Finish.state, "SUCCESS")
+                } else {
+                    LoopResult(ConfirmState.NoObtain.state, "SUCCESS")
+                }
+            } else {
+                throw NotFoundException("渠道ID: $channelId 不存在")
+            }
+        }
+    }
+
     // val code: Int, val message: String
     @GetMapping("/{channelId}/state")
     fun lookupState(@PathVariable channelId: Int) : Map<String, Any> {
@@ -112,6 +162,7 @@ class ChannelStoreCtrl(
         val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("超时了，书要被抢完了")
         val userId = channelItem.second.obtainUserId!!
 
+        // 先获取订单，如果用户已经创建国，就不会二次创建订单
         var order = orderDb.getUserChannelOrder(userId, channelId)
         if ( order == null ) {
             val newOrder = orderService.createChannelOrder(channelId, userId, consumeData.addressId)

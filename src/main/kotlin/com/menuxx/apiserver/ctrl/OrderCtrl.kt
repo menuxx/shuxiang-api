@@ -8,9 +8,7 @@ import com.menuxx.apiserver.bean.ApiResp
 import com.menuxx.apiserver.service.OrderService
 import com.menuxx.common.bean.Order
 import com.menuxx.common.db.OrderDb
-import javassist.NotFoundException
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.context.request.async.DeferredResult
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
@@ -42,7 +40,7 @@ class OrderCtrl(
      */
     @GetMapping("/{orderId}")
     fun getOrderDetail(@PathVariable orderId: Int) : Order? {
-        return orderDb.getOrderDetail(orderId)
+        return orderDb.getOrderDetails(orderId)
     }
 
     /**

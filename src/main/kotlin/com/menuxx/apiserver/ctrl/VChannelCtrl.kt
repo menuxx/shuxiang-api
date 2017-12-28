@@ -8,6 +8,7 @@ import com.menuxx.common.bean.VChannel
 import com.menuxx.common.db.OrderDb
 import com.menuxx.common.db.UserDb
 import com.menuxx.common.db.VChannelDb
+import com.menuxx.getCurrentUser
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -36,7 +37,7 @@ class VChannelCtrl(private val vChannelDb: VChannelDb) {
     }
 
     @GetMapping
-    fun loadVChannelOf(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<VChannel> {
+    fun loadVChannelOfPage(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<VChannel> {
         return vChannelDb.loadVChannels(1, PageParam(pageNum, pageSize))
     }
 
@@ -50,6 +51,12 @@ class VChannelCtrl(private val vChannelDb: VChannelDb) {
     fun updateVChannel(@PathVariable channelId: Int, @RequestBody @Valid vChannel: VChannel) : VChannel? {
         vChannel.merchantId = 1
         return vChannelDb.updateVChannel(channelId, vChannel)
+    }
+
+    @GetMapping("{channelId}/order")
+    fun getVChannelUserOrder(@PathVariable channelId: Int) : Order? {
+        val user = getCurrentUser()
+        return vChannelDb.getChannelUserOrder(user.id, channelId)
     }
 
 }
