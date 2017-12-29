@@ -2,15 +2,19 @@ package com.menuxx.apiserver.ctrl
 
 import com.menuxx.Const
 import com.menuxx.apiserver.auth.AuthUser
+import com.menuxx.apiserver.auth.AuthUserTypeAdmin
 import com.menuxx.apiserver.auth.AuthUserTypeMerchant
 import com.menuxx.apiserver.auth.TokenProcessor
 import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.apiserver.service.AdminUserDetailsService
 import com.menuxx.apiserver.service.CaptchaService
+import com.menuxx.apiserver.service.MerchantUserDetailsService
+import com.menuxx.common.db.AdminDb
+import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,8 +31,10 @@ import javax.validation.constraints.NotNull
 @RestController
 @RequestMapping("/auth")
 class ApiAuhCtrl(
+        private val adminDb: AdminDb,
         private val authenticationManager: AuthenticationManager,
-        private val merchantUserDetailService: UserDetailsService,
+        private val merchantUserDetailsService: MerchantUserDetailsService,
+        private val adminUserDetailsService: AdminUserDetailsService,
         private val tokenProcessor: TokenProcessor,
         private val captchaService: CaptchaService
 ) {
@@ -68,7 +74,7 @@ class ApiAuhCtrl(
         val fromIp = request.remoteAddr
 
         // 获取用户
-        val userDetail = merchantUserDetailService.loadUserByUsername(captcha.phoneNumber)
+        val userDetail = merchantUserDetailsService.loadUserByUsername(captcha.phoneNumber)
 
         // 尝试让该用户登录，从而验证该用户登录是否正确
         val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userDetail, userDetail.password, userDetail.authorities))
@@ -83,6 +89,32 @@ class ApiAuhCtrl(
                 "id" to merchant.id,
                 "userName" to merchant.userName,
                 "phoneNumber" to merchant.phoneNumber!!
+        ))
+    }
+
+    data class UsernameLogin(@NotEmpty val userName: String,@NotEmpty val passwordEncrypted: String);
+    @PutMapping("/root_login")
+    fun rootLogin(request: HttpServletRequest, @RequestBody loginForm: UsernameLogin) : Result {
+        val fromIp = request.remoteAddr
+
+        // 获取用户
+        val userDetail = adminUserDetailsService.loadUserByUsername(loginForm.userName)
+
+        // 尝试让该用户登录，从而验证该用户登录是否正确
+        val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(userDetail, userDetail.password, userDetail.authorities))
+
+        SecurityContextHolder.getContext().authentication = authentication
+
+        val adminUser = authentication.principal as AuthUser
+
+        val token = tokenProcessor.genToken(adminUser.userName, AuthUserTypeAdmin, fromIp)
+
+        adminDb.loginUpdate(lastLoginIp = fromIp)
+
+        return Result(token, hashMapOf(
+                "id" to adminUser.id,
+                "userName" to adminUser.userName,
+                "phoneNumber" to adminUser.phoneNumber!!
         ))
     }
 

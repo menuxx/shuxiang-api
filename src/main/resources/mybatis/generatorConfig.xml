@@ -91,5 +91,13 @@
             <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
         <!--</table>-->
 
+        <table schema="onecode" tableName="t_item_code_task" domainObjectName="ItemCodeTask">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
+        <table schema="onecode" tableName="t_item_code_batch" domainObjectName="ItemCodeBatch">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+        </table>
+
         </context>
     </generatorConfiguration>

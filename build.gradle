@@ -182,14 +182,19 @@ dependencies {
 
 	// http://poi.apache.org/
 	compile group: 'org.apache.poi', name: 'poi', version: '3.17'
+	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
 	testCompile group: 'org.apache.poi', name: 'poi', version: '3.17'
+	testCompile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
+
 
 	compile project(":ronglian")
 
 	compile 'com.github.binarywang:weixin-java-pay:2.9.0'
 	compile 'com.github.binarywang:weixin-java-mp:2.9.0'
 
-	compile 'org.mongodb:mongodb-driver-async:3.4.3'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-amqp', version: '2.0.0.M6'
+
+	compile 'org.springframework.boot:spring-boot-starter-data-mongodb:2.0.0.M6'
 
 	compile 'com.qiniu:qiniu-java-sdk:7.2.+'
 

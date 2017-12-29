@@ -19,6 +19,7 @@ class AuthenticationTokenFilter(
         private val tokenHeader: String,
         private val wxUserDetailsService: UserDetailsService,
         private val merchantUserDetailService: UserDetailsService,
+        private val adminUserDetailsService : UserDetailsService,
         private val tokenProcessor: TokenProcessor
 ) : UsernamePasswordAuthenticationFilter() {
 
@@ -35,6 +36,7 @@ class AuthenticationTokenFilter(
             val detailService = when(userType) {
                 AuthUserTypeNormal -> wxUserDetailsService
                 AuthUserTypeMerchant -> merchantUserDetailService
+                AuthUserTypeAdmin -> adminUserDetailsService
                 else -> null
             } ?: return chain.doFilter(request, response)
 

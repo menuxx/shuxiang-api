@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service
  * 微信: yin80871901
  */
 
-@Service("wxUserDetailService")
-class WXUserDetailService(private val userDb: UserDb) : UserDetailsService {
+@Service("wxUserDetailsService")
+class WXUserDetailsService(private val userDb: UserDb) : UserDetailsService {
 
     /**
      * 此处的 userName 就是 openid

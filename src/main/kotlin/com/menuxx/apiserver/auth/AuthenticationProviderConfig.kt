@@ -1,13 +1,15 @@
 package com.menuxx.apiserver.auth
 
-import com.menuxx.apiserver.service.MerchantUserDetailService
-import com.menuxx.weixin.service.WXUserDetailService
+import com.menuxx.apiserver.service.AdminUserDetailsService
+import com.menuxx.apiserver.service.MerchantUserDetailsService
+import com.menuxx.weixin.service.WXUserDetailsService
 import org.springframework.beans.factory.annotation.Autowire
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.core.Authentication
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 
 /**
@@ -17,8 +19,9 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder
  */
 @Configuration
 class AuthenticationProviderConfig(
-        private val wxUserDetailService: WXUserDetailService,
-        private val merchantUserDetailService: MerchantUserDetailService
+        private val wxUserDetailsService: WXUserDetailsService,
+        private val merchantUserDetailsService: MerchantUserDetailsService,
+        private val adminUserDetailsService: AdminUserDetailsService
 ) {
 
     // 验证 普通微信用户
@@ -36,11 +39,34 @@ class AuthenticationProviderConfig(
             }
         }
         provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance())
-        provider.setUserDetailsService(wxUserDetailService)
+        provider.setUserDetailsService(wxUserDetailsService)
         return provider
     }
 
+    @Bean
+    fun bCryptPasswordEncoder() : BCryptPasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+
     // 验证商户用户
+    @Bean(name = ["adminAuthenticationProvider"], autowire = Autowire.BY_NAME)
+    fun adminAuthenticationProvider() : AuthenticationProvider {
+        val provider = object : DaoAuthenticationProvider() {
+            override fun authenticate(authentication: Authentication): Authentication? {
+                if ( authentication.principal is AuthUser ) {
+                    val user = authentication.principal as AuthUser
+                    if ( user.userType == AuthUserTypeAdmin ) {
+                        return super.authenticate(authentication)
+                    }
+                }
+                return null
+            }
+        }
+        provider.setPasswordEncoder(bCryptPasswordEncoder())
+        provider.setUserDetailsService(adminUserDetailsService)
+        return provider
+    }
+
     @Bean(name = ["merchantAuthenticationProvider"], autowire = Autowire.BY_NAME)
     fun merchantAuthenticationProvider() : AuthenticationProvider {
         val provider = object : DaoAuthenticationProvider() {
@@ -55,9 +81,8 @@ class AuthenticationProviderConfig(
             }
         }
         provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance())
-        provider.setUserDetailsService(merchantUserDetailService)
+        provider.setUserDetailsService(merchantUserDetailsService)
         return provider
     }
-
 
 }

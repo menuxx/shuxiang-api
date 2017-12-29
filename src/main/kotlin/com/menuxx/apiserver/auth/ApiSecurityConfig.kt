@@ -32,14 +32,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class ApiSecurityConfig(
-        @Autowired @Qualifier("wxUserDetailService") private val wxUserDetailsService: UserDetailsService,
-        @Autowired @Qualifier("merchantUserDetailService") private val merchantUserDetailsService: UserDetailsService,
+        @Autowired @Qualifier("wxUserDetailsService") private val wxUserDetailsService: UserDetailsService,
+        @Autowired @Qualifier("adminUserDetailsService") private val adminUserDetailsService: UserDetailsService,
+        @Autowired @Qualifier("merchantUserDetailsService") private val merchantUserDetailsService: UserDetailsService,
         private val wxProps: WeiXinProps,
         private val authTokenProps: AuthTokenProps,
         private val env: Environment,
         private val unauthorizedHandler: EntryPointUnauthorizedHandler,
         @Autowired @Qualifier("wxAuthenticationProvider") private val wxAuthenticationProvider: AuthenticationProvider,
-        @Autowired @Qualifier("merchantAuthenticationProvider") private val merchantAuthenticationProvider: AuthenticationProvider
+        @Autowired @Qualifier("merchantAuthenticationProvider") private val merchantAuthenticationProvider: AuthenticationProvider,
+        @Autowired @Qualifier("adminAuthenticationProvider") private val adminAuthenticationProvider: AuthenticationProvider
 ) : WebSecurityConfigurerAdapter() {
 
     @Bean
@@ -53,6 +55,7 @@ class ApiSecurityConfig(
     fun configureAuthentication(builder: AuthenticationManagerBuilder) {
         builder.authenticationProvider(wxAuthenticationProvider)
         builder.authenticationProvider(merchantAuthenticationProvider)
+        builder.authenticationProvider(adminAuthenticationProvider)
     }
 
     /**
@@ -66,7 +69,7 @@ class ApiSecurityConfig(
     @Bean
     @Throws(Exception::class)
     fun authenticationTokenFilter(): AuthenticationTokenFilter {
-        val filter = AuthenticationTokenFilter(authTokenProps.header, wxUserDetailsService, merchantUserDetailsService, tokenProcessor())
+        val filter = AuthenticationTokenFilter(authTokenProps.header, wxUserDetailsService, merchantUserDetailsService, adminUserDetailsService, tokenProcessor())
         filter.setAuthenticationManager(authenticationManagerBean())
         return filter
     }

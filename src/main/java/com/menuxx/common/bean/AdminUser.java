@@ -8,7 +8,7 @@ public class AdminUser {
 
     private String username;
 
-    private String password;
+    private String passwordEncrypted;
 
     private String phoneNumber;
 
@@ -50,12 +50,12 @@ public class AdminUser {
         this.username = username == null ? null : username.trim();
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordEncrypted() {
+        return passwordEncrypted;
     }
 
-    public void setPassword(String password) {
-        this.password = password == null ? null : password.trim();
+    public void setPasswordEncrypted(String passwordEncrypted) {
+        this.passwordEncrypted = passwordEncrypted == null ? null : passwordEncrypted.trim();
     }
 
     public Date getLastLoginTime() {
