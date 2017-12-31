@@ -2,6 +2,7 @@ package com.menuxx.code.db
 
 import com.menuxx.common.bean.ItemCodeBatch
 import com.menuxx.common.db.tables.TItemCodeBatch
+import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 
@@ -14,7 +15,7 @@ class ItemCodeBatchDb (private val dsl: DSLContext) {
      * 批量插入
      */
     fun insertAllBatch(batches: Array<ItemCodeBatch>) : IntArray {
-        val records = batches.map { dsl.newRecord(tItemCodeBatch, it) }
+        val records = batches.map { nullSkipUpdate(dsl.newRecord(tItemCodeBatch, it)) }
         return dsl.batchInsert(records).execute()
     }
 

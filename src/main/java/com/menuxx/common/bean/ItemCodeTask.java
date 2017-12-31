@@ -1,6 +1,7 @@
 package com.menuxx.common.bean;
 
 import java.util.Date;
+import java.util.List;
 
 public class ItemCodeTask {
 
@@ -17,6 +18,16 @@ public class ItemCodeTask {
     private Date createAt;
 
     private Date updateAt;
+
+    private List<ItemCodeBatch> batches;
+
+    public List<ItemCodeBatch> getBatches() {
+        return batches;
+    }
+
+    public void setBatches(List<ItemCodeBatch> batches) {
+        this.batches = batches;
+    }
 
     public Integer getId() {
         return id;

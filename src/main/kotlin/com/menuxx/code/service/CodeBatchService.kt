@@ -1,13 +1,23 @@
 package com.menuxx.code.service
 
 import com.google.common.collect.Lists
+import com.menuxx.code.bean.SXItemCode
+import com.menuxx.code.bean.getStatusTxt
 import com.menuxx.code.mq.OneBatch
-import com.menuxx.code.code.ItemCode
+import com.menuxx.code.code.ItemCodeFactory
 import com.menuxx.code.db.ItemCodeBatchDb
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.stereotype.Service
+import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
 
 @Service
-class CodeBatchService (private val codeBatchDb: ItemCodeBatchDb) {
+class CodeBatchService (
+        private val codeBatchDb: ItemCodeBatchDb,
+        private val itemCodeFactory: ItemCodeFactory
+) {
+
+    private val dateformat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
     // 一个批次由一千个 code 组成，可以不到1000个，但是最多1000个
     private final val OnceBatchUnitCount = 1000
@@ -36,7 +46,7 @@ class CodeBatchService (private val codeBatchDb: ItemCodeBatchDb) {
         var startCode = if (lastBatch == null) {
             "0"
         } else {
-            ItemCode(lastBatch.endCode).next()
+            itemCodeFactory.next(lastBatch.endCode)
         }
 
         // 计算需要 需要产生的批次 和每个批次的数量
@@ -45,11 +55,46 @@ class CodeBatchService (private val codeBatchDb: ItemCodeBatchDb) {
         return batches.map { batchCount ->
             // 计算一个批次开始和结束的 code
             val batchStartCode = startCode
-            val batchEndCode = ItemCode(batchStartCode).offsetBit(batchCount)
-            startCode = batchEndCode
-            OneBatch(count = batchCount, startCode = batchStartCode, endCode = batchEndCode)
+            val batchEndCode = itemCodeFactory.offsetBit(batchStartCode, batchCount - 1)
+            startCode = itemCodeFactory.offsetBit(batchEndCode, 1)
+            OneBatch(count = batchCount, startCode = batchStartCode, endCode = batchEndCode )
         }.toTypedArray()
 
+    }
+
+    fun genExcel(remark: String, codes: Array<SXItemCode>) : ByteArray {
+        val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
+        val wb = XSSFWorkbook()
+        val sheet = wb.createSheet(remark)
+        codes.forEachIndexed { i, itemCode ->
+            val row = sheet.createRow(i)
+            columns.forEachIndexed { j, colName ->
+                // 第一行
+                if ( i == 0 ) {
+                    val headerCell = row.createCell(j)
+                    headerCell.setCellValue(colName)
+                }
+                val cell = row.createCell(j)
+                if ( j == 0 ) {
+                    cell.setCellValue( "http://q.nizhuantech.com/" + itemCode.code )
+                }
+                if ( j == 1 ) {
+                    cell.setCellValue( itemCode.code )
+                }
+                if ( j == 2 ) {
+                    cell.setCellValue( getStatusTxt(itemCode.status) )
+                }
+                if ( j == 3 ) {
+                    cell.setCellValue( itemCode.batchId.toString() )
+                }
+                if ( j == 4 ) {
+                    cell.setCellValue( dateformat.format(itemCode.createAt) )
+                }
+            }
+        }
+        val outputByte = ByteArrayOutputStream()
+        wb.write(outputByte)
+        return outputByte.toByteArray()
     }
 
 }

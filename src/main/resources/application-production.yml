@@ -7,5 +7,13 @@ auth-token:
   secret: 8dyh1o1fh923dh2dui112dhid823di23ihi21ksqad
 
 spring:
+
+  rabbitmq:
+    host: msg.qurenjia.com
+    port: 5672
+    virtual-host: test1
+    username: yth_test
+    password: yth_test
+
   datasource:
     url: jdbc:mysql://rm-uf68lsw07o293t779.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8

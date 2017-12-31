@@ -10,6 +10,15 @@ val SXItemCodeCreated = 1       // 创建状态
 val SXItemCodeExported = 2      // 导出状态
 val SXItemCodeConsumed = 3      // 消费状态
 
+fun getStatusTxt(status: Int) : String {
+        return when (status) {
+                SXItemCodeCreated -> "创建状态"
+                SXItemCodeExported -> "导出状态"
+                SXItemCodeConsumed -> "消费状态"
+                else -> "位置状态"
+        }
+}
+
 @Document(collection = "sx_item_code")
 class SXItemCode(
         @Id

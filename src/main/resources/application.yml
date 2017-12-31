@@ -1,6 +1,21 @@
 
 spring:
 
+  rabbitmq:
+    host: msg.qurenjia.com
+    port: 5672
+    virtual-host: test1
+    username: yth_test
+    password: yth_test
+
+  data:
+    mongodb:
+      host: 116.62.57.229
+      port: 27017
+      database: sx_test
+      username: sx_u_test
+      password: sx_p_test
+
   # REDIS (RedisProperties)
   # Redis数据库索引（默认为0）
   redis:

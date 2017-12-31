@@ -1,5 +1,6 @@
 
 import com.menuxx.code.bean.SXItemCodeExported
+import com.menuxx.code.code.Base62
 import java.io.FileOutputStream
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.junit.Test

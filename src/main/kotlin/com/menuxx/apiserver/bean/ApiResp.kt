@@ -6,3 +6,5 @@ package com.menuxx.apiserver.bean
  * 微信: yin80871901
  */
 data class ApiResp(val code: Int, val message: String)
+
+data class ApiRespWithData<T>(val code: Int, val  message: String, val data: T)
