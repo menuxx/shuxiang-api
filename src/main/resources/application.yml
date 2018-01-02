@@ -7,6 +7,13 @@ spring:
     virtual-host: test1
     username: yth_test
     password: yth_test
+    listener:
+      simple:
+        transaction-size: 10
+        acknowledge-mode: auto
+        prefetch: 10
+        concurrency: 2
+        max-concurrency: 5
 
   data:
     mongodb:

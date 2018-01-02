@@ -1,7 +1,6 @@
 package com.menuxx.common.cfg
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.amqp.core.AcknowledgeMode
 import org.springframework.amqp.core.FanoutExchange
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.rabbit.annotation.EnableRabbit
@@ -16,7 +15,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory
 import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory
-import org.springframework.transaction.PlatformTransactionManager
 
 /**
  * rabbitmq 消息队列配置
@@ -32,13 +30,16 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
         return converter
     }
 
+    @Bean
+    fun jackson2JsonMessageConverter() = Jackson2JsonMessageConverter(objectMapper)
+
     /**
      * 消息队列模板，入队消息使用 jackson 来序列化
      */
     @Bean
     fun rabbitMqTemplate(connection: ConnectionFactory) : RabbitTemplate {
         val tpl = RabbitTemplate(connection)
-        tpl.messageConverter = Jackson2JsonMessageConverter(objectMapper)
+        tpl.messageConverter = jackson2JsonMessageConverter()
         return tpl
     }
 
@@ -54,15 +55,14 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
     }
 
     @Bean
-    fun rabbitListenerContainerFactory(connectionFactory: ConnectionFactory, transactionManager: PlatformTransactionManager) : SimpleRabbitListenerContainerFactory {
+    fun codeListenerContainerFactory(connectionFactory: ConnectionFactory) : SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
-        factory.setTransactionManager(transactionManager)
         factory.setChannelTransacted(true)
-        factory.setMaxConcurrentConsumers(2)
+        factory.setMaxConcurrentConsumers(5)
+        factory.setConcurrentConsumers(2)
         factory.setConnectionFactory(connectionFactory)
-        factory.setMessageConverter(Jackson2JsonMessageConverter(objectMapper))
-        factory.setDefaultRequeueRejected(false)
-        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL)
+        factory.setMessageConverter(jackson2JsonMessageConverter())
+        factory.setPrefetchCount(5)
         return factory
     }
 

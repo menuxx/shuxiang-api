@@ -7,4 +7,5 @@ logging:
     com.menuxx: DEBUG
     com.aliyun: DEBUG
     org.springframework: DEBUG
+    org.springframework.amqp: ERROR
     org.jooq: DEBUG

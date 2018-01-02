@@ -2,12 +2,9 @@ package com.menuxx.code.factory
 
 import com.menuxx.AllOpen
 import com.menuxx.code.mq.OneBatch
-import com.rabbitmq.client.Channel
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.ExchangeTypes
 import org.springframework.amqp.rabbit.annotation.*
-import org.springframework.amqp.support.AmqpHeaders
-import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 import java.io.IOException
@@ -34,10 +31,10 @@ class BatchTransactionReceiver ( private val batchTransactionService: BatchTrans
                 )
             ]
     )
+
     @Throws(InterruptedException::class, IOException::class)
-    fun doOneBatch(@Payload batch: OneBatch, channel: Channel, @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
+    fun doOneBatch(@Payload batch: OneBatch) {
         batchTransactionService.doOneBatch(count = batch.count, startCode = batch.startCode, endCode = batch.endCode)
-        channel.basicAck(deliveryTag, false)
     }
 
 }
