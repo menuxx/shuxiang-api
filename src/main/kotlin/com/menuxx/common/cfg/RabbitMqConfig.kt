@@ -1,8 +1,10 @@
 package com.menuxx.common.cfg
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.amqp.core.AcknowledgeMode
 import org.springframework.amqp.core.FanoutExchange
 import org.springframework.amqp.core.Queue
+import org.springframework.amqp.rabbit.annotation.EnableRabbit
 import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
@@ -14,10 +16,12 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory
 import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory
+import org.springframework.transaction.PlatformTransactionManager
 
 /**
  * rabbitmq 消息队列配置
  */
+@EnableRabbit
 @Configuration
 class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerConfigurer {
 
@@ -50,12 +54,15 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
     }
 
     @Bean
-    fun rabbitListenerContainerFactory(connectionFactory: ConnectionFactory) : SimpleRabbitListenerContainerFactory {
+    fun rabbitListenerContainerFactory(connectionFactory: ConnectionFactory, transactionManager: PlatformTransactionManager) : SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
+        factory.setTransactionManager(transactionManager)
+        factory.setChannelTransacted(true)
         factory.setMaxConcurrentConsumers(2)
         factory.setConnectionFactory(connectionFactory)
         factory.setMessageConverter(Jackson2JsonMessageConverter(objectMapper))
         factory.setDefaultRequeueRejected(false)
+        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL)
         return factory
     }
 

@@ -17,16 +17,6 @@ import java.io.IOException
  */
 @AllOpen
 @Component
-@RabbitListener(
-        containerFactory = "rabbitListenerContainerFactory",
-        bindings = [
-            QueueBinding(
-                    value = Queue("code_batch_queue"),
-                    exchange = Exchange(value = "code_batch_exchange", type = ExchangeTypes.FANOUT),
-                    key = "code_batch_transaction"
-            )
-        ]
-)
 class BatchTransactionReceiver ( private val batchTransactionService: BatchTransactionService) {
 
     private final val logger = LoggerFactory.getLogger(BatchTransactionReceiver::class.java)
@@ -34,13 +24,19 @@ class BatchTransactionReceiver ( private val batchTransactionService: BatchTrans
     /**
      * 处理一个批次
      */
-    @RabbitHandler
+    @RabbitListener(
+            containerFactory = "rabbitListenerContainerFactory",
+            bindings = [
+                QueueBinding(
+                        value = Queue(value = "code_batch_queue"),
+                        exchange = Exchange(value = "code_batch_exchange", type = ExchangeTypes.FANOUT),
+                        key = "code_batch_transaction"
+                )
+            ]
+    )
     @Throws(InterruptedException::class, IOException::class)
     fun doOneBatch(@Payload batch: OneBatch, channel: Channel, @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
-        logger.debug("doOneBatch : ${batch} start")
         batchTransactionService.doOneBatch(count = batch.count, startCode = batch.startCode, endCode = batch.endCode)
-        logger.debug("doOneBatch end")
-        println("================== ${batch}")
         channel.basicAck(deliveryTag, false)
     }
 
