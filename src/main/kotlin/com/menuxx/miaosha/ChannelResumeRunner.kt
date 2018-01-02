@@ -1,8 +1,5 @@
 package com.menuxx.miaosha
 
-import com.menuxx.code.db.ItemCodeTaskDb
-import com.menuxx.code.mq.CodeOnceBatchPublisher
-import com.menuxx.code.mq.OneBatch
 import com.menuxx.common.db.ChannelItemRecordDb
 import com.menuxx.miaosha.bean.ChannelItem
 import com.menuxx.miaosha.store.ChannelItemStore

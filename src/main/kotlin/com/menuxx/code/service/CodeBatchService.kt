@@ -70,17 +70,18 @@ class CodeBatchService (
         val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
         val wb = HSSFWorkbook()
         val sheet = wb.createSheet(remark)
+        // 第一列列头
+        val rowFirst = sheet.createRow(0)
+        columns.forEachIndexed { i, colName ->
+            val headerCell = rowFirst.createCell(i)
+            headerCell.setCellValue(colName)
+        }
         codes.forEachIndexed { i, itemCode ->
             val row = sheet.createRow(i)
             columns.forEachIndexed { j, colName ->
-                // 第一行
-                if ( i == 0 ) {
-                    val headerCell = row.createCell(j)
-                    headerCell.setCellValue(colName)
-                }
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://q.nizhuantech.com/~${itemCode.code}~${itemCode.salt}")
+                    cell.setCellValue( "http://qtest.nizhuantech.com/~${itemCode.code}~${itemCode.salt}")
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )
@@ -105,17 +106,18 @@ class CodeBatchService (
         val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
         val wb = XSSFWorkbook()
         val sheet = wb.createSheet(remark)
+        // 第一列列头
+        val rowFirst = sheet.createRow(0)
+        columns.forEachIndexed { i, colName ->
+            val headerCell = rowFirst.createCell(i)
+            headerCell.setCellValue(colName)
+        }
         codes.forEachIndexed { i, itemCode ->
             val row = sheet.createRow(i)
             columns.forEachIndexed { j, colName ->
-                // 第一行
-                if ( i == 0 ) {
-                    val headerCell = row.createCell(j)
-                    headerCell.setCellValue(colName)
-                }
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://q.nizhuantech.com/~${itemCode.code}~${itemCode.salt}" )
+                    cell.setCellValue( "http://qtest.nizhuantech.com/~${itemCode.code}~${itemCode.salt}" )
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )
