@@ -6,6 +6,7 @@ import com.menuxx.code.code.ItemCodeFactory
 import com.menuxx.code.db.ItemCodeBatchDb
 import com.menuxx.code.db.ItemCodeTaskDb
 import com.menuxx.code.mongo.ItemCodeRepository
+import com.menuxx.genRandomString
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -26,7 +27,11 @@ class BatchTransactionService (
         val batch = itemCodeBatchDb.findBatchByStartCode(startCode)!!
         var _startCode = startCode
         val codes = (1..count).map {
-            val sxCode = SXItemCode(id = null, status = SXItemCodeCreated, code = _startCode, batchId = batch.id, exportTime = null, itemId = null, userId = null, createAt = Date(), updateAt = Date(), consumeTime = null)
+            val sxCode = SXItemCode(id = null, status = SXItemCodeCreated,
+                    code = _startCode, salt = genRandomString(6),
+                    batchId = batch.id, exportTime = null, itemId = null,
+                    userId = null, createAt = Date(), updateAt = Date(), consumeTime = null
+            )
             _startCode = itemCodeFactory.next(_startCode)
             sxCode
         }
