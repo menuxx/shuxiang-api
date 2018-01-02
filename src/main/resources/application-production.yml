@@ -8,12 +8,29 @@ auth-token:
 
 spring:
 
+  datasource:
+    url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?characterEncoding=UTF-8
+    username: api-server
+    password: 'As3$3N10d324d!a'
+
   rabbitmq:
     host: msg.qurenjia.com
     port: 5672
-    virtual-host: test1
-    username: yth_test
-    password: yth_test
+    virtual-host: xueren
+    username: xueren
+    password: xueren001
+    listener:
+      simple:
+        transaction-size: 10
+        acknowledge-mode: auto
+        prefetch: 10
+        concurrency: 2
+        max-concurrency: 5
 
-  datasource:
-    url: jdbc:mysql://rm-uf68lsw07o293t779.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8
+  data:
+    mongodb:
+      host: 116.62.57.229
+      port: 27017
+      database: xueren_read
+      username: api-server
+      password: '&asNh$80d!asd'

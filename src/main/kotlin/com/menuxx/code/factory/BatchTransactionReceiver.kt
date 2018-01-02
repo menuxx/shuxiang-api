@@ -25,8 +25,8 @@ class BatchTransactionReceiver ( private val batchTransactionService: BatchTrans
             containerFactory = "rabbitListenerContainerFactory",
             bindings = [
                 QueueBinding(
-                        value = Queue(value = "code_batch_queue"),
-                        exchange = Exchange(value = "code_batch_exchange", type = ExchangeTypes.FANOUT),
+                        value = Queue(value = "code_batch_queue", durable = "true"),
+                        exchange = Exchange(value = "code_batch_exchange", type = ExchangeTypes.FANOUT, durable = "true"),
                         key = "code_batch_transaction"
                 )
             ]

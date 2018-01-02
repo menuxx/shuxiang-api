@@ -1,28 +1,6 @@
 
 spring:
 
-  rabbitmq:
-    host: msg.qurenjia.com
-    port: 5672
-    virtual-host: test1
-    username: yth_test
-    password: yth_test
-    listener:
-      simple:
-        transaction-size: 10
-        acknowledge-mode: auto
-        prefetch: 10
-        concurrency: 2
-        max-concurrency: 5
-
-  data:
-    mongodb:
-      host: 116.62.57.229
-      port: 27017
-      database: sx_test
-      username: sx_u_test
-      password: sx_p_test
-
   # REDIS (RedisProperties)
   # Redis数据库索引（默认为0）
   redis:
@@ -46,10 +24,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    password: B5q0n6NfDdvYWXD
-    username: oc
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8
     hikari:
       maximum-pool-size: 10
       connection-init-sql: select count(1) from t_item
