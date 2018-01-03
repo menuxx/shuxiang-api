@@ -30,8 +30,8 @@ class ChannelUserStateWriteQueue(
         private val orderDb: OrderDb
 ) {
 
-    private val CommitActionObtain = 1
-    private val CommitActionConsume = 2
+    private val CommitActionObtain = 2
+    private val CommitActionConsume = 3
 
     // 一个生产者，多个消费者
 
@@ -63,6 +63,7 @@ class ChannelUserStateWriteQueue(
         objRedisTemplate.opsForValue().set(event.loopRefId, event.copy())
         when(action) {
             CommitActionObtain -> {
+                println(11111)
                 // 设置超时时间
                 objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
                 // 写入数据库状态
@@ -89,38 +90,39 @@ class ChannelUserStateWriteQueue(
     // 初始化队列
     @PostConstruct
     fun start() {
-        // 持有队列消费者
-        val obtainConsumer = {
-            try {
-                val event = obtainQueue.take()
-                // 写入状态
-                // 以待客户端轮训状态
-                persisState(event, CommitActionObtain)
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-            }
+
+        // 初始化多个消费者
+        (1..consumerThreadNum).map {
+            // 持有 队列消费者
+            obtainConsumerPool.submit({
+                while (true) {
+                    try {
+                        val event = obtainQueue.take()
+                        // 写入状态
+                        // 以待客户端轮训状态
+                        persisState(event, CommitActionObtain)
+                    } catch (ex: InterruptedException) {
+                        ex.printStackTrace()
+                    }
+                }
+            })
         }
 
         // 初始化多个消费者
         (1..consumerThreadNum).map {
-            obtainConsumerPool.submit(obtainConsumer)
-        }
-
-        // 消费队列消费者
-        val consumeConsumer = {
-            try {
-                val event = consumeQueue.take()
-                // 写入状态
-                // 以待客户端轮训状态
-                persisState(event, CommitActionConsume)
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-            }
-        }
-
-        // 初始化多个消费者
-        (1..consumerThreadNum).map {
-            obtainConsumerPool.submit(consumeConsumer)
+            // 消费 队列消费者
+            consumeConsumerPool.submit({
+                while (true) {
+                    try {
+                        val event = consumeQueue.take()
+                        // 写入状态
+                        // 以待客户端轮训状态
+                        persisState(event, CommitActionConsume)
+                    } catch (ex: InterruptedException) {
+                        ex.printStackTrace()
+                    }
+                }
+            })
         }
     }
 
@@ -135,7 +137,7 @@ class ChannelUserStateWriteQueue(
      * 提交消费抓状态
      */
     fun commitConsumeState(event: UserObtainItemState) : Future<*> {
-        return obtainProductPool.submit({ consumeQueue.put(event) })
+        return consumeProductPool.submit({ consumeQueue.put(event) })
     }
 
 }

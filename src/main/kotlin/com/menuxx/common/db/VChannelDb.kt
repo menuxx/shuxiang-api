@@ -63,7 +63,9 @@ class VChannelDb(
     fun loadVChannels(merchantId: Int, page: PageParam) : List<VChannel> {
         return dsl.select().from(tVipChannel)
                 .leftJoin(tItem).on(tVipChannel.ITEM_ID.eq(tItem.ID))
-                .offset(page.getOffset()).limit(page.getLimit()).fetchArray().map {
+                .orderBy(tVipChannel.CREATE_AT.desc())
+                .offset(page.getOffset()).limit(page.getLimit())
+                .fetchArray().map {
             val channel = it.into(tVipChannel).into(VChannel::class.java)
             val item = it.into(tItem).into(Item::class.java)
             channel.item = item

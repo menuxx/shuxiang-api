@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 class ChannelUserGroup {
 
-    private val UserGroup = ConcurrentHashMap<Int, ChannelUserEvent>()
+    //private
+    val UserGroup = ConcurrentHashMap<Int, ChannelUserEvent>()
 
     fun getUser(userId: Int) = UserGroup[userId]
 

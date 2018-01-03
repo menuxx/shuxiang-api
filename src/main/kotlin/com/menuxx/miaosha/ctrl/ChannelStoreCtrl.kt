@@ -16,6 +16,7 @@ import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb
 import com.menuxx.common.db.VChannelDb
 import com.menuxx.common.prop.AliyunProps
+import com.menuxx.miaosha.bean.ChannelItem
 import com.menuxx.miaosha.disruptor.ConfirmState
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
@@ -24,7 +25,9 @@ import com.menuxx.miaosha.queue.msg.ObtainConsumedMsg
 import com.menuxx.miaosha.queue.msg.ObtainUserMsg
 import com.menuxx.miaosha.service.ChannelOrderService
 import com.menuxx.miaosha.store.ChannelItemStore
+import com.menuxx.miaosha.store.ChannelUserGroup
 import com.menuxx.miaosha.store.ChannelUserStore
+import com.menuxx.miaosha.store.StoreItem
 import com.menuxx.weixin.prop.WeiXinProps
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,6 +63,16 @@ class ChannelStoreCtrl(
         private val objectMapper: ObjectMapper,
         @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
 ) {
+
+    @GetMapping("channel_item/{channelId}")
+    fun getUserStateAll(@PathVariable channelId: Int) : StoreItem<ChannelItem>? {
+        return ChannelItemStore.getChannelStore(channelId)
+    }
+
+    @GetMapping("channel_user/{channelId}")
+    fun getUserState(@PathVariable channelId: Int) : ChannelUserGroup {
+        return ChannelUserStore.getUserGroup(channelId)
+    }
 
     private val logger = LoggerFactory.getLogger(ChannelStoreCtrl::class.java)
 
@@ -162,7 +175,7 @@ class ChannelStoreCtrl(
         val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("超时了，书要被抢完了")
         val userId = channelItem.second.obtainUserId!!
 
-        // 先获取订单，如果用户已经创建国，就不会二次创建订单
+        // 先获取订单，如果用户已经创建过，就不会二次创建订单
         var order = orderDb.getUserChannelOrder(userId, channelId)
         if ( order == null ) {
             val newOrder = orderService.createChannelOrder(channelId, userId, consumeData.addressId)

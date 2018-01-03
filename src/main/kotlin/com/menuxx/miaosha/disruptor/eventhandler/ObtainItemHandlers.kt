@@ -204,6 +204,16 @@ class ChannelUserEventHandler(
                                 orderId = event.orderId,
                                 queueNum = queueNum
                         ))
+                    } else {
+                        // 该用户已持有 但是未正常消费，将状态 重新补充为 已持有
+                        userStateWriteQueue.commitObtainState(UserObtainItemState(
+                                loopRefId = event.loopRefId!!,
+                                userId = event.userId,
+                                channelItemId = channelId,
+                                confirmState = ConfirmState.Obtain.state,
+                                orderId = null,
+                                queueNum = null
+                        ))
                     }
                 } else {
                     // 超过保留时间，被其他人抢走了

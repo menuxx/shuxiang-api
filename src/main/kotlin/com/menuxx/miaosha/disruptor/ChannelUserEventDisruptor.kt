@@ -35,7 +35,7 @@ class ChannelUserEventDisruptor(channelUserEventHandler: ChannelUserEventHandler
 
         val ringBufferSize = 65536
 
-        // 时间创建工厂
+        // 事件创建工厂
         val eventFactory = { ChannelUserEvent(userId = 0, channelId = 0, loopRefId = null, confirmState = ConfirmState.NoObtain, orderId = null) }
 
         // 线程工厂

@@ -89,7 +89,7 @@ class ChannelOrderService(
         order.items = listOf(item)
 
         // 订单状态相关
-        order.status = 0
+        order.status = Order.CREATED
         order.paid = 0
 
         return order
