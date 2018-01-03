@@ -3,6 +3,7 @@ package com.menuxx.common.cfg
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.amqp.core.FanoutExchange
 import org.springframework.amqp.core.Queue
+import org.springframework.amqp.rabbit.annotation.EnableRabbit
 import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
@@ -18,6 +19,7 @@ import org.springframework.messaging.handler.annotation.support.MessageHandlerMe
 /**
  * rabbitmq 消息队列配置
  */
+@EnableRabbit
 @Configuration
 class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerConfigurer {
 
@@ -28,13 +30,16 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
         return converter
     }
 
+    @Bean
+    fun jackson2JsonMessageConverter() = Jackson2JsonMessageConverter(objectMapper)
+
     /**
      * 消息队列模板，入队消息使用 jackson 来序列化
      */
     @Bean
     fun rabbitMqTemplate(connection: ConnectionFactory) : RabbitTemplate {
         val tpl = RabbitTemplate(connection)
-        tpl.messageConverter = Jackson2JsonMessageConverter(objectMapper)
+        tpl.messageConverter = jackson2JsonMessageConverter()
         return tpl
     }
 
@@ -50,23 +55,25 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
     }
 
     @Bean
-    fun rabbitListenerContainerFactory(connectionFactory: ConnectionFactory) : SimpleRabbitListenerContainerFactory {
+    fun codeListenerContainerFactory(connectionFactory: ConnectionFactory) : SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
-        factory.setMaxConcurrentConsumers(2)
+        factory.setChannelTransacted(true)
+        factory.setMaxConcurrentConsumers(5)
+        factory.setConcurrentConsumers(2)
         factory.setConnectionFactory(connectionFactory)
-        factory.setMessageConverter(Jackson2JsonMessageConverter(objectMapper))
-        factory.setDefaultRequeueRejected(false)
+        factory.setMessageConverter(jackson2JsonMessageConverter())
+        factory.setPrefetchCount(5)
         return factory
     }
 
     // 短信发送地队列
-    @Bean fun smsQueue() = Queue("sms_queue")
+    @Bean fun smsQueue() = Queue("sms_queue", true)
 
-    @Bean fun smsExchange() = FanoutExchange("sms_exchange")
+    @Bean fun smsExchange() = FanoutExchange("sms_exchange", true, false)
 
     // 书享 码 批次队列
-    @Bean fun codeBatchQueue() = Queue("code_batch_queue")
+    @Bean fun codeBatchQueue() = Queue("code_batch_queue", true)
 
-    @Bean fun codeBatchExchange() = FanoutExchange("code_batch_exchange")
+    @Bean fun codeBatchExchange() = FanoutExchange("code_batch_exchange", true, false)
 
 }

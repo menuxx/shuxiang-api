@@ -36,6 +36,15 @@ rabbitmqctl set_user_tags test administrator
 rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
 ```
 
+### mongodb
+```js
+db.createUser({
+    user: 'api-server',
+    pwd: '&asNh$80d!asd',
+    roles: [ { role: "readWrite", db: 'xuren_read' }, { role: "dbAdmin", db: 'xuren_read' }]
+})
+```
+
 ### 微信验证文件
 > 小程序二维码规则验证文件 static/bk/odtdiKTRCA.txt
 

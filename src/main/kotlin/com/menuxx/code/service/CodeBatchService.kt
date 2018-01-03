@@ -6,6 +6,7 @@ import com.menuxx.code.bean.getStatusTxt
 import com.menuxx.code.mq.OneBatch
 import com.menuxx.code.code.ItemCodeFactory
 import com.menuxx.code.db.ItemCodeBatchDb
+import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
@@ -33,7 +34,10 @@ class CodeBatchService (
         }.toCollection(Lists.newArrayList())
         // 计算最后一个批次的数量
         val leftOver = totalNum - (count * OnceBatchUnitCount)
-        fullBatch.add(leftOver)
+        // 为0就不加入了
+        if ( leftOver > 0 ) {
+            fullBatch.add(leftOver)
+        }
         return fullBatch.toTypedArray()
     }
 
@@ -62,21 +66,58 @@ class CodeBatchService (
 
     }
 
+    fun genExcel2003(remark: String, codes: Array<SXItemCode>) : ByteArray {
+        val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
+        val wb = HSSFWorkbook()
+        val sheet = wb.createSheet(remark)
+        // 第一列列头
+        val rowFirst = sheet.createRow(0)
+        columns.forEachIndexed { i, colName ->
+            val headerCell = rowFirst.createCell(i)
+            headerCell.setCellValue(colName)
+        }
+        codes.forEachIndexed { i, itemCode ->
+            val row = sheet.createRow( i + 1 )
+            columns.forEachIndexed { j, colName ->
+                val cell = row.createCell(j)
+                if ( j == 0 ) {
+                    cell.setCellValue( "http://c.nizhuantech.com/c/~${itemCode.code}~${itemCode.salt}")
+                }
+                if ( j == 1 ) {
+                    cell.setCellValue( itemCode.code )
+                }
+                if ( j == 2 ) {
+                    cell.setCellValue( getStatusTxt(itemCode.status) )
+                }
+                if ( j == 3 ) {
+                    cell.setCellValue( itemCode.batchId.toString() )
+                }
+                if ( j == 4 ) {
+                    cell.setCellValue( dateformat.format(itemCode.createAt) )
+                }
+            }
+        }
+        val outputByte = ByteArrayOutputStream()
+        wb.write(outputByte)
+        return outputByte.toByteArray()
+    }
+
     fun genExcel(remark: String, codes: Array<SXItemCode>) : ByteArray {
         val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
         val wb = XSSFWorkbook()
         val sheet = wb.createSheet(remark)
+        // 第一列列头
+        val rowFirst = sheet.createRow(0)
+        columns.forEachIndexed { i, colName ->
+            val headerCell = rowFirst.createCell(i)
+            headerCell.setCellValue(colName)
+        }
         codes.forEachIndexed { i, itemCode ->
-            val row = sheet.createRow(i)
+            val row = sheet.createRow(i + 1)
             columns.forEachIndexed { j, colName ->
-                // 第一行
-                if ( i == 0 ) {
-                    val headerCell = row.createCell(j)
-                    headerCell.setCellValue(colName)
-                }
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://q.nizhuantech.com/" + itemCode.code )
+                    cell.setCellValue( "http://c.nizhuantech.com/c/~${itemCode.code}~${itemCode.salt}" )
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )

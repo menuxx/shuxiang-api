@@ -22,6 +22,7 @@ class ChannelResumeRunner(
     private val logger = LoggerFactory.getLogger(ChannelResumeRunner::class.java)
 
     override fun run(vararg args: String) {
+
         logger.info("load channel: start")
         // 将所有的 未持有 item 分组后 恢复到内存
         channelItemRecordDb.loadChannelNotObtainItems().groupBy { it.channelId }.forEach { channelId, group ->

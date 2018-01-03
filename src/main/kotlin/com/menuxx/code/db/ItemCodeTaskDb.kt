@@ -29,7 +29,7 @@ class ItemCodeTaskDb (
     fun getTaskByBatchId(batchId: Int) : ItemCodeTask {
         return dsl.select().from(tItemCodeTask).where(
                 tItemCodeTask.ID.eq(
-                        dsl.select(tItemCodeTask.ID).from(tItemCodeBatch).where(tItemCodeBatch.ID.eq(UInteger.valueOf(batchId)))
+                        dsl.select(tItemCodeBatch.TASK_ID).from(tItemCodeBatch).where(tItemCodeBatch.ID.eq(UInteger.valueOf(batchId)))
                 )
         ).fetchOneInto(ItemCodeTask::class.java)
     }

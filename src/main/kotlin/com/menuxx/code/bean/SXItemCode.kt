@@ -24,6 +24,7 @@ class SXItemCode(
         @Id
         val id: String?,
         val code: String,
+        val salt: String,
         val batchId: Int,        // 批次编号，对应业务系统的 批次 id
         var exportTime: Date?,   // 导出时间
         var itemId: String?,      // 商品的id
