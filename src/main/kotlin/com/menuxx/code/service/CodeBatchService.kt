@@ -77,11 +77,11 @@ class CodeBatchService (
             headerCell.setCellValue(colName)
         }
         codes.forEachIndexed { i, itemCode ->
-            val row = sheet.createRow(i)
+            val row = sheet.createRow( i + 1 )
             columns.forEachIndexed { j, colName ->
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://qtest.nizhuantech.com/~${itemCode.code}~${itemCode.salt}")
+                    cell.setCellValue( "http://c.nizhuantech.com/c/~${itemCode.code}~${itemCode.salt}")
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )
@@ -113,11 +113,11 @@ class CodeBatchService (
             headerCell.setCellValue(colName)
         }
         codes.forEachIndexed { i, itemCode ->
-            val row = sheet.createRow(i)
+            val row = sheet.createRow(i + 1)
             columns.forEachIndexed { j, colName ->
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://qtest.nizhuantech.com/~${itemCode.code}~${itemCode.salt}" )
+                    cell.setCellValue( "http://c.nizhuantech.com/c/~${itemCode.code}~${itemCode.salt}" )
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )

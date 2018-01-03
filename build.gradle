@@ -121,7 +121,7 @@ repositories {
 jooq {
 	version = '3.9.5'
 	edition = 'OSS'
-	OneCodeDev(sourceSets.main) {
+	XueRenDev(sourceSets.main) {
 		jdbc {
 			driver = 'com.mysql.cj.jdbc.Driver'
 			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
@@ -146,35 +146,35 @@ jooq {
 			}
 		}
 	}
-//	OneCodeProd(sourceSets.main) {
-//		jdbc {
-//			driver = 'com.mysql.cj.jdbc.Driver'
-//			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
-//			user = 'oc'
-//			password = 'B5q0n6NfDdvYWXD'
-//		}
-//		generator {
-//			database {
-//				name = 'org.jooq.util.mysql.MySQLDatabase'
-//				inputSchema = 'onecode'
-//			}
-//			generate {
-//				relations = true
-//				deprecated = false
-//				records = true
-//				immutablePojos = true
-//				fluentSetters = true
-//			}
-//			target {
-//				packageName = 'com.menuxx.ocapiserver.db'
-//				// directory = 'src/main/java'
-//			}
-//		}
-//	}
+	XueRenProd(sourceSets.main) {
+		jdbc {
+			driver = 'com.mysql.cj.jdbc.Driver'
+			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
+			user = 'api-server'
+			password = 'As3$3N10d324d!a'
+		}
+		generator {
+			database {
+				name = 'org.jooq.util.mysql.MySQLDatabase'
+				inputSchema = 'xueren_read'
+			}
+			generate {
+				relations = true
+				deprecated = false
+				records = true
+				immutablePojos = true
+				fluentSetters = true
+			}
+			target {
+				packageName = 'com.menuxx.common.db'
+				// directory = 'src/main/java'
+			}
+		}
+	}
 }
 
-project.tasks.getByName('compileJava').dependsOn -= 'generateOnecodeDevJooqSchemaSource'
-// project.tasks.getByName('compileJava').dependsOn -= 'generateMenuxxDevJooqSchemaSource'
+project.tasks.getByName('compileJava').dependsOn -= 'generateXueRenDevJooqSchemaSource'
+project.tasks.getByName('compileJava').dependsOn -= 'generateXueRenProdJooqSchemaSource'
 
 dependencies {
 

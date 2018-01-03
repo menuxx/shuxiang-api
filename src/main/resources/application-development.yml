@@ -6,8 +6,10 @@ spring:
 
   datasource:
     url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8
-    password: B5q0n6NfDdvYWXD
     username: oc
+    password: B5q0n6NfDdvYWXD
+    hikari:
+      maximum-pool-size: 10
 
   data:
     mongodb:

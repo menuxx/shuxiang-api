@@ -31,13 +31,13 @@ class ItemCodeCtrl(
         val codes = itemCodeRepository.loadBatchCode(batchId)
         val task = codeItemCodeTaskDb.getTaskByBatchId(batchId)
         if (codes != null) {
-            val downloadBytes = codeBatchService.genExcel(task.remark, codes)
+            val downloadBytes = codeBatchService.genExcel2003(task.remark, codes)
             // 更新到到导出状态
             itemCodeRepository.updateBatchExport(batchId)
             val headers = HttpHeaders()
             headers.set("Content-Type", "application/vnd.ms-excel")
             headers.set("Content-length", downloadBytes.size.toString())
-            headers.set("Content-Disposition", "attachment; filename=batch_${batchId}_${task.remark}.xslx")
+            headers.set("Content-Disposition", "attachment;filename=batch_${batchId}_${task.remark}.xslx")
             return ResponseEntity(downloadBytes, headers, HttpStatus.OK)
         }
         return ResponseEntity.notFound().build()

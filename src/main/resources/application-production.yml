@@ -8,10 +8,26 @@ auth-token:
 
 spring:
 
+  # REDIS (RedisProperties)
+  # Redis数据库索引（默认为0）
+  redis:
+    database: 11
+    pool:
+      max-active: 10
+      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+      max-wait: 1
+      # 连接池中的最大空闲连接
+      max-idle: 5
+      # 连接池中的最小空闲连接
+      min-idle: 2
+    url: redis://:4cj34t4j9@120.132.29.90:7389/10
+
   datasource:
     url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?characterEncoding=UTF-8
     username: api-server
     password: 'As3$3N10d324d!a'
+    hikari:
+      maximum-pool-size: 50
 
   rabbitmq:
     host: msg.qurenjia.com
@@ -21,9 +37,9 @@ spring:
     password: xueren001
     listener:
       simple:
-        transaction-size: 10
+        transaction-size: 20
         acknowledge-mode: auto
-        prefetch: 10
+        prefetch: 20
         concurrency: 2
         max-concurrency: 5
 
@@ -34,3 +50,7 @@ spring:
       database: xueren_read
       username: api-server
       password: '&asNh$80d!asd'
+
+logging:
+  level:
+    com.menuxx: INFO
