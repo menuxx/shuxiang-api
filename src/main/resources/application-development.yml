@@ -4,6 +4,18 @@ auth-token:
 
 spring:
 
+  redis:
+    database: 10
+    pool:
+      max-active: 10
+      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+      max-wait: 1
+      # 连接池中的最大空闲连接
+      max-idle: 5
+      # 连接池中的最小空闲连接
+      min-idle: 2
+    url: redis://:4cj34t4j9@120.132.29.90:7389/10
+
   datasource:
     url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?characterEncoding=UTF-8
     username: oc
