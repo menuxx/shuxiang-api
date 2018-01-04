@@ -66,6 +66,8 @@ public class Order {
 
     private String receiverPostalCode;
 
+    private String shareImage;
+
 
     public User getUser() {
         return user;
@@ -87,6 +89,7 @@ public class Order {
         this.queueNum = queueNum;
     }
 
+    @JsonProperty("vChannel")
     public VChannel getVChannel() {
         return vChannel;
     }
@@ -261,5 +264,13 @@ public class Order {
 
     public void setReceiverPostalCode(String receiverPostalCode) {
         this.receiverPostalCode = receiverPostalCode == null ? null : receiverPostalCode.trim();
+    }
+
+    public String getShareImage() {
+        return shareImage;
+    }
+
+    public void setShareImage(String shareImage) {
+        this.shareImage = shareImage;
     }
 }

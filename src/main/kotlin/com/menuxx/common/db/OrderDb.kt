@@ -1,14 +1,8 @@
 package com.menuxx.common.db
 
 import com.menuxx.apiserver.PageParam
-import com.menuxx.common.bean.Item
-import com.menuxx.common.bean.Order
-import com.menuxx.common.bean.User
-import com.menuxx.common.bean.VChannel
-import com.menuxx.common.db.tables.TItem
-import com.menuxx.common.db.tables.TOrder
-import com.menuxx.common.db.tables.TUser
-import com.menuxx.common.db.tables.TVChannel
+import com.menuxx.common.bean.*
+import com.menuxx.common.db.tables.*
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
@@ -30,6 +24,7 @@ class OrderDb(
     private final val tOrder = TOrder.T_ORDER
     private final val tVChannel = TVChannel.T_V_CHANNEL
     private final val tItem = TItem.T_ITEM
+    private final val tOrderItem = TOrderItem.T_ORDER_ITEM
 
     fun getUserChannelOrder(userId: Int, channelId: Int) : Order? {
         val order = dsl.select().from(tOrder)
@@ -54,6 +49,13 @@ class OrderDb(
     fun updateOrderPaid(orderId: Int, paid: Int) : Int {
         return dsl.update(tOrder)
                 .set(tOrder.PAID, paid)
+                .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
+                .execute()
+    }
+
+    fun updateOrderShareImage(orderId: Int, shareImage: String) : Int {
+        return dsl.update(tOrder)
+                .set(tOrder.SHARE_IMAGE, shareImage)
                 .where(tOrder.ID.eq(UInteger.valueOf(orderId)))
                 .execute()
     }
@@ -110,10 +112,38 @@ class OrderDb(
                 .fetchOne()
 
         val order = record?.into(tOrder)?.into(Order::class.java)
-        order?.user = record?.into(tUser)?.into(User::class.java)
-        order?.vChannel = record?.into(tVChannel)?.into(VChannel::class.java)
-        order?.vChannel?.item = record?.into(tItem)?.into(Item::class.java)
+        if (order != null) {
+            order.user = record.into(tUser)?.into(User::class.java)
+            order.vChannel = record.into(tVChannel)?.into(VChannel::class.java)
+            order.vChannel.item = record.into(tItem)?.into(Item::class.java)
+            order.items = loadOrderItems(order.id)
+        }
         return order
+    }
+
+    fun loadOrderItems(orderId: Int) : List<OrderItem> {
+        return dsl.select().from(tOrderItem).where(tOrderItem.ORDER_ID.eq(UInteger.valueOf(orderId))).fetchArray().map {
+            it.into(OrderItem::class.java)
+        }
+    }
+
+
+    fun loadMyOrders(userId: Int, page: PageParam) : List<Order> {
+        return dsl.select()
+                .from(tOrder)
+                .leftJoin(tVChannel).on(tOrder.CHANNEL_ID.eq(tVChannel.ID))
+                .leftJoin(tItem).on(tItem.ID.eq(tVChannel.ITEM_ID))
+                .where(tOrder.USER_ID.eq(UInteger.valueOf(userId)))
+                .orderBy(tOrder.CREATE_AT.desc())
+                .limit(page.getLimit())
+                .offset(page.getOffset())
+                .fetchArray().map {
+            val order = it.into(tOrder).into(Order::class.java)
+            order?.vChannel = it.into(tVChannel).into(VChannel::class.java)
+            order?.vChannel?.item = it.into(tItem).into(Item::class.java)
+            order?.items = loadOrderItems(order.id)
+            order
+        }
     }
 
     /**
@@ -121,15 +151,15 @@ class OrderDb(
      * 2. 获取商户全部订单
      * 支持分页
      */
-    fun loadOrders(creatorId: Int, channelId: Int?, page: PageParam) : List<Order> {
+    fun loadMerchantOrders(merchantId: Int, channelId: Int?, page: PageParam) : List<Order> {
         // where 条件
         val condition = if (channelId != null) {
             // 筛选 商户
-            tOrder.MERCHANT_ID.eq(UInteger.valueOf(creatorId))
+            tOrder.MERCHANT_ID.eq(UInteger.valueOf(merchantId))
                             // 删选 channelId
                             .and(tOrder.CHANNEL_ID.eq(UInteger.valueOf(channelId)))
         } else {
-            tOrder.MERCHANT_ID.eq(UInteger.valueOf(creatorId))
+            tOrder.MERCHANT_ID.eq(UInteger.valueOf(merchantId))
         }
 
         return dsl.select()
@@ -142,8 +172,9 @@ class OrderDb(
                 .offset(page.getOffset())
                 .fetchArray().map {
                     val order = it.into(tOrder).into(Order::class.java)
-                    // order.vipChannel = it.into(VipChannel::class.java)
-                    // order.vipChannel.item = it.into(Item::class.java)
+                    order?.vChannel = it.into(tVChannel).into(VChannel::class.java)
+                    order?.items = loadOrderItems(order.id)
+                    order?.vChannel?.item = it.into(tItem).into(Item::class.java)
                     order
                 }
     }

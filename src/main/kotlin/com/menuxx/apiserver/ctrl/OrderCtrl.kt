@@ -32,7 +32,7 @@ class OrderCtrl(
      */
     @GetMapping
     fun loadMerchantOrders(@RequestParam(name = "channelId", required = false) channelId: Int?, @RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<Order> {
-        return orderDb.loadOrders(1, channelId, PageParam(pageNum, pageSize))
+        return orderDb.loadMerchantOrders(1, channelId, PageParam(pageNum, pageSize))
     }
 
     /**
