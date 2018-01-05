@@ -17,15 +17,15 @@ class MyHeaderHttpSessionStrategy : HttpSessionStrategy {
     private var headerName = "X-SessionID"
 
     override fun getRequestedSessionId(request: HttpServletRequest): String {
-        return request.getHeader(this.headerName)
+        return request.getHeader(headerName)
     }
 
     override fun onNewSession(session: Session, request: HttpServletRequest, response: HttpServletResponse) {
-        response.setHeader(this.headerName, session.id)
+        response.setHeader(headerName, session.id)
     }
 
     override fun onInvalidateSession(request: HttpServletRequest, response: HttpServletResponse) {
-        response.setHeader(this.headerName, "")
+        response.setHeader(headerName, "")
     }
 
     /**
@@ -34,7 +34,7 @@ class MyHeaderHttpSessionStrategy : HttpSessionStrategy {
      * @param headerName the name of the header to obtain the session id from.
      */
     fun setHeaderName(headerName: String) {
-        Assert.notNull(headerName, "headerName cannot be null")
+        // Assert.notNull(headerName, "headerName cannot be null")
         this.headerName = headerName
     }
 

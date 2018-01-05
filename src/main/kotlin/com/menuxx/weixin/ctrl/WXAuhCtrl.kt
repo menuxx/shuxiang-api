@@ -99,7 +99,7 @@ class WXAuhCtrl(
 
         SecurityContextHolder.getContext().authentication = authentication
 
-        val token = tokenProcessor.genToken(sessionInfo.openid, AuthUserTypeNormal, request.remoteAddr)
+        val token = tokenProcessor.genToken(sessionInfo.unionid, AuthUserTypeNormal, request.remoteAddr)
 
         val session = sessionRepository.createSession()
 
@@ -150,7 +150,7 @@ class WXAuhCtrl(
         ))
 
         SecurityContextHolder.getContext().authentication = authentication
-        val token = tokenProcessor.genToken(accessToken.openId, AuthUserTypeNormal, request.remoteAddr)
+        val token = tokenProcessor.genToken(accessToken.unionId, AuthUserTypeNormal, request.remoteAddr)
 
         return WXAuthResult(token, hashMapOf(
                 "id" to sysUser.id,

@@ -23,12 +23,13 @@ class WXUserDetailsService(private val userDb: UserDb) : UserDetailsService {
      */
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = userDb.findUserByUnionId(username)
+        val user = userDb.findUserByUnionIdOrderOpenId(username)
         if ( user != null ) {
             val authorities = userDb.findAuthoritiesByUserId(user.id)
             return AuthUser(id = user.id, userName = user.userName, _password = user.wxUser.refreshToken,
                     enable = user.enable == 1,
-                    openid = username,
+                    unionid = user.wxUser.unionid,
+                    openid = user.wxUser.openid,
                     avatarUrl = user.avatarUrl,
                     phoneNumber = user.phoneNumber,
                     userType = AuthUserTypeNormal,

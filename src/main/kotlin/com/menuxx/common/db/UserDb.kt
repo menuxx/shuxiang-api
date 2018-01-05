@@ -59,13 +59,14 @@ class UserDb(private val dsl: DSLContext) {
     }
 
     /**
-     * 根据 unionId 获取用户
+     * 根据 unionId 或者 openid 获取用户
      */
-    fun findUserByUnionId(unionId: String) : User? {
+    fun findUserByUnionIdOrderOpenId(userNameId: String) : User? {
         val record = dsl.select().from(tUser)
                 .leftJoin(tWxUser)
                 .on(tUser.WX_USER_ID.eq(tWxUser.ID))
-                .where(tWxUser.UNIONID.eq(unionId)).fetchOne()
+                .where(tWxUser.UNIONID.eq(userNameId).or(tWxUser.OPENID.eq(userNameId)))
+                .fetchOne()
         val user = record?.into(tUser)?.into(User::class.java)
         user?.wxUser = record?.into(tWxUser)?.into(WXUser::class.java)
         return user
