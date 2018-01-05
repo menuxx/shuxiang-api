@@ -13,4 +13,4 @@ import org.springframework.stereotype.Component
 @NoArg
 @ConfigurationProperties("app")
 @Component
-class AppProps(val codeBaseUrl: String)
+class AppProps(var codeBaseUrl: String)
