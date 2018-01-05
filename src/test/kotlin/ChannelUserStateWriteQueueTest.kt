@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
+import java.util.*
 
 @SpringBootTest(classes = [Application::class])
 @RunWith(SpringRunner::class)
@@ -18,11 +19,14 @@ class ChannelUserStateWriteQueueTest {
 
     @Test
     fun commitObtainStateTest() {
-        (0..10).map {
+
+        (0..10000).map {
+            Thread.sleep(10)
             channelUserStateWriteQueue.commitObtainState(UserObtainItemState(
-                    loopRefId = "25:61247126-412348-2341234213-42342314-324132", userId = 2, channelItemId = 25, confirmState = 2, orderId = null, queueNum = null
+                    loopRefId = "25:" + UUID.randomUUID().toString(), userId = 2, channelItemId = 25, confirmState = 2, orderId = null, queueNum = null
             ))
         }
+
         //channelUserStateWriteQueue.commitConsumeState(UserObtainItemState())
         //channelUserStateWriteQueue.commitConsumeState(UserObtainItemState())
         //channelUserStateWriteQueue.commitConsumeState(UserObtainItemState())

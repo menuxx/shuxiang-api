@@ -35,19 +35,12 @@ class ChannelUserStateWriteQueue(
 
     // 一个生产者，多个消费者
 
-    private final val consumerThreadNum = 3
-
+    private final val consumerThreadNum = 10
     // 消费者线程
-    private val consumeConsumerPool = Executors.newFixedThreadPool(consumerThreadNum)
+    private val consumerPool = Executors.newFixedThreadPool(consumerThreadNum)
 
     // 生产者线程
-    private val consumeProductPool = Executors.newSingleThreadExecutor()
-
-    // 消费者线程
-    private val obtainConsumerPool = Executors.newFixedThreadPool(consumerThreadNum)
-
-    // 生产者线程
-    private val obtainProductPool = Executors.newSingleThreadExecutor()
+    private val productPool = Executors.newSingleThreadExecutor()
 
     // 数组实现的有界队列
     // 队列长度 65536，不支持有序，提高队列吞吐率
@@ -63,7 +56,6 @@ class ChannelUserStateWriteQueue(
         objRedisTemplate.opsForValue().set(event.loopRefId, event.copy())
         when(action) {
             CommitActionObtain -> {
-                println(11111)
                 // 设置超时时间
                 objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
                 // 写入数据库状态
@@ -80,11 +72,8 @@ class ChannelUserStateWriteQueue(
 
     @PreDestroy
     fun shutdown() {
-        obtainConsumerPool.shutdown()
-        obtainProductPool.shutdown()
-
-        consumeConsumerPool.shutdown()
-        consumeProductPool.shutdown()
+        consumerPool.shutdown()
+        productPool.shutdown()
     }
 
     // 初始化队列
@@ -94,7 +83,7 @@ class ChannelUserStateWriteQueue(
         // 初始化多个消费者
         (1..consumerThreadNum).map {
             // 持有 队列消费者
-            obtainConsumerPool.submit({
+            consumerPool.execute({
                 while (true) {
                     try {
                         val event = obtainQueue.take()
@@ -111,7 +100,7 @@ class ChannelUserStateWriteQueue(
         // 初始化多个消费者
         (1..consumerThreadNum).map {
             // 消费 队列消费者
-            consumeConsumerPool.submit({
+            consumerPool.execute({
                 while (true) {
                     try {
                         val event = consumeQueue.take()
@@ -129,15 +118,15 @@ class ChannelUserStateWriteQueue(
     /**
      * 提交持有状态
      */
-    fun commitObtainState(event: UserObtainItemState) : Future<*> {
-        return obtainProductPool.submit({ obtainQueue.put(event) })
+    fun commitObtainState(event: UserObtainItemState)  {
+        return productPool.execute({ obtainQueue.put(event) })
     }
 
     /**
      * 提交消费抓状态
      */
-    fun commitConsumeState(event: UserObtainItemState) : Future<*> {
-        return consumeProductPool.submit({ consumeQueue.put(event) })
+    fun commitConsumeState(event: UserObtainItemState) {
+        return productPool.execute({ consumeQueue.put(event) })
     }
 
 }
