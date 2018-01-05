@@ -199,7 +199,7 @@ class ChannelStoreCtrl(
         } else {
             var orderCharge = orderChargeDb.findChargeRecordByOutTradeNo(order.orderNo)
             if ( orderCharge == null ) {
-                val dbOrderCharge = orderService.createChannelOrderCharge(order, currentUser.unionid!!)
+                val dbOrderCharge = orderService.createChannelOrderCharge(order, currentUser.openid!!)
                 orderCharge = orderChargeDb.insertChargeRecord(dbOrderCharge)
             }
             val payReq = WxPayUnifiedOrderRequest()

@@ -6,6 +6,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.session.SessionRepository
 import org.springframework.session.data.redis.RedisOperationsSessionRepository
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession
+import org.springframework.session.web.http.HttpSessionStrategy
 
 
 /**
@@ -18,10 +19,10 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @EnableRedisHttpSession
 class HttpSessionConfig {
 
-    //@Bean
-    //fun httpSessionStrategy() : HttpSessionStrategy {
-    //    return MyHeaderHttpSessionStrategy()
-    //}
+    @Bean
+    fun httpSessionStrategy() : HttpSessionStrategy {
+        return MyHeaderHttpSessionStrategy()
+    }
 
     @Bean
     fun sessionRepository(redisConnectionFactory: RedisConnectionFactory) : SessionRepository<*> {
