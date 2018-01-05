@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service
 class WXUserDetailsService(private val userDb: UserDb) : UserDetailsService {
 
     /**
-     * 此处的 userName 就是 openid
+     * 此处的 userName 就是 unionId
      */
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = userDb.findUserByOpenid(username)
+        val user = userDb.findUserByUnionId(username)
         if ( user != null ) {
             val authorities = userDb.findAuthoritiesByUserId(user.id)
             return AuthUser(id = user.id, userName = user.userName, _password = user.wxUser.refreshToken,

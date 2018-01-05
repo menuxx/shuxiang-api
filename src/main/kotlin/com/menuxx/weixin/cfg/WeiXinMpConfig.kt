@@ -1,5 +1,7 @@
 package com.menuxx.weixin.cfg
 
+import cn.binarywang.wx.miniapp.api.WxMaService
+import cn.binarywang.wx.miniapp.config.WxMaConfig
 import com.github.binarywang.wxpay.config.WxPayConfig
 import com.github.binarywang.wxpay.service.WxPayService
 import com.menuxx.weixin.prop.WeiXinProps
@@ -15,6 +17,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import redis.clients.jedis.JedisPool
 import java.net.URI
+import cn.binarywang.wx.miniapp.config.WxMaInMemoryConfig
+
+
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -53,6 +58,26 @@ class WeiXinMpConfig(
         configStorage.token = wxProps.mp.token
         configStorage.aesKey = wxProps.mp.aesKey
         return configStorage
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun wxMaConfig() : WxMaConfig {
+        val config = WxMaInMemoryConfig()
+        config.appid = wxProps.miniApp.appId
+        config.secret = wxProps.miniApp.appSecret
+        config.token =  wxProps.miniApp.token
+        config.aesKey = wxProps.miniApp.aesKey
+        config.msgDataFormat = wxProps.miniApp.msgDataFormat
+        return config
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun wxMaService() : WxMaService {
+        val service = cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl()
+        service.wxMaConfig = wxMaConfig()
+        return service
     }
 
     @Bean

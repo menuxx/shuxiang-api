@@ -19,7 +19,7 @@ val AuthUserTypeNormal = 1
 val AuthUserTypeMerchant = 2
 val AuthUserTypeAdmin = 3
 
-class AuthUser(
+open class AuthUser(
         val id: Int,
         val userName: String,
         private val _password: String?,

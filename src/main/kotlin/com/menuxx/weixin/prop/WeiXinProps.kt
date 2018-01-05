@@ -14,9 +14,20 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
 @ConfigurationProperties("weixin")
 data class WeiXinProps(
         @NestedConfigurationProperty
+        var miniApp: MiniAppProps,
+        @NestedConfigurationProperty
         var mp: WeiXinMpProps,
         @NestedConfigurationProperty
         var pay: WeiXinPayProps
+)
+
+@NoArg
+data class MiniAppProps(
+        var appId: String,
+        var appSecret: String,
+        var token: String,
+        var aesKey: String,
+        var msgDataFormat: String
 )
 
 @NoArg
