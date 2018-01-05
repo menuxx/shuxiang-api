@@ -17,8 +17,8 @@ class MyHeaderHttpSessionStrategy : HttpSessionStrategy {
 
     private var headerName = "X-SessionID"
 
-    override fun getRequestedSessionId(request: HttpServletRequest): String {
-        return request.getHeader(headerName)
+    override fun getRequestedSessionId(request: HttpServletRequest): String? {
+        return request.getHeader(headerName) ?: null
     }
 
     override fun onNewSession(session: Session, request: HttpServletRequest, response: HttpServletResponse) {

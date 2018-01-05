@@ -114,14 +114,16 @@ class ChannelUserStateWriteQueue(
      * 提交持有状态
      */
     fun commitObtainState(event: UserObtainItemState)  {
-        return obtainQueue.put(event)
+        //return obtainQueue.put(event)
+        persisState(event, CommitActionObtain)
     }
 
     /**
      * 提交消费抓状态
      */
     fun commitConsumeState(event: UserObtainItemState) {
-        return consumeQueue.put(event)
+        //return consumeQueue.put(event)
+        persisState(event, CommitActionConsume)
     }
 
 }
