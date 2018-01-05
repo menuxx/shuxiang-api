@@ -7,6 +7,9 @@ auth-token:
 
 spring:
 
+  session:
+    store-type: redis
+
   redis:
     database: 10
     pool:

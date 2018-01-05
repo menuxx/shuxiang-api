@@ -38,9 +38,6 @@ class ChannelUserStateWriteQueue(
     // 消费者线程
     private val consumerPool = Executors.newFixedThreadPool(consumerThreadNum)
 
-    // 生产者线程
-    private val productPool = Executors.newSingleThreadExecutor()
-
     // 数组实现的有界队列
     // 队列长度 65536，不支持有序，提高队列吞吐率
     // 支持 2万 多个请求堆积
@@ -72,7 +69,6 @@ class ChannelUserStateWriteQueue(
     @PreDestroy
     fun shutdown() {
         consumerPool.shutdown()
-        productPool.shutdown()
     }
 
     // 初始化队列
@@ -118,14 +114,14 @@ class ChannelUserStateWriteQueue(
      * 提交持有状态
      */
     fun commitObtainState(event: UserObtainItemState)  {
-        return productPool.execute({ obtainQueue.put(event) })
+        return obtainQueue.put(event)
     }
 
     /**
      * 提交消费抓状态
      */
     fun commitConsumeState(event: UserObtainItemState) {
-        return productPool.execute({ consumeQueue.put(event) })
+        return consumeQueue.put(event)
     }
 
 }

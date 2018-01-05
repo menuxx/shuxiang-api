@@ -10,6 +10,8 @@ import com.menuxx.common.db.OrderDb
 import com.menuxx.getCurrentUser
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.http.ResponseEntity
+import org.springframework.session.Session
+import org.springframework.session.SessionRepository
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -21,10 +23,13 @@ import javax.validation.Valid
 @AllOpen
 @RestController
 @RequestMapping("/user")
-class UserCtrl (private val orderDb: OrderDb) {
+class UserCtrl (
+        private val orderDb: OrderDb
+) {
 
     @GetMapping("orders/{orderId}")
     fun getOrderWithMe(@PathVariable orderId: Int) : ResponseEntity<Order>? {
+        //sessionRepository.createSession()
         val user = getCurrentUser()
         val order = orderDb.getUserOrderDetails(orderId, user.id)
         return if ( order == null ) {

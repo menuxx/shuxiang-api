@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.session.MapSession
+import org.springframework.session.Session
 import org.springframework.session.SessionRepository
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -41,7 +41,7 @@ class WXAuhCtrl(
         private val authenticationManager: AuthenticationManager,
         private val wxUserDetailsService: WXUserDetailsService,
         private val tokenProcessor: TokenProcessor,
-        private val sessionRepository: SessionRepository<MapSession>
+        private val sessionRepository: SessionRepository<Session>
         ) {
 
     /**
@@ -50,7 +50,6 @@ class WXAuhCtrl(
     data class SessionToken(@NotNull val token: String)
     @PutMapping("/refresh_token")
     fun refreshSessionCode(@RequestBody @Valid oldToken: SessionToken) : ResponseEntity<Any> {
-
 
         val newToken = tokenProcessor.refreshToken(oldToken.token)
         return if ( newToken != null ) {
@@ -63,7 +62,7 @@ class WXAuhCtrl(
     /**
      * 支持微信小程序登录
      */
-    data class LogoBody(
+    data class LoginBody(
             @NotEmpty val code: String,
             @NotEmpty val encryptedData: String,
             @NotEmpty val iv: String,
@@ -71,7 +70,7 @@ class WXAuhCtrl(
             @NotEmpty val signature: String
     )
     @PutMapping("/mini_code_to_session")
-    fun getSessionByJsCode(@Valid @RequestBody data: LogoBody, request: HttpServletRequest) : WXAuthResult {
+    fun getSessionByJsCode(@Valid @RequestBody data: LoginBody, request: HttpServletRequest) : WXAuthResult {
 
         val fromIp = request.remoteAddr
         val sessionInfo = wxMaService.userService.getSessionInfo(data.code)

@@ -6,6 +6,9 @@ server:
 
 spring:
 
+  session:
+    store-type: redis
+
   redis:
       # Redis服务器地址
       host: 120.132.29.90
