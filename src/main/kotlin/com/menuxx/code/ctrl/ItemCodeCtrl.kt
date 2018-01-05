@@ -8,6 +8,7 @@ import com.menuxx.code.mq.CodeOnceBatchPublisher
 import com.menuxx.code.service.CodeBatchService
 import com.menuxx.common.bean.ItemCodeBatch
 import com.menuxx.common.bean.ItemCodeTask
+import com.menuxx.common.prop.AppProps
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -22,7 +23,8 @@ class ItemCodeCtrl(
         private val batchPublisher: CodeOnceBatchPublisher,
         private val codeBatchService : CodeBatchService,
         private val codeItemCodeTaskDb: ItemCodeTaskDb,
-        private val itemCodeRepository: ItemCodeRepository
+        private val itemCodeRepository: ItemCodeRepository,
+        private val appProps: AppProps
 ) {
 
     @GetMapping("/download/batch/{batchId}")
@@ -31,13 +33,13 @@ class ItemCodeCtrl(
         val codes = itemCodeRepository.loadBatchCode(batchId)
         val task = codeItemCodeTaskDb.getTaskByBatchId(batchId)
         if (codes != null) {
-            val downloadBytes = codeBatchService.genExcel2003(task.remark, codes)
+            val downloadBytes = codeBatchService.genExcel2003(task.remark, codes, appProps.codeBaseUrl)
             // 更新到到导出状态
             itemCodeRepository.updateBatchExport(batchId)
             val headers = HttpHeaders()
             headers.set("Content-Type", "application/vnd.ms-excel")
             headers.set("Content-length", downloadBytes.size.toString())
-            headers.set("Content-Disposition", "attachment;filename=batch_${batchId}_${task.remark}.xslx")
+            headers.set("Content-Disposition", "attachment;filename=batch_${batchId}_${task.remark}.xls")
             return ResponseEntity(downloadBytes, headers, HttpStatus.OK)
         }
         return ResponseEntity.notFound().build()

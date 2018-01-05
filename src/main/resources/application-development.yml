@@ -1,4 +1,7 @@
 
+app:
+  code-base-url: http://c.nizhuantech.com/tc/
+
 auth-token:
   secret: qidj983f8u2dh2
 

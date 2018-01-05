@@ -20,10 +20,15 @@ class ChannelUserStateWriteQueueTest {
     @Test
     fun commitObtainStateTest() {
 
-        (0..10000).map {
-            Thread.sleep(10)
+        val uuid = UUID.randomUUID().toString()
+
+        (0..1000).map {
             channelUserStateWriteQueue.commitObtainState(UserObtainItemState(
-                    loopRefId = "25:" + UUID.randomUUID().toString(), userId = 2, channelItemId = 25, confirmState = 2, orderId = null, queueNum = null
+                    loopRefId = "25:" + uuid, userId = 2, channelItemId = 25, confirmState = 1, orderId = null, queueNum = null
+            ))
+            Thread.sleep(10)
+            channelUserStateWriteQueue.commitConsumeState(UserObtainItemState(
+                    loopRefId = "25:" + uuid, userId = 2, channelItemId = 25, confirmState = 3, orderId = null, queueNum = null
             ))
         }
 

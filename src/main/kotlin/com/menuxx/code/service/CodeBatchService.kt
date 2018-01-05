@@ -66,7 +66,7 @@ class CodeBatchService (
 
     }
 
-    fun genExcel2003(remark: String, codes: Array<SXItemCode>) : ByteArray {
+    fun genExcel2003(remark: String, codes: Array<SXItemCode>, urlPrefix: String) : ByteArray {
         val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
         val wb = HSSFWorkbook()
         val sheet = wb.createSheet(remark)
@@ -81,7 +81,7 @@ class CodeBatchService (
             columns.forEachIndexed { j, colName ->
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://c.nizhuantech.com/c/~${itemCode.code}~${itemCode.salt}")
+                    cell.setCellValue( urlPrefix + "/~${itemCode.code}~${itemCode.salt}")
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )
@@ -102,7 +102,7 @@ class CodeBatchService (
         return outputByte.toByteArray()
     }
 
-    fun genExcel(remark: String, codes: Array<SXItemCode>) : ByteArray {
+    fun genExcel(remark: String, codes: Array<SXItemCode>, urlPrefix: String) : ByteArray {
         val columns = arrayOf("item_code_url", "item_code", "status", "batchId", "create_time")
         val wb = XSSFWorkbook()
         val sheet = wb.createSheet(remark)
@@ -117,7 +117,7 @@ class CodeBatchService (
             columns.forEachIndexed { j, colName ->
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
-                    cell.setCellValue( "http://c.nizhuantech.com/c/~${itemCode.code}~${itemCode.salt}" )
+                    cell.setCellValue( urlPrefix + "/~${itemCode.code}~${itemCode.salt}" )
                 }
                 if ( j == 1 ) {
                     cell.setCellValue( itemCode.code )
