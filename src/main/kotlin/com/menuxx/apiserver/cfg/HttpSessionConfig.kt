@@ -19,10 +19,10 @@ import org.springframework.session.web.http.HttpSessionStrategy
 @EnableRedisHttpSession
 class HttpSessionConfig {
 
-    @Bean
-    fun httpSessionStrategy() : HttpSessionStrategy {
-        return MyHeaderHttpSessionStrategy()
-    }
+    //@Bean
+    //fun httpSessionStrategy() : HttpSessionStrategy {
+    //    return MyHeaderHttpSessionStrategy()
+    //}
 
     @Bean
     fun sessionRepository(redisConnectionFactory: RedisConnectionFactory) : SessionRepository<*> {

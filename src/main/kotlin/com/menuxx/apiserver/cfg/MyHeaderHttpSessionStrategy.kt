@@ -2,6 +2,7 @@ package com.menuxx.apiserver.cfg
 
 import org.springframework.session.Session
 import org.springframework.session.web.http.HttpSessionStrategy
+import org.springframework.session.web.http.SessionRepositoryFilter
 import org.springframework.util.Assert
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
