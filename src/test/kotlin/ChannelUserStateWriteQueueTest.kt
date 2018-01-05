@@ -1,6 +1,5 @@
 import com.menuxx.Application
 import com.menuxx.miaosha.bean.UserObtainItemState
-import com.menuxx.miaosha.queue.ChannelUserStateWriteQueue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired

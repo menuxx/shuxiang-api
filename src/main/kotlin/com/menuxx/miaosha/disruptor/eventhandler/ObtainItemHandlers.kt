@@ -10,9 +10,9 @@ import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.bean.UserObtainItemState
 import com.menuxx.miaosha.disruptor.ChannelUserEvent
 import com.menuxx.miaosha.disruptor.ConfirmState
-import com.menuxx.miaosha.queue.ChannelUserStateWriteQueue
 import com.menuxx.miaosha.queue.MsgTags
 import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
+import com.menuxx.miaosha.service.ChannelUserStateService
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
 import org.slf4j.LoggerFactory
@@ -33,7 +33,7 @@ class ChannelUserEventPostObtainHandler(
         private val orderDb: OrderDb,
         private val objectMapper: ObjectMapper,
         private val objRedisTemplate: RedisTemplate<String, Any>,
-        private val userStateWriteQueue: ChannelUserStateWriteQueue,
+        private val userStateService: ChannelUserStateService,
         @Autowired @Qualifier("senderProducer") private val senderProducer: ProducerBean
         ) : EventHandler<ChannelUserEvent> {
 
@@ -63,7 +63,7 @@ class ChannelUserEventPostObtainHandler(
             ConfirmState.Obtain -> {
                 logger.info("Obtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 // 提交到 状态持久化 队列
-                userStateWriteQueue.commitObtainState(UserObtainItemState(
+                userStateService.commitObtainState(UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
                         channelItemId = event.channelId,
@@ -116,7 +116,7 @@ class ChannelUserEventPostObtainHandler(
             ConfirmState.ObtainConsumed -> {
                 logger.info("ObtainConsumed, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
                 // 持久化导数据库
-                userStateWriteQueue.commitConsumeState(UserObtainItemState(
+                userStateService.commitConsumeState(UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
                         channelItemId = event.channelId,
@@ -137,10 +137,7 @@ class ChannelUserEventPostObtainHandler(
  * 通过 channelItemStore 在内存中完成单线程资源抢占
  */
 @Component
-class ChannelUserEventHandler(
-        private val userStateWriteQueue: ChannelUserStateWriteQueue
-)
-    : EventHandler<ChannelUserEvent> {
+class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
 
     private final val logger = LoggerFactory.getLogger(ChannelUserEventHandler::class.java)
 
