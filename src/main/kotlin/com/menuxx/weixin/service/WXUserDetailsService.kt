@@ -26,7 +26,7 @@ class WXUserDetailsService(private val userDb: UserDb) : UserDetailsService {
         val user = userDb.findUserByUnionIdOrderOpenId(username)
         if ( user != null ) {
             val authorities = userDb.findAuthoritiesByUserId(user.id)
-            return AuthUser(id = user.id, userName = user.userName, _password = user.wxUser.refreshToken,
+            return AuthUser(id = user.id, userName = user.userName, _password = user.passwordToken,
                     enable = user.enable == 1,
                     unionid = user.wxUser.unionid,
                     openid = user.wxUser.openid,

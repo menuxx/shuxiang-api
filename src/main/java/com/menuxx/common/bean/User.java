@@ -20,11 +20,21 @@ public class User {
 
     private Integer enable;
 
+    private String passwordToken;
+
     private WXUser wxUser;
 
     private Date updateAt;
 
     private Date createAt;
+
+    public String getPasswordToken() {
+        return passwordToken;
+    }
+
+    public void setPasswordToken(String passwordToken) {
+        this.passwordToken = passwordToken;
+    }
 
     public Integer getId() {
         return id;

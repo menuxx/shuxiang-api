@@ -72,10 +72,10 @@ aliyun:
 
 weixin:
   mini-app:
-    app-id: bcd9f013245cee5cdfc9afc9f7288130
+    app-id: wxeef4c820b9b60b7c
     app-secret: bcd9f013245cee5cdfc9afc9f7288130
     token: cf24c5cb8696f0e6566d2d504be9dd70
-    aes-key: 111
+    aes-key: 656c9fcf24c5cb8696f0e72881306fc9af
     msg-data-format: JSON
 
   mp:

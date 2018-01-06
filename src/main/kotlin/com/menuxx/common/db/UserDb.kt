@@ -135,7 +135,7 @@ class UserDb(private val dsl: DSLContext) {
      * 创建用户
      */
     @Transactional
-    fun createUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
+    fun createUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
         val newSysUser = insertWXUser(wxUser)
         val newUser = User()
         newUser.userName = wxUser.nickname
@@ -147,6 +147,7 @@ class UserDb(private val dsl: DSLContext) {
         newUser.updateAt = Date()
         newUser.createAt = Date()
         newUser.wxUserId = newSysUser.id
+        newUser.passwordToken = passwordToken
         val user = insertUser(newUser)
         // 该用户的身份为 普通用户
         insertUserAuthority(UserAuthority(1, user.id, AuthUserTypeNormal))
@@ -157,7 +158,7 @@ class UserDb(private val dsl: DSLContext) {
      * 更新用户
      */
     @Transactional
-    fun updateUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
+    fun updateUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
         val updateOk = updateWXUserByOpenId(wxUser, wxUser.openid) == 1
         if ( updateOk ) {
             val user = findUserByOpenid(wxUser.openid)!!
@@ -165,6 +166,7 @@ class UserDb(private val dsl: DSLContext) {
             user.avatarUrl = wxUser.headimgurl
             user.lastLoginIp = fromIp
             user.lastLoginTime = Date()
+            user.passwordToken = passwordToken
             updateUser(user)
             return user
         }
@@ -174,14 +176,14 @@ class UserDb(private val dsl: DSLContext) {
     /**
      * 如果不存在就创建，如果存在就更新
      */
-    fun saveUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
+    fun saveUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
         val user = findUserByOpenid(wxUser.openid)
         // 不存在 就创建
         return if (user == null) {
-            createUserFromWXUser(wxUser, fromIp)
+            createUserFromWXUser(wxUser, fromIp, passwordToken)
             // 更新用户
         } else {
-            updateUserFromWXUser(wxUser, fromIp)
+            updateUserFromWXUser(wxUser, fromIp, passwordToken)
         }
     }
 

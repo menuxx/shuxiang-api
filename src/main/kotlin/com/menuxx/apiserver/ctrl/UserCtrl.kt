@@ -27,6 +27,19 @@ class UserCtrl (
         private val orderDb: OrderDb
 ) {
 
+    data class ItemCode(@NotEmpty val code: String)
+    @PostMapping
+    fun bindGroupByCode(@Valid @RequestBody itemCode: ItemCode) {
+        // 1 : 解析 itemCode 得到 code 和 salt
+        // 2 : 检查 code 是否为已经绑定状态
+        // 1 : 消费 mongodb 中的 code
+    }
+
+    @GetMapping("books")
+    fun getMyBooks(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) {
+
+    }
+
     @GetMapping("orders/{orderId}")
     fun getOrderWithMe(@PathVariable orderId: Int) : ResponseEntity<Order>? {
         //sessionRepository.createSession()

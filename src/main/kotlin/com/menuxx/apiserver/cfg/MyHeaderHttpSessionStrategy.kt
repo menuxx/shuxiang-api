@@ -1,9 +1,11 @@
 package com.menuxx.apiserver.cfg
 
+import com.menuxx.apiserver.auth.TokenProcessor
+import org.springframework.security.core.token.Sha512DigestUtils
 import org.springframework.session.Session
 import org.springframework.session.web.http.HttpSessionStrategy
-import org.springframework.session.web.http.SessionRepositoryFilter
 import org.springframework.util.Assert
+import org.springframework.util.StringUtils
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -13,12 +15,21 @@ import javax.servlet.http.HttpServletResponse
  * 微信: yin80871901
  */
 
-class MyHeaderHttpSessionStrategy : HttpSessionStrategy {
+class MyHeaderHttpSessionStrategy(private val tokenProcessor: TokenProcessor) : HttpSessionStrategy {
 
-    private var headerName = "X-SessionID"
+    private var headerName = "X-Authorization"
 
-    override fun getRequestedSessionId(request: HttpServletRequest): String? {
-        return request.getHeader(headerName) ?: null
+    override fun getRequestedSessionId(request: HttpServletRequest): String {
+        val authToken = request.getHeader(headerName)
+        if ( !StringUtils.isEmpty(authToken) && authToken.length > 6 ) {
+            val token = authToken.substring(6)
+            if (StringUtils.isEmpty(token)) {
+                throw IllegalArgumentException("安全认证令牌格式错误")
+            }
+            val principal = tokenProcessor.getPrincipalFromToken(token)
+            return Sha512DigestUtils.shaHex(principal)
+        }
+        return ""
     }
 
     override fun onNewSession(session: Session, request: HttpServletRequest, response: HttpServletResponse) {
@@ -35,7 +46,7 @@ class MyHeaderHttpSessionStrategy : HttpSessionStrategy {
      * @param headerName the name of the header to obtain the session id from.
      */
     fun setHeaderName(headerName: String) {
-        // Assert.notNull(headerName, "headerName cannot be null")
+        Assert.notNull(headerName, "headerName $headerName cannot be null")
         this.headerName = headerName
     }
 

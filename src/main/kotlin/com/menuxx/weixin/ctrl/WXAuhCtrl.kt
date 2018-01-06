@@ -1,6 +1,7 @@
 package com.menuxx.weixin.ctrl
 
 import cn.binarywang.wx.miniapp.api.WxMaService
+import cn.binarywang.wx.miniapp.bean.WxMaUserInfo
 import com.menuxx.apiserver.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.WXUser
 import com.menuxx.common.db.UserDb
@@ -73,7 +74,14 @@ class WXAuhCtrl(
     fun getSessionByJsCode(@Valid @RequestBody data: LoginBody, request: HttpServletRequest) : WXAuthResult {
 
         val fromIp = request.remoteAddr
+
         val sessionInfo = wxMaService.userService.getSessionInfo(data.code)
+        val passd = wxMaService.userService.checkUserInfo(sessionInfo.sessionKey, data.rawData, data.signature)
+
+        if ( !passd ) {
+            throw RuntimeException("微信授权异常")
+        }
+
         val userInfo = wxMaService.userService.getUserInfo(sessionInfo.sessionKey, data.encryptedData, data.iv)
 
         val wxUser = WXUser()
@@ -86,25 +94,25 @@ class WXAuhCtrl(
         wxUser.province = userInfo.province
         wxUser.headimgurl = userInfo.avatarUrl ?: "https://file.menuxx.com/images/avatars/default_avatar.png"
 
-        val sysUser = userDb.saveUserFromWXUser(wxUser, fromIp)
+        val sysUser = userDb.saveUserFromWXUser(wxUser, fromIp, userInfo.unionId)
 
         val userDetail = wxUserDetailsService.loadUserByUsername(wxUser.unionid)
 
         // 尝试让该用户登录，从而验证该用户登录是否正确
         val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(
                 userDetail,
-                sessionInfo.unionid,
+                userInfo.unionId,
                 userDetail.authorities
         ))
 
         SecurityContextHolder.getContext().authentication = authentication
 
-        val token = tokenProcessor.genToken(sessionInfo.unionid, AuthUserTypeNormal, request.remoteAddr)
+        val token = tokenProcessor.genToken(userInfo.unionId, AuthUserTypeNormal, request.remoteAddr)
 
         val session = sessionRepository.createSession()
 
         session.setAttribute(WxMiniApp.sessionKey, sessionInfo.sessionKey)
-        session.setAttribute(WxMiniApp.openid, sessionInfo.openid)
+        session.setAttribute(WxMiniApp.openid, userInfo.unionId)
 
         return WXAuthResult(token, hashMapOf(
                 "id" to sysUser.id,
@@ -137,7 +145,7 @@ class WXAuhCtrl(
         wxUser.province = wxUserInfo.province
         wxUser.unionid = wxUserInfo.unionId
         wxUser.sex = getSex(wxUserInfo.sex)
-        val sysUser = userDb.saveUserFromWXUser(wxUser, fromIp)
+        val sysUser = userDb.saveUserFromWXUser(wxUser, fromIp, accessToken.refreshToken)
 
         // 获取用户
         val userDetail = wxUserDetailsService.loadUserByUsername(wxUser.unionid)

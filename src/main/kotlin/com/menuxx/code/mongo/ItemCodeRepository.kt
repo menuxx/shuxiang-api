@@ -42,4 +42,20 @@ class ItemCodeRepository (
         return dbTpl.find(query, SXItemCode::class.java)?.toTypedArray()
     }
 
+    /**
+     * 获取 xs_item_code 数据通过 base62 code
+     */
+/*    fun getItemCodeDataByCode() : SXItemCode {
+
+    }*/
+
+    /**
+     * 更新一个码到消费状态
+     */
+    fun updateCodeToConsume() {
+        val query = Query(Criteria.where("code"))
+        // val update = Update().set("status", )
+       // dbTpl.updateFirst(query, )
+    }
+
 }
