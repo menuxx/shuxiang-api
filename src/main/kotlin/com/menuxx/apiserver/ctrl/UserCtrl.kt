@@ -10,9 +10,8 @@ import com.menuxx.common.db.OrderDb
 import com.menuxx.getCurrentUser
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.http.ResponseEntity
-import org.springframework.session.Session
-import org.springframework.session.SessionRepository
 import org.springframework.web.bind.annotation.*
+import java.util.regex.Pattern
 import javax.validation.Valid
 
 /**
@@ -30,9 +29,15 @@ class UserCtrl (
     data class ItemCode(@NotEmpty val code: String)
     @PostMapping
     fun bindGroupByCode(@Valid @RequestBody itemCode: ItemCode) {
+        val codeRegExp = Pattern.compile("/~([a-zA-Z0-9]*)~([a-zA-Z0-9]*)/")
         // 1 : 解析 itemCode 得到 code 和 salt
+        val matcher = codeRegExp.matcher(itemCode.code)
+        matcher.find()
+        val code = matcher.group(1)
+        val salt = matcher.group(2)
+
         // 2 : 检查 code 是否为已经绑定状态
-        // 1 : 消费 mongodb 中的 code
+        // 3 : 消费 mongodb 中的 code
     }
 
     @GetMapping("books")

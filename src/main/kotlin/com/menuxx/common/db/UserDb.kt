@@ -9,7 +9,6 @@ import com.menuxx.common.db.tables.TAuthority
 import com.menuxx.common.db.tables.TUser
 import com.menuxx.common.db.tables.TUserAuthority
 import com.menuxx.common.db.tables.TWxUser
-import com.menuxx.weixin.exception.UserNotExistsException
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
@@ -159,18 +158,15 @@ class UserDb(private val dsl: DSLContext) {
      */
     @Transactional
     fun updateUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
-        val updateOk = updateWXUserByOpenId(wxUser, wxUser.openid) == 1
-        if ( updateOk ) {
-            val user = findUserByOpenid(wxUser.openid)!!
-            user.userName = wxUser.nickname
-            user.avatarUrl = wxUser.headimgurl
-            user.lastLoginIp = fromIp
-            user.lastLoginTime = Date()
-            user.passwordToken = passwordToken
-            updateUser(user)
-            return user
-        }
-        throw UserNotExistsException("id: ${wxUser.id}, nickname: ${wxUser.nickname} is not exists in system")
+        updateWXUserByOpenId(wxUser, wxUser.openid)
+        val user = findUserByOpenid(wxUser.openid)!!
+        user.userName = wxUser.nickname
+        user.avatarUrl = wxUser.headimgurl
+        user.lastLoginIp = fromIp
+        user.lastLoginTime = Date()
+        user.passwordToken = passwordToken
+        updateUser(user)
+        return user
     }
 
     /**

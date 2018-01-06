@@ -2,6 +2,8 @@ package com.menuxx.code.mongo
 
 import com.menuxx.AllOpen
 import com.menuxx.code.bean.SXItemCode
+import com.menuxx.code.bean.SXItemCodeBinded
+import com.menuxx.code.bean.SXItemCodeConsumed
 import com.menuxx.code.bean.SXItemCodeExported
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -45,17 +47,31 @@ class ItemCodeRepository (
     /**
      * 获取 xs_item_code 数据通过 base62 code
      */
-/*    fun getItemCodeDataByCode() : SXItemCode {
+    fun getItemCodeDataByCode(code: String) : SXItemCode {
+        val query = Query(Criteria.where("code").`is`(code))
+        return dbTpl.findOne(query, SXItemCode::class.java)
+    }
 
-    }*/
+    /**
+     * 给一个批次绑定 itemId
+     */
+    fun bindItemIdToBatchCode(batchId: Int, itemId: Int) : Boolean {
+        val query = Query(Criteria.where("batchId").`is`(batchId))
+        val update = Update()
+                .set("status", SXItemCodeBinded)
+                .set("itemId", itemId)
+        return dbTpl.updateMulti(query, update, SXItemCode::class.java).wasAcknowledged()
+    }
 
     /**
      * 更新一个码到消费状态
      */
-    fun updateCodeToConsume() {
-        val query = Query(Criteria.where("code"))
-        // val update = Update().set("status", )
-       // dbTpl.updateFirst(query, )
+    fun updateCodeToConsume(code: String, salt: String, userId: Int) : Boolean {
+        val query = Query(Criteria.where("code").`is`(code).andOperator(Criteria.where("salt").`is`(salt)))
+        val update = Update()
+                .set("status", SXItemCodeConsumed)
+                .set("userId", userId)
+        return dbTpl.updateFirst(query, update, SXItemCode::class.java).wasAcknowledged()
     }
 
 }

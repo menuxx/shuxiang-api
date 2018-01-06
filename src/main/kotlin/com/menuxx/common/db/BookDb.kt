@@ -10,7 +10,7 @@ class BookDb {
     private final val tBook = TBook.T_BOOK
 
     fun insertBook (book : Book) {
-
+        
     }
 
 }
