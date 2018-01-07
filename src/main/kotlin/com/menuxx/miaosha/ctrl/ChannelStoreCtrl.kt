@@ -39,6 +39,7 @@ import java.net.InetAddress
 import java.time.Instant
 import java.util.*
 import javax.validation.Valid
+import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 /**
@@ -80,23 +81,27 @@ class ChannelStoreCtrl(
      * 长轮询 state
      * 会直接击中 redis 缓存
      */
-    data class LoopResult(val stateCode: Int, val msg: String)
+    data class LoopResult(val stateCode: Int, val msg: String, val state: HashMap<String, Any?>?)
     @GetMapping("/{channelId}/long_loop_state")
     fun longLoopState(@PathVariable channelId: Int, @RequestParam loopRefId: String) : LoopResult {
         val currentUser = getCurrentUser()
-        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: return LoopResult(0, "WAIT")
+        val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id) ?: return LoopResult(0, "WAIT", null)
         // 验证 loopRefId 是否一致，不一致，无法发起轮询
         // 正常请款修改，是正确的
         logger.debug("loopRefId: UserLoopRefId: ${user.loopRefId}, RequestLoopRefId: $loopRefId")
         return if ( user.loopRefId == loopRefId ) {
             val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
             if ( data != null ) {
-                LoopResult(data["confirmState"] as Int, "SUCCESS")
+                LoopResult(data["confirmState"] as Int, "SUCCESS", state = hashMapOf(
+                        "queueNum" to data["queueNum"],
+                        "channelItemId" to data["queueNum"],
+                        "orderId" to data["orderId"]
+                ))
             } else {
-                LoopResult(0, "WAIT")
+                LoopResult(0, "WAIT", null)
             }
         } else {
-            LoopResult(-1, "FAIL loop token error.")
+            LoopResult(-1, "FAIL loop token error.", null)
         }
     }
 
@@ -112,7 +117,11 @@ class ChannelStoreCtrl(
         if (loopRefId != null) {
             val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
             if (data != null) {
-                return LoopResult(data["confirmState"] as Int, "SUCCESS")
+                return LoopResult(data["confirmState"] as Int, "SUCCESS", state = hashMapOf(
+                        "queueNum" to data["queueNum"],
+                        "channelItemId" to data["queueNum"],
+                        "orderId" to data["orderId"]
+                ))
             }
         }
         val order = channelDb.getChannelUserOrder(currentUser.id, channelId)
@@ -120,15 +129,18 @@ class ChannelStoreCtrl(
             // 如果订单已经消费 >= 2 的都是消费的状态
             if ( order.status >= Order.CONSUMED ) {
                 // 如果已经消费
-                LoopResult(ConfirmState.ObtainConsumed.state, "SUCCESS")
+                LoopResult(ConfirmState.ObtainConsumed.state, "SUCCESS", hashMapOf(
+                        "queueNum" to order.queueNum,
+                        "orderId" to order.id
+                ))
             } else {
                 // 如果没有消费，检查是否过期
                 val isExpired = order.createAt.toInstant().plusSeconds(Const.MaxObtainSeconds.toLong()).isAfter(Instant.now())
                 if ( isExpired ) {
-                    LoopResult(ConfirmState.FreeObtain.state, "SUCCESS")
+                    LoopResult(ConfirmState.FreeObtain.state, "SUCCESS", null)
                 } else {
                     // 如果没有过期
-                    LoopResult(ConfirmState.Obtain.state, "SUCCESS")
+                    LoopResult(ConfirmState.Obtain.state, "SUCCESS", null)
                 }
             }
         } else {
@@ -137,9 +149,9 @@ class ChannelStoreCtrl(
                 // 如果渠道过期
                 val channelExpired = channel.endTime.after(Date(System.currentTimeMillis()))
                 if ( channelExpired ) {
-                    LoopResult(ConfirmState.Finish.state, "SUCCESS")
+                    LoopResult(ConfirmState.Finish.state, "SUCCESS", null)
                 } else {
-                    LoopResult(ConfirmState.NoObtain.state, "SUCCESS")
+                    LoopResult(ConfirmState.NoObtain.state, "SUCCESS", null)
                 }
             } else {
                 throw NotFoundException("渠道ID: $channelId 不存在")
