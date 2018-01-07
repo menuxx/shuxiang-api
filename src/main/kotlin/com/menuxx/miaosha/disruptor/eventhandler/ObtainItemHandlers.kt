@@ -15,6 +15,7 @@ import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
 import com.menuxx.miaosha.service.ChannelUserStateService
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
+import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -164,7 +165,7 @@ class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
         val sessionUser = channelGroup.getAndInsertUser(userId, event.copy())
 
         // 当 loopRefId 不存在的时候 只有第一次必须有 (获得obtain的时候)
-        event.loopRefId = event.loopRefId ?: sessionUser.loopRefId
+        event.loopRefId = if ( event.loopRefId == null || StringUtils.isBlank(event.loopRefId) ) { sessionUser.loopRefId } else { event.loopRefId }
 
         logger.debug("event: loopRefId: ${event.loopRefId}, userId: $userId, channelId: $channelId; sessionUser.confirmState: ${sessionUser.confirmState}")
 
@@ -195,7 +196,6 @@ class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
                     // orderId 为 0 就是没有正常消费，如果 不是 0 就是正常消费
                     if ( event.orderId != 0 ) {
                         val channelItemId = entry.first
-                        val channelItem = entry.second
                         sessionUser.confirmState = ConfirmState.ObtainConsumed
                         event.confirmState = ConfirmState.ObtainConsumed
                         // 产生序号
@@ -204,15 +204,6 @@ class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
                         // 移除该用户信息
                         ChannelItemStore.consumeObtainFromChannel(channelId, channelItemId)
                     } else {
-                        // 该用户已持有 但是未正常消费，将状态 重新补充为 已持有
-                        //userStateWriteQueue.commitObtainState(UserObtainItemState(
-                        //        loopRefId = event.loopRefId!!,
-                        //        userId = event.userId,
-                        //        channelItemId = channelId,
-                        //        confirmState = ConfirmState.Obtain.state,
-                        //        orderId = null,
-                        //        queueNum = null
-                        //))
                         sessionUser.confirmState = ConfirmState.Obtain
                         event.confirmState = ConfirmState.Obtain
                     }
