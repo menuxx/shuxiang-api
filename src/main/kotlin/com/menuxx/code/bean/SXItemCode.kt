@@ -9,6 +9,7 @@ import java.util.*
 val SXItemCodeCreated = 1       // 创建状态
 val SXItemCodeExported = 2      // 导出状态
 val SXItemCodeConsumed = 3      // 消费状态
+val SXItemCodeBinded = 4        // 码绑定 item
 
 fun getStatusTxt(status: Int) : String {
         return when (status) {

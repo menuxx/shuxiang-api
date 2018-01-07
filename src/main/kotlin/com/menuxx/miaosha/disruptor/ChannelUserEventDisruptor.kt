@@ -36,7 +36,7 @@ class ChannelUserEventDisruptor(channelUserEventHandler: ChannelUserEventHandler
         val ringBufferSize = 65536
 
         // 事件创建工厂
-        val eventFactory = { ChannelUserEvent(userId = 0, channelId = 0, loopRefId = null, confirmState = ConfirmState.NoObtain, orderId = null) }
+        val eventFactory = { ChannelUserEvent(userId = 0, channelId = 0, loopRefId = null, confirmState = ConfirmState.NoObtain, orderId = null, queueNum = null) }
 
         // 线程工厂
         val threadFactory : (runnable: Runnable) -> Thread = { runnable -> Thread(runnable, "Channel-User-Event-Thread(" + threadCounter.incrementAndGet() + ")") }

@@ -10,9 +10,9 @@ import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.bean.UserObtainItemState
 import com.menuxx.miaosha.disruptor.ChannelUserEvent
 import com.menuxx.miaosha.disruptor.ConfirmState
-import com.menuxx.miaosha.queue.ChannelUserStateWriteQueue
 import com.menuxx.miaosha.queue.MsgTags
 import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
+import com.menuxx.miaosha.service.ChannelUserStateService
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
 import org.slf4j.LoggerFactory
@@ -33,6 +33,7 @@ class ChannelUserEventPostObtainHandler(
         private val orderDb: OrderDb,
         private val objectMapper: ObjectMapper,
         private val objRedisTemplate: RedisTemplate<String, Any>,
+        private val userStateService: ChannelUserStateService,
         @Autowired @Qualifier("senderProducer") private val senderProducer: ProducerBean
         ) : EventHandler<ChannelUserEvent> {
 
@@ -61,6 +62,15 @@ class ChannelUserEventPostObtainHandler(
             // 被持有(存储redis状态逻辑已经被上层实现)
             ConfirmState.Obtain -> {
                 logger.info("Obtain, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
+                // 提交到 状态持久化 队列
+                userStateService.commitObtainState(UserObtainItemState(
+                        loopRefId = event.loopRefId!!,
+                        userId = event.userId,
+                        channelItemId = event.channelId,
+                        confirmState = ConfirmState.Obtain.state,
+                        orderId = null,
+                        queueNum = null
+                ))
             }
 
             // 已经抢完了
@@ -105,6 +115,15 @@ class ChannelUserEventPostObtainHandler(
             // 已消费 (存储redis状态逻辑已经被上层实现)
             ConfirmState.ObtainConsumed -> {
                 logger.info("ObtainConsumed, userId: ${event.userId}, channelId: ${event.channelId}, confirmState: ${event.confirmState.state}, loopRefId: ${event.loopRefId}")
+                // 持久化导数据库
+                userStateService.commitConsumeState(UserObtainItemState(
+                        loopRefId = event.loopRefId!!,
+                        userId = event.userId,
+                        channelItemId = event.channelId,
+                        confirmState = ConfirmState.ObtainConsumed.state,
+                        orderId = event.orderId,
+                        queueNum = event.queueNum
+                ))
                 // 由上一个循环
                 sendConsumedSmsMsg(event.orderId!!)
             }
@@ -118,10 +137,7 @@ class ChannelUserEventPostObtainHandler(
  * 通过 channelItemStore 在内存中完成单线程资源抢占
  */
 @Component
-class ChannelUserEventHandler(
-        private val userStateWriteQueue: ChannelUserStateWriteQueue
-)
-    : EventHandler<ChannelUserEvent> {
+class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
 
     private final val logger = LoggerFactory.getLogger(ChannelUserEventHandler::class.java)
 
@@ -163,15 +179,6 @@ class ChannelUserEventHandler(
                 val channelItem = ChannelItemStore.obtainItemFromChannel(userId, channelId)
                 // 如果能够持有，就修改用户状态
                 if (channelItem != null) {
-                    // 提交到 状态持久化 队列
-                    userStateWriteQueue.commitObtainState(UserObtainItemState(
-                            loopRefId = event.loopRefId!!,
-                            userId = event.userId,
-                            channelItemId = channelItem.id,
-                            confirmState = ConfirmState.Obtain.state,
-                            orderId = null,
-                            queueNum = null
-                    ))
                     // 同时修改两种状态 sessionUser 标注用户状态，event 标注 disruptor 的下一个 handler 的状态
                     sessionUser.confirmState = ConfirmState.Obtain
                     event.confirmState = ConfirmState.Obtain
@@ -193,27 +200,21 @@ class ChannelUserEventHandler(
                         event.confirmState = ConfirmState.ObtainConsumed
                         // 产生序号
                         val queueNum = channelStore.counter.getAndIncrement()
+                        event.queueNum = queueNum
                         // 移除该用户信息
                         ChannelItemStore.consumeObtainFromChannel(channelId, channelItemId)
-                        // 持久化导数据库
-                        userStateWriteQueue.commitConsumeState(UserObtainItemState(
-                                loopRefId = event.loopRefId!!,
-                                userId = event.userId,
-                                channelItemId = channelItem.id,
-                                confirmState = ConfirmState.ObtainConsumed.state,
-                                orderId = event.orderId,
-                                queueNum = queueNum
-                        ))
                     } else {
                         // 该用户已持有 但是未正常消费，将状态 重新补充为 已持有
-                        userStateWriteQueue.commitObtainState(UserObtainItemState(
-                                loopRefId = event.loopRefId!!,
-                                userId = event.userId,
-                                channelItemId = channelId,
-                                confirmState = ConfirmState.Obtain.state,
-                                orderId = null,
-                                queueNum = null
-                        ))
+                        //userStateWriteQueue.commitObtainState(UserObtainItemState(
+                        //        loopRefId = event.loopRefId!!,
+                        //        userId = event.userId,
+                        //        channelItemId = channelId,
+                        //        confirmState = ConfirmState.Obtain.state,
+                        //        orderId = null,
+                        //        queueNum = null
+                        //))
+                        sessionUser.confirmState = ConfirmState.Obtain
+                        event.confirmState = ConfirmState.Obtain
                     }
                 } else {
                     // 超过保留时间，被其他人抢走了

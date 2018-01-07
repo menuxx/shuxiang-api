@@ -25,6 +25,7 @@ open class AuthUser(
         private val _password: String?,
         val enable: Boolean,
         val openid: String?,
+        val unionid: String?,
         val phoneNumber: String?,
         val avatarUrl: String?,
         val userType: Int,
@@ -40,7 +41,7 @@ open class AuthUser(
     // 用户名
     override fun getUsername() : String {
         return when ( userType ) {
-            AuthUserTypeNormal -> openid!!
+            AuthUserTypeNormal -> unionid!!
             AuthUserTypeMerchant -> phoneNumber!!
             AuthUserTypeAdmin -> userName
             else -> phoneNumber!!

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.regex.Pattern
 import javax.validation.Valid
 
 /**
@@ -24,10 +25,32 @@ import javax.validation.Valid
 @AllOpen
 @RestController
 @RequestMapping("/user")
-class UserCtrl (private val orderDb: OrderDb) {
+class UserCtrl (
+        private val orderDb: OrderDb
+) {
+
+    data class ItemCode(@NotEmpty val code: String)
+    @PostMapping
+    fun bindGroupByCode(@Valid @RequestBody itemCode: ItemCode) {
+        val codeRegExp = Pattern.compile("/~([a-zA-Z0-9]*)~([a-zA-Z0-9]*)/")
+        // 1 : 解析 itemCode 得到 code 和 salt
+        val matcher = codeRegExp.matcher(itemCode.code)
+        matcher.find()
+        val code = matcher.group(1)
+        val salt = matcher.group(2)
+
+        // 2 : 检查 code 是否为已经绑定状态
+        // 3 : 消费 mongodb 中的 code
+    }
+
+    @GetMapping("books")
+    fun getMyBooks(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) {
+
+    }
 
     @GetMapping("orders/{orderId}")
     fun getOrderWithMe(@PathVariable orderId: Int) : ResponseEntity<Order>? {
+        //sessionRepository.createSession()
         val user = getCurrentUser()
         val order = orderDb.getUserOrderDetails(orderId, user.id)
         return if ( order == null ) {

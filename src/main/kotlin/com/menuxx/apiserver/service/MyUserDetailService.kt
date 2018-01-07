@@ -29,6 +29,7 @@ class AdminUserDetailsService(private val adminDb: AdminDb) : UserDetailsService
             return AuthUser(id = adminUser.id, userName = adminUser.username, _password = adminUser.passwordEncrypted,
                         enable = true,
                         openid = null,
+                        unionid = null,
                         phoneNumber = adminUser.phoneNumber,
                         avatarUrl = "",
                         userType = AuthUserTypeAdmin,
@@ -57,6 +58,7 @@ class MerchantUserDetailsService(private val merchantDb: MerchantDb) : UserDetai
             val authorities = merchantDb.findAuthoritiesByMerchantId(merchant.id)
             return AuthUser(id = merchant.id, userName = merchant.pressName, _password = merchant.captcha,
                     enable = merchant.enable == 1,
+                    unionid = null,
                     openid = null,
                     phoneNumber = username,
                     avatarUrl = null,

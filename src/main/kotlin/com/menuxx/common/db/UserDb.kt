@@ -9,7 +9,6 @@ import com.menuxx.common.db.tables.TAuthority
 import com.menuxx.common.db.tables.TUser
 import com.menuxx.common.db.tables.TUserAuthority
 import com.menuxx.common.db.tables.TWxUser
-import com.menuxx.weixin.exception.UserNotExistsException
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.jooq.types.UInteger
@@ -59,13 +58,14 @@ class UserDb(private val dsl: DSLContext) {
     }
 
     /**
-     * 根据 unionId 获取用户
+     * 根据 unionId 或者 openid 获取用户
      */
-    fun findUserByUnionId(unionId: String) : User? {
+    fun findUserByUnionIdOrderOpenId(userNameId: String) : User? {
         val record = dsl.select().from(tUser)
                 .leftJoin(tWxUser)
                 .on(tUser.WX_USER_ID.eq(tWxUser.ID))
-                .where(tWxUser.UNIONID.eq(unionId)).fetchOne()
+                .where(tWxUser.UNIONID.eq(userNameId).or(tWxUser.OPENID.eq(userNameId)))
+                .fetchOne()
         val user = record?.into(tUser)?.into(User::class.java)
         user?.wxUser = record?.into(tWxUser)?.into(WXUser::class.java)
         return user
@@ -134,7 +134,7 @@ class UserDb(private val dsl: DSLContext) {
      * 创建用户
      */
     @Transactional
-    fun createUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
+    fun createUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
         val newSysUser = insertWXUser(wxUser)
         val newUser = User()
         newUser.userName = wxUser.nickname
@@ -146,6 +146,7 @@ class UserDb(private val dsl: DSLContext) {
         newUser.updateAt = Date()
         newUser.createAt = Date()
         newUser.wxUserId = newSysUser.id
+        newUser.passwordToken = passwordToken
         val user = insertUser(newUser)
         // 该用户的身份为 普通用户
         insertUserAuthority(UserAuthority(1, user.id, AuthUserTypeNormal))
@@ -156,31 +157,29 @@ class UserDb(private val dsl: DSLContext) {
      * 更新用户
      */
     @Transactional
-    fun updateUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
-        val updateOk = updateWXUserByOpenId(wxUser, wxUser.openid) == 1
-        if ( updateOk ) {
-            val user = findUserByOpenid(wxUser.openid)!!
-            user.userName = wxUser.nickname
-            user.avatarUrl = wxUser.headimgurl
-            user.lastLoginIp = fromIp
-            user.lastLoginTime = Date()
-            updateUser(user)
-            return user
-        }
-        throw UserNotExistsException("id: ${wxUser.id}, nickname: ${wxUser.nickname} is not exists in system")
+    fun updateUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
+        updateWXUserByOpenId(wxUser, wxUser.openid)
+        val user = findUserByOpenid(wxUser.openid)!!
+        user.userName = wxUser.nickname
+        user.avatarUrl = wxUser.headimgurl
+        user.lastLoginIp = fromIp
+        user.lastLoginTime = Date()
+        user.passwordToken = passwordToken
+        updateUser(user)
+        return user
     }
 
     /**
      * 如果不存在就创建，如果存在就更新
      */
-    fun saveUserFromWXUser(wxUser: WXUser, fromIp: String) : User {
+    fun saveUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
         val user = findUserByOpenid(wxUser.openid)
         // 不存在 就创建
         return if (user == null) {
-            createUserFromWXUser(wxUser, fromIp)
+            createUserFromWXUser(wxUser, fromIp, passwordToken)
             // 更新用户
         } else {
-            updateUserFromWXUser(wxUser, fromIp)
+            updateUserFromWXUser(wxUser, fromIp, passwordToken)
         }
     }
 

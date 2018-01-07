@@ -1,19 +1,6 @@
 package com.menuxx.miaosha.cfg
 
-import com.aliyun.openservices.ons.api.bean.ProducerBean
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.menuxx.common.db.ChannelItemRecordDb
-import com.menuxx.common.db.OrderDb
-import com.menuxx.common.prop.AliyunProps
-import com.menuxx.miaosha.disruptor.ChannelUserEventDisruptor
-import com.menuxx.miaosha.disruptor.eventhandler.ChannelUserEventHandler
-import com.menuxx.miaosha.disruptor.eventhandler.ChannelUserEventPostObtainHandler
-import com.menuxx.miaosha.queue.ChannelUserStateWriteQueue
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.redis.core.RedisTemplate
 
 /**
  * 作者: yinchangsheng@gmail.com

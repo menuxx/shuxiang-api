@@ -159,7 +159,7 @@ class TokenProcessor(private val secret: String, private val expiration: Int) {
         val authUser = userDetails as AuthUser
         val principal = getPrincipalFromToken(token)
         return when (authUser.userType) {
-            AuthUserTypeNormal -> principal == authUser.openid && !this.isTokenExpired(token)
+            AuthUserTypeNormal -> principal == authUser.unionid && !this.isTokenExpired(token)
             AuthUserTypeMerchant -> principal == authUser.phoneNumber && !this.isTokenExpired(token)
             AuthUserTypeAdmin -> principal == authUser.userName && !this.isTokenExpired(token)
             else -> false
