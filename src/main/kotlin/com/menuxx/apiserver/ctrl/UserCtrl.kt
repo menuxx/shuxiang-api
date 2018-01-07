@@ -9,6 +9,9 @@ import com.menuxx.common.bean.Order
 import com.menuxx.common.db.OrderDb
 import com.menuxx.getCurrentUser
 import org.hibernate.validator.constraints.NotEmpty
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid

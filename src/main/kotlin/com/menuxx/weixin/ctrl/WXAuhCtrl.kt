@@ -74,6 +74,7 @@ class WXAuhCtrl(
     fun getSessionByJsCode(@Valid @RequestBody data: LogoBody, request: HttpServletRequest) : WXAuthResult {
 
         val fromIp = request.remoteAddr
+
         val sessionInfo = wxMaService.userService.getSessionInfo(data.code)
         val userInfo = wxMaService.userService.getUserInfo(sessionInfo.sessionKey, data.encryptedData, data.iv)
 
@@ -125,7 +126,7 @@ class WXAuhCtrl(
         val fromIp = request.remoteAddr
         // 获取该用户在微信中的信息
         val accessToken = wxMpService.oauth2getAccessToken(sessionCode.code)
-        val wxUserInfo = wxMpService.userService.userInfo(accessToken.openId)
+        val wxUserInfo = wxMpService.oauth2getUserInfo(accessToken, "zh_CN")
 
         // 新用户就绑定，老用户更新信息
         val wxUser = WXUser()
