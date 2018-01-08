@@ -91,8 +91,8 @@ weixin:
 
   pay:
     notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
-    mch-id: 1487141332
-    pay-secret: C63230BFEAAF1915494D2AA123832B34
+    mch-id: 1496051492
+    pay-secret: 54F9AA22DACB17FE29EA5869CDF13221
 
 auth-token:
   secret: ewydjwiefj23fg2y12g7e
