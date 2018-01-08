@@ -71,8 +71,9 @@ aliyun:
     sender-consumer-id: CID_sender_yth
 
 weixin:
+
   mini-app:
-    app-id: wxeef4c820b9b60b7c
+    app-id: wx3d87bb42c08a2c4b
     app-secret: bcd9f013245cee5cdfc9afc9f7288130
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: 656c9fcf24c5cb8696f0e72881306fc9af
@@ -80,9 +81,10 @@ weixin:
 
   mp:
     app-id: wx931d9dfbd5275c6e
-    app-secret: 5882869733213d929bee994933dae42b
+    app-secret: f30fef8bd0aac27e231b111716cb5969
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
+
   pay:
     notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
     mch-id: 1487141332
