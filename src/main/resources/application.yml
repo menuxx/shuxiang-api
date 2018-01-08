@@ -6,6 +6,7 @@ server:
 
 spring:
 
+
   session:
     store-type: redis
 
@@ -28,6 +29,9 @@ spring:
       validation-timeout: 5000
       minimum-idle: 20
       connection-timeout: 6000
+  jackson:
+    time-zone: GMT+8
+
 
 ronglian:
   app-id: 8a216da86077dcd00160788b18b70112

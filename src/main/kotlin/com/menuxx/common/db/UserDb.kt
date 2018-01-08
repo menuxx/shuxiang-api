@@ -47,11 +47,11 @@ class UserDb(private val dsl: DSLContext) {
     /**
      * 根据 openid 获取用户信息
      */
-    fun findUserByOpenid(openid: String) : User? {
+    fun findUserByUnionId(unionId: String) : User? {
         val record = dsl.select().from(tUser)
                 .leftJoin(tWxUser)
                 .on(tUser.WX_USER_ID.eq(tWxUser.ID))
-                .where(tWxUser.OPENID.eq(openid)).fetchOne()
+                .where(tWxUser.UNIONID.eq(unionId)).fetchOne()
         val user = record?.into(tUser)?.into(User::class.java)
         user?.wxUser = record?.into(tWxUser)?.into(WXUser::class.java)
         return user
@@ -80,8 +80,8 @@ class UserDb(private val dsl: DSLContext) {
     /**
      * 更新微信用户
      */
-    private fun updateWXUserByOpenId(wxUser: WXUser, openid: String) : Int {
-        return dsl.update(tWxUser).set( nullSkipUpdate(dsl.newRecord(tWxUser, wxUser)) ).where(tWxUser.OPENID.eq(openid)).execute()
+    private fun updateWXUserByUnionId(wxUser: WXUser, unionId: String) : Int {
+        return dsl.update(tWxUser).set( nullSkipUpdate(dsl.newRecord(tWxUser, wxUser)) ).where(tWxUser.UNIONID.eq(unionId)).execute()
     }
 
     /**
@@ -158,8 +158,8 @@ class UserDb(private val dsl: DSLContext) {
      */
     @Transactional
     fun updateUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
-        updateWXUserByOpenId(wxUser, wxUser.openid)
-        val user = findUserByOpenid(wxUser.openid)!!
+        updateWXUserByUnionId(wxUser, wxUser.unionid)
+        val user = findUserByUnionId(wxUser.unionid)!!
         user.userName = wxUser.nickname
         user.avatarUrl = wxUser.headimgurl
         user.lastLoginIp = fromIp
@@ -173,7 +173,7 @@ class UserDb(private val dsl: DSLContext) {
      * 如果不存在就创建，如果存在就更新
      */
     fun saveUserFromWXUser(wxUser: WXUser, fromIp: String, passwordToken: String) : User {
-        val user = findUserByOpenid(wxUser.openid)
+        val user = findUserByUnionId(wxUser.unionid)
         // 不存在 就创建
         return if (user == null) {
             createUserFromWXUser(wxUser, fromIp, passwordToken)

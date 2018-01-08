@@ -15,7 +15,7 @@ buildscript {
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 		classpath("org.jetbrains.kotlin:kotlin-noarg:$kotlinVersion")
 		classpath('io.spring.gradle:propdeps-plugin:0.0.9.RELEASE')
-		classpath "nu.studer:gradle-jooq-plugin:2.0.7"
+		classpath "nu.studer:gradle-jooq-plugin:2.0.9"
 	}
 }
 
@@ -132,6 +132,14 @@ jooq {
 			database {
 				name = 'org.jooq.util.mysql.MySQLDatabase'
 				inputSchema = 'onecode'
+				forcedTypes {
+					forcedType {
+						expression = 'create_at|update_at|start_time|end_time'
+						userType = 'java.util.Date'
+						types = '.*'
+						converter = "com.menuxx.common.cfg.CalendarConverter"
+					}
+				}
 			}
 			generate {
 				relations = true
@@ -157,6 +165,18 @@ jooq {
 			database {
 				name = 'org.jooq.util.mysql.MySQLDatabase'
 				inputSchema = 'xueren_read'
+				forcedTypes {
+					forcedType {
+						name = 'varchar'
+						expression = '.*'
+						types = 'JSONB?'
+					}
+					forcedType {
+						name = 'varchar'
+						expression = '.*'
+						types = 'INET'
+					}
+				}
 			}
 			generate {
 				relations = true

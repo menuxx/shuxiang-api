@@ -2,8 +2,7 @@ package com.menuxx.common.cfg
 
 import com.menuxx.AllOpen
 import com.zaxxer.hikari.HikariDataSource
-import org.jooq.ExecuteContext
-import org.jooq.SQLDialect
+import org.jooq.*
 import org.jooq.impl.*
 import org.jooq.tools.JooqLogger
 import org.springframework.context.annotation.Bean
