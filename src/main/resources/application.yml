@@ -80,8 +80,8 @@ weixin:
     msg-data-format: JSON
 
   mp:
-    app-id: wx931d9dfbd5275c6e
-    app-secret: f30fef8bd0aac27e231b111716cb5969
+    app-id: wx3d87bb42c08a2c4b
+    app-secret: 80160c2f8e9b3cb74c505f597c274130
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
 
