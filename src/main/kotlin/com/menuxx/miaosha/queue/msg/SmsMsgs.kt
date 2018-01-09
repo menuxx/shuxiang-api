@@ -11,6 +11,5 @@ import com.menuxx.NoArg
 @NoArg
 data class ConsumeSuccessMsg(
         var mobile: String,
-        var itemName: String,
-        var receiverPhoneNumber: String
+        var itemName: String
 )

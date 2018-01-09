@@ -50,10 +50,12 @@ spring:
         prefetch: 10
         concurrency: 2
         max-concurrency: 5
+        default-requeue-rejected: false
 
 logging:
   level:
     com.menuxx: DEBUG
+    com.yingtaohuo.ronglian: DEBUG
     com.aliyun: DEBUG
     org.springframework: DEBUG
     org.springframework.amqp: ERROR

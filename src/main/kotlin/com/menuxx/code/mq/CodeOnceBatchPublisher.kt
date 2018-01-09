@@ -12,7 +12,7 @@ class CodeOnceBatchPublisher (
         private val rabbitTemplate: RabbitTemplate
 ) {
 
-    private final val exchange = "code_batch_exchange"
+    private final val exchange = "code_batch.exchange"
 
     private final val routingKey = "code_batch_transaction"
 

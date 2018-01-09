@@ -1,24 +1,17 @@
 package com.menuxx.miaosha.disruptor.eventhandler
 
-import com.aliyun.openservices.ons.api.Message
-import com.aliyun.openservices.ons.api.bean.ProducerBean
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.lmax.disruptor.EventHandler
 import com.menuxx.Const
 import com.menuxx.common.db.OrderDb
-import com.menuxx.common.prop.AliyunProps
+import com.menuxx.common.publisher.SmsPublisher
 import com.menuxx.miaosha.bean.UserObtainItemState
 import com.menuxx.miaosha.disruptor.ChannelUserEvent
 import com.menuxx.miaosha.disruptor.ConfirmState
-import com.menuxx.miaosha.queue.MsgTags
-import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
 import com.menuxx.miaosha.service.ChannelUserStateService
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserStore
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
@@ -30,12 +23,10 @@ import java.util.concurrent.TimeUnit
  */
 @Component
 class ChannelUserEventPostObtainHandler(
-        private val aliyunProps: AliyunProps,
         private val orderDb: OrderDb,
-        private val objectMapper: ObjectMapper,
         private val objRedisTemplate: RedisTemplate<String, Any>,
         private val userStateService: ChannelUserStateService,
-        @Autowired @Qualifier("senderProducer") private val senderProducer: ProducerBean
+        private val smsPublisher: SmsPublisher
         ) : EventHandler<ChannelUserEvent> {
 
     private val logger = LoggerFactory.getLogger(ChannelUserEventPostObtainHandler::class.java)
@@ -45,10 +36,7 @@ class ChannelUserEventPostObtainHandler(
      */
     private fun sendConsumedSmsMsg(orderId: Int) {
         val order = orderDb.getOrderDetails(orderId)!!
-        val msgBody = objectMapper.writeValueAsBytes(ConsumeSuccessMsg(mobile = order.receiverPhoneNumber, itemName = order.vChannel.item.name, receiverPhoneNumber = order.receiverPhoneNumber))
-        val sendSmsMsg = Message(aliyunProps.ons.senderTopicName, MsgTags.TagSmsSender, "ObtainConsumedMsg_${order.orderNo}", msgBody)
-        sendSmsMsg.putUserProperties("NextTag", MsgTags.TagConsumeSuccess)
-        senderProducer.sendOneway(sendSmsMsg)
+        smsPublisher.sendConsumeSuccess(order.receiverPhoneNumber, order.items[0].itemName)
     }
 
     override fun onEvent(event: ChannelUserEvent, sequence: Long, endOfBatch: Boolean) {

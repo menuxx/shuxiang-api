@@ -36,11 +36,11 @@ spring:
 ronglian:
   app-id: 8a216da86077dcd00160788b18b70112
   account-sid: 8a216da857511049015774861894153f
-  auth-token: 396ac293985c7ad33359d276c6a3b4eb
+  auth-token: e1de26cde6e24dd28dfedcd81467d1f0
   sms-tpls:
-    captcha-id: 225789          # 登录短信
-    consume-success-id: 225523  # 抢购成功通知
-    delivery-success-id: 225525  # 配送通知
+    captcha-id: 228587          # 登录短信
+    consume-success-id: 228580  # 抢购成功通知
+    delivery-success-id: 228581  # 配送通知
 
 qiniu:
   bucket: menuxx

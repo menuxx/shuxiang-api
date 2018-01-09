@@ -14,6 +14,7 @@ import java.io.IOException
  */
 @AllOpen
 @Component
+@RabbitListener( containerFactory = "rabbitListenerContainerFactory" )
 class BatchTransactionReceiver ( private val batchTransactionService: BatchTransactionService) {
 
     private final val logger = LoggerFactory.getLogger(BatchTransactionReceiver::class.java)
@@ -22,7 +23,6 @@ class BatchTransactionReceiver ( private val batchTransactionService: BatchTrans
      * 处理一个批次
      */
     @RabbitListener(
-            containerFactory = "rabbitListenerContainerFactory",
             bindings = [
                 QueueBinding(
                         value = Queue(value = "code_batch_queue", durable = "true"),
@@ -31,7 +31,6 @@ class BatchTransactionReceiver ( private val batchTransactionService: BatchTrans
                 )
             ]
     )
-
     @Throws(InterruptedException::class, IOException::class)
     fun doOneBatch(@Payload batch: OneBatch) {
         batchTransactionService.doOneBatch(count = batch.count, startCode = batch.startCode, endCode = batch.endCode)

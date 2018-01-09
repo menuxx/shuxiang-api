@@ -33,10 +33,5 @@ data class AliyunONSProps(
 
         var consumeObtainTopicName: String,
         var consumeObtainProducerId: String,
-        var consumeObtainConsumerId: String,
-
-        var senderTopicName: String,
-        var senderProducerId: String,
-        var senderConsumerId: String
-
+        var consumeObtainConsumerId: String
 )

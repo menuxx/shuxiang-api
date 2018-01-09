@@ -31,15 +31,14 @@ class SmsClient(private val appId: String, private val accountSid: String, priva
             .build()
 
     private val Tpl = """
-<?xml version="1.0" encoding="utf-8"?>
 <TemplateSMS>
   <to>{toPhone}</to>
   <appId>{appId}</appId>
   <templateId>{templateId}</templateId>
-  <datas>{datas}
+  <datas>
+  {datas}
   </datas>
-</TemplateSMS>
-"""
+</TemplateSMS>"""
 
     private val format = SimpleDateFormat("yyyyMMddHHmmss")
 
@@ -65,7 +64,7 @@ class SmsClient(private val appId: String, private val accountSid: String, priva
         val xmlText = Tpl.replace("{toPhone}", toPhone, true)
                 .replace("{appId}", appId, true)
                 .replace("{templateId}", templateId, true)
-                .replace("{datas}", datas.map { data -> "<data>$data</data>" }.joinToString("\n"))
+                .replace("{datas}", datas.joinToString("\n") { data -> "<data>$data</data>" })
 
         val xmlType = MediaType.parse("application/xml;charset=utf-8")
 

@@ -1,9 +1,11 @@
 package com.menuxx.apiserver.cfg
 
 import com.menuxx.apiserver.auth.TokenProcessor
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.RedisConnectionFactory
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import org.springframework.session.SessionRepository
 import org.springframework.session.data.redis.RedisOperationsSessionRepository
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession
@@ -18,11 +20,22 @@ import org.springframework.session.web.http.HttpSessionStrategy
 
 @Configuration
 @EnableRedisHttpSession
-class HttpSessionConfig (private val toketProcessor: TokenProcessor) {
+class HttpSessionConfig (private val tokenProcessor: TokenProcessor) {
+
+    private final val logger = LoggerFactory.getLogger(HttpSessionConfig::class.java)
+
+    @Bean
+    fun concurrentTaskScheduler() : ConcurrentTaskScheduler {
+        val scheduler = ConcurrentTaskScheduler()
+        scheduler.setErrorHandler { err ->
+            logger.error("scheduler error handler: ", err)
+        }
+        return scheduler
+    }
 
     @Bean
     fun httpSessionStrategy() : HttpSessionStrategy {
-        return MyHeaderHttpSessionStrategy(toketProcessor)
+        return MyHeaderHttpSessionStrategy(tokenProcessor)
     }
 
     @Bean

@@ -48,6 +48,7 @@ spring:
         prefetch: 20
         concurrency: 2
         max-concurrency: 5
+        default-requeue-rejected: false
 
   data:
     mongodb:

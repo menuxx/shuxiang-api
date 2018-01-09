@@ -1,18 +1,18 @@
 package com.menuxx.apiserver.queue.listener
 
-import com.aliyun.openservices.ons.api.Action
-import com.aliyun.openservices.ons.api.ConsumeContext
-import com.aliyun.openservices.ons.api.Message
-import com.aliyun.openservices.ons.api.MessageListener
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.menuxx.AllOpen
 import com.menuxx.apiserver.queue.msg.DeliverySuccessMsg
 import com.menuxx.apiserver.queue.msg.LoginCaptchaMsg
 import com.menuxx.common.sms.SMSSender
-import com.menuxx.miaosha.queue.MsgTags
 import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
-import com.yingtaohuo.ronglian.SmsException
-import org.slf4j.LoggerFactory
+import org.springframework.amqp.core.ExchangeTypes
+import org.springframework.amqp.rabbit.annotation.Exchange
+import org.springframework.amqp.rabbit.annotation.Queue
+import org.springframework.amqp.rabbit.annotation.QueueBinding
+import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import java.io.IOException
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -21,52 +21,51 @@ import org.springframework.stereotype.Component
  *
  * 短信发送监听器
  */
+@AllOpen
 @Component
-class SmsSenderListener(
-        private val objectMapper: ObjectMapper,
-        private val smsSender: SMSSender
-) : MessageListener {
+@RabbitListener( containerFactory = "rabbitListenerContainerFactory" )
+class SmsSenderListener1 ( private val smsSender: SMSSender ) {
 
-    private val logger = LoggerFactory.getLogger(SmsSenderListener::class.java)
+    @RabbitListener(
+            bindings = [
+                (QueueBinding(
+                    value = Queue(value = "sms.queue", durable = "true"),
+                    exchange = Exchange(value = "sms.exchange", type = ExchangeTypes.FANOUT, durable = "true"),
+                    key = "sms.send_captcha"
+                ))
+            ]
+    )
+    @Throws(InterruptedException::class, IOException::class)
+    fun sendCaptcha(@Payload msg: LoginCaptchaMsg) {
+        smsSender.sendCaptcha(mobile = msg.mobile, data = arrayOf(msg.captchaNo))
+    }
 
-    override fun consume(message: Message, context: ConsumeContext): Action {
-        val nextTag = message.getUserProperties("NextTag")
-        return when ( nextTag ) {
-            MsgTags.TagConsumeSuccess -> {
-                // 你成功获得了一本新书{1}，随后我们会寄出到你填写的地址，请保持{2}联系畅通。
-                val msg = objectMapper.readValue(message.body, ConsumeSuccessMsg::class.java)
-                return try {
-                    smsSender.sendConsumeSuccess(mobile = msg.mobile, data = arrayOf(msg.itemName, msg.receiverPhoneNumber))
-                    Action.CommitMessage
-                } catch (ex: SmsException) {
-                    logger.error("发送消费成功信息($msg)失败：${ex.message}", ex)
-                    Action.ReconsumeLater
-                }
-            }
-            MsgTags.TagDeliverySuccess -> {
-                // 【网优中心】你成功获得了一本新书{1}，随后我们会寄出到你填写的地址，请保持{2}联系畅通。
-                val msg = objectMapper.readValue(message.body, DeliverySuccessMsg::class.java)
-                return try {
-                    smsSender.sendConsumeSuccess(mobile = msg.mobile, data = arrayOf(msg.expressName, msg.expressNo))
-                    Action.CommitMessage
-                } catch (ex: SmsException) {
-                    logger.error("发送配货信息($msg)失败：${ex.message}", ex)
-                    Action.ReconsumeLater
-                }
-            }
-            MsgTags.TagCaptchaSms -> {
-                val msg = objectMapper.readValue(message.body, LoginCaptchaMsg::class.java)
-                return try {
-                    smsSender.sendCaptcha(mobile = msg.mobile, data = arrayOf(msg.captchaNo))
-                    Action.CommitMessage
-                } catch (ex: SmsException) {
-                    logger.error("登录验证码($msg)失败：${ex.message}", ex)
-                    // Action.ReconsumeLater TODO 测试验证码还没有审核通过
-                    Action.CommitMessage
-                }
-            }
-            else -> Action.CommitMessage
-        }
+    @RabbitListener(
+            bindings = [
+                (QueueBinding(
+                        value = Queue(value = "sms.queue", durable = "true"),
+                        exchange = Exchange(value = "sms.exchange", type = ExchangeTypes.FANOUT, durable = "true"),
+                        key = "sms.delivery_success"
+                ))
+            ]
+    )
+    @Throws(InterruptedException::class, IOException::class)
+    fun sendDeliverySuccess(@Payload msg: DeliverySuccessMsg) {
+        smsSender.sendDeliverySuccess(mobile = msg.mobile, data = arrayOf(msg.expressName, msg.expressNo))
+    }
+
+    @RabbitListener(
+            bindings = [
+                (QueueBinding(
+                        value = Queue(value = "sms.queue", durable = "true"),
+                        exchange = Exchange(value = "sms.exchange", type = ExchangeTypes.FANOUT, durable = "true"),
+                        key = "sms.consume_success"
+                ))
+            ]
+    )
+    @Throws(InterruptedException::class, IOException::class)
+    fun sendConsumeSuccess(@Payload msg: ConsumeSuccessMsg) {
+        smsSender.sendConsumeSuccess(mobile = msg.mobile, data = arrayOf(msg.itemName))
     }
 
 }

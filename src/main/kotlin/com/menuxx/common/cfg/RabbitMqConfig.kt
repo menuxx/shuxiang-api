@@ -67,13 +67,13 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
     }
 
     // 短信发送地队列
-    @Bean fun smsQueue() = Queue("sms_queue", true)
+    @Bean fun smsQueue() = Queue("sms.queue", true, false, false)
 
-    @Bean fun smsExchange() = FanoutExchange("sms_exchange", true, false)
+    @Bean fun smsExchange() = FanoutExchange("sms.exchange", true, false)
 
     // 书享 码 批次队列
-    @Bean fun codeBatchQueue() = Queue("code_batch_queue", true)
+    @Bean fun codeBatchQueue() = Queue("code_batch.queue", true, false, false)
 
-    @Bean fun codeBatchExchange() = FanoutExchange("code_batch_exchange", true, false)
+    @Bean fun codeBatchExchange() = FanoutExchange("code_batch.exchange", true, false)
 
 }
