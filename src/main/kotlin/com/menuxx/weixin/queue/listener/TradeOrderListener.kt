@@ -13,6 +13,7 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import java.io.IOException
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -40,6 +41,7 @@ class TradeOrderListener (
                 ))
             ]
     )
+    @Throws(InterruptedException::class, IOException::class)
     fun onWXPayNotifyWithObtainConsume(@Payload orderChange: OrderCharge) {
         orderChargeDb.updateChargeRecordByOutTradeNo(orderChange, orderChange.outTradeNo)
         val attachData = getQueryMap(orderChange.attach)

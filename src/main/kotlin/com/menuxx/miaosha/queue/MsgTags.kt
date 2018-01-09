@@ -8,10 +8,6 @@ package com.menuxx.miaosha.queue
 
 object MsgTags {
 
-    const val TagFromMpRequestObtain = "ChannelItem_FromMpRequestObtain"
-
     const val TagConsumeObtain = "ChannelItem_ConsumeObtain"
-
-    const val TagTradeOrder = "TradeOrder"
 
 }

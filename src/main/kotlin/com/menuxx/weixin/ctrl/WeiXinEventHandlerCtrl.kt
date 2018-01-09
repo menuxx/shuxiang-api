@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.binarywang.wxpay.service.WxPayService
 import com.google.common.io.ByteStreams
 import com.menuxx.common.bean.OrderCharge
-import com.menuxx.miaosha.queue.MsgTags.TagConsumeObtain
+import com.menuxx.miaosha.queue.MsgTags
 import com.menuxx.weixin.queue.publisher.TradeOrderPublisher
+import org.slf4j.LoggerFactory
 import org.springframework.amqp.AmqpException
 import org.springframework.web.bind.annotation.*
 import java.nio.charset.Charset
@@ -26,6 +27,8 @@ class WeiXinEventHandlerCtrl(
         private val objectMapper: ObjectMapper
 ) {
 
+    private final val logger = LoggerFactory.getLogger(WeiXinEventHandlerCtrl::class.java)
+
     @PostMapping("/pay_notify/{tag}")
     fun payNotify(request: HttpServletRequest, @PathVariable tag: String) : String {
         val notifyBody = String(ByteStreams.toByteArray(request.inputStream), Charset.forName("UTF-8"))
@@ -36,10 +39,11 @@ class WeiXinEventHandlerCtrl(
         val orderCharge = objectMapper.readValue<OrderCharge>(msgBody, OrderCharge::class.java)
         return try {
             when ( tag ) {
-                TagConsumeObtain -> tradeOrderPublisher.sendTradeOrderWithObtainConsume(orderCharge)
+                MsgTags.TagConsumeObtain -> tradeOrderPublisher.sendTradeOrderWithObtainConsume(orderCharge)
             }
             "SUCCESS"
         } catch (e: AmqpException) {
+            logger.error("payNotify", e)
             "FAIL"
         }
     }
