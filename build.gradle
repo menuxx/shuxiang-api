@@ -134,7 +134,7 @@ jooq {
 				inputSchema = 'onecode'
 				forcedTypes {
 					forcedType {
-						expression = 'create_at|update_at|start_time|end_time'
+						expression = 'create_at|update_at|start_time|end_time|time_end|time_start|time_expire'
 						userType = 'java.util.Date'
 						types = '.*'
 						converter = "com.menuxx.common.cfg.CalendarConverter"
@@ -167,14 +167,10 @@ jooq {
 				inputSchema = 'xueren_read'
 				forcedTypes {
 					forcedType {
-						name = 'varchar'
-						expression = '.*'
-						types = 'JSONB?'
-					}
-					forcedType {
-						name = 'varchar'
-						expression = '.*'
-						types = 'INET'
+						expression = 'create_at|update_at|start_time|end_time|time_end|time_start|time_expire'
+						userType = 'java.util.Date'
+						types = '.*'
+						converter = "com.menuxx.common.cfg.CalendarConverter"
 					}
 				}
 			}
