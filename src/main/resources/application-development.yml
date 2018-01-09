@@ -40,7 +40,7 @@ spring:
   rabbitmq:
     host: msg.qurenjia.com
     port: 5672
-    virtual-host: test1
+    virtual-host: xr_dev
     username: yth_test
     password: yth_test
     listener:

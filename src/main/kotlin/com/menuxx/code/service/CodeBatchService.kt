@@ -78,7 +78,7 @@ class CodeBatchService (
         }
         codes.forEachIndexed { i, itemCode ->
             val row = sheet.createRow( i + 1 )
-            columns.forEachIndexed { j, colName ->
+            columns.forEachIndexed { j, _ ->
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
                     cell.setCellValue( urlPrefix + "~${itemCode.code}~${itemCode.salt}")
@@ -114,7 +114,7 @@ class CodeBatchService (
         }
         codes.forEachIndexed { i, itemCode ->
             val row = sheet.createRow(i + 1)
-            columns.forEachIndexed { j, colName ->
+            columns.forEachIndexed { j, _ ->
                 val cell = row.createCell(j)
                 if ( j == 0 ) {
                     cell.setCellValue( urlPrefix + "~${itemCode.code}~${itemCode.salt}" )

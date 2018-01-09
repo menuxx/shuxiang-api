@@ -1,19 +1,13 @@
 package com.menuxx.weixin.ctrl
 
-import com.aliyun.openservices.ons.api.Message
-import com.aliyun.openservices.ons.api.OnExceptionContext
-import com.aliyun.openservices.ons.api.SendCallback
-import com.aliyun.openservices.ons.api.SendResult
-import com.aliyun.openservices.ons.api.bean.ProducerBean
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.binarywang.wxpay.service.WxPayService
 import com.google.common.io.ByteStreams
-import com.menuxx.common.prop.AliyunProps
-import com.menuxx.miaosha.queue.MsgTags
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
+import com.menuxx.common.bean.OrderCharge
+import com.menuxx.miaosha.queue.MsgTags.TagConsumeObtain
+import com.menuxx.weixin.queue.publisher.TradeOrderPublisher
+import org.springframework.amqp.AmqpException
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.context.request.async.DeferredResult
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServletRequest
 
@@ -27,29 +21,27 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping("/weixin_event_handler")
 @RestController
 class WeiXinEventHandlerCtrl(
-        @Autowired @Qualifier("wxPayMsgProducer") private val wxPayMsgProducer: ProducerBean,
+        private val tradeOrderPublisher : TradeOrderPublisher,
         private val wxPayService: WxPayService,
-        private val aliyunProps: AliyunProps,
         private val objectMapper: ObjectMapper
 ) {
 
     @PostMapping("/pay_notify/{tag}")
-    fun payNotify(request: HttpServletRequest, @PathVariable tag: String) : DeferredResult<String> {
+    fun payNotify(request: HttpServletRequest, @PathVariable tag: String) : String {
         val notifyBody = String(ByteStreams.toByteArray(request.inputStream), Charset.forName("UTF-8"))
         val result = wxPayService.parseOrderNotifyResult(notifyBody)
+        // 在系统中 OrderCharge 是 WxPayOrderNotifyResult 的子集，可以收集 WxPayOrderNotifyResult 中的大部分数据
+        // WxPayOrderNotifyResult => OrderCharge
         val msgBody = objectMapper.writeValueAsBytes(result)
-        val msg = Message(aliyunProps.ons.payTopicName, MsgTags.TagTradeOrder, "WeiXinOrderPay_${result.outTradeNo}", msgBody)
-        msg.putUserProperties("NextTag", tag)
-        val asyncResult = DeferredResult<String>()
-        wxPayMsgProducer.sendAsync(msg, object : SendCallback {
-            override fun onSuccess(sendResult: SendResult) {
-                asyncResult.setResult("SUCCESS")
+        val orderCharge = objectMapper.readValue<OrderCharge>(msgBody, OrderCharge::class.java)
+        return try {
+            when ( tag ) {
+                TagConsumeObtain -> tradeOrderPublisher.sendTradeOrderWithObtainConsume(orderCharge)
             }
-            override fun onException(context: OnExceptionContext) {
-                asyncResult.setErrorResult("FAIL")
-            }
-        })
-        return asyncResult
+            "SUCCESS"
+        } catch (e: AmqpException) {
+            "FAIL"
+        }
     }
 
 }

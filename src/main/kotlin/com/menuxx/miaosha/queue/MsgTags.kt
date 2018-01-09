@@ -10,16 +10,8 @@ object MsgTags {
 
     const val TagFromMpRequestObtain = "ChannelItem_FromMpRequestObtain"
 
-    const val TagObtainConsume = "ChannelItem_ObtainConsume"
+    const val TagConsumeObtain = "ChannelItem_ConsumeObtain"
 
     const val TagTradeOrder = "TradeOrder"
-
-    const val TagSmsSender = "Sender"
-
-    const val TagCaptchaSms = "SMS_Captcha"
-
-    const val TagConsumeSuccess = "SMS_ConsumeSuccess"
-
-    const val TagDeliverySuccess = "SMS_DeliverySuccess"
 
 }

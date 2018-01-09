@@ -76,4 +76,19 @@ class RabbitMqConfig (private val objectMapper: ObjectMapper) : RabbitListenerCo
 
     @Bean fun codeBatchExchange() = FanoutExchange("code_batch.exchange", true, false)
 
+    // 消费一个持有
+    @Bean fun consumeObtainQueue() = Queue("consume_obtain.queue", true, false, false)
+
+    @Bean fun consumeObtainExchange() = FanoutExchange("consume_obtain.exchange", true, false)
+
+    // 申请一个持有
+    @Bean fun requestObtainQueue() = Queue("request_obtain.queue", true, false, false)
+
+    @Bean fun requestObtainExchange() = FanoutExchange("request_obtain.exchange", true, false)
+
+    // 微信支付
+    @Bean fun wxPayQueue() = Queue("wxpay.queue", true, false, false)
+
+    @Bean fun wxPayExchange() = FanoutExchange("wxpay.exchange", true, false)
+
 }

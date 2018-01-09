@@ -47,33 +47,6 @@ qiniu:
   access-key: sr4H3rnxg3fkN9bf5NBTj9V9ptPFMnW5Ryxbg_o6
   secret-key: 9Gtvk0QbjvLDKWXwAi_WCYQkLq5Biu-X9wjHjXS5
 
-aliyun:
-  ons:
-    # 队列基础配置
-    access-key-id: LTAIJ3GVZZrQhLcZ
-    access-key-secret: FBS4lFAG7mq0h4cLikCCmAAoIeaBMF
-
-    # 支付队列
-    pay-topic-name: Topic_pay_yth
-    pay-producer-id: PID_pay_yth
-    pay-consumer-id: CID_pay_yth
-
-    # 抢书渠道状态实时监控队列
-    consume-obtain-topic-name: Topic_consume_obtain_yth
-    consume-obtain-producer-id: PID_consume_obtain_yth
-    consume-obtain-consumer-id: CID_consume_obtain_yth
-
-    # 抢书削峰队列
-    obtain-item-topic-name: Topic_obtain_item_yth
-    obtain-item-producer-id: PID_obtain_item_yth
-    obtain-item-consumer-id: CID_obtain_item_yth
-
-    # 发送短信或者邮箱或者的队列
-    # tag : sms 短信, mail 邮件消息
-    sender-topic-name: Sender_topic_yth
-    sender-producer-id: PID_sender_yth
-    sender-consumer-id: CID_sender_yth
-
 weixin:
 
   mini-app:

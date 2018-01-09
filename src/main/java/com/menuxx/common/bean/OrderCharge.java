@@ -3,51 +3,72 @@ package com.menuxx.common.bean;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.menuxx.weixin.util.WXDateDeserializer;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class OrderCharge {
 
     private Integer id;
 
+    @NotNull
     private String appid;
 
+    @NotNull
     private String mchId;
 
+    @NotNull
     private String openid;
 
+    @NotNull
     private String outTradeNo;
 
+    @NotNull
     private String deviceInfo;
 
+    @NotNull
     private String nonceStr;
 
+    @NotNull
     private String prepayId;
 
+    @NotNull
     private String tradeType;
 
+    @NotNull
     private Integer totalFee;
 
+    @NotNull
     private Integer settlementTotalFee;
 
+    @NotNull
     private String feeType;
 
+    @NotNull
     private Integer cashFee;
 
+    @NotNull
     private String cashFeeType;
 
+    @NotNull
     private String attach;
 
+    @NotNull
     private String body;
 
+    @NotNull
     private String sign;
 
+    @NotNull
     private String signType;
 
+    @NotNull
     private String goodsTag;
 
+    @NotNull
     @JsonDeserialize(using = WXDateDeserializer.class)
     private Date timeExpire;
 
+    @NotNull
     private Date timeStart;
 
     /**
@@ -58,16 +79,22 @@ public class OrderCharge {
     @JsonDeserialize(using = WXDateDeserializer.class)
     private Date timeEnd;
 
+    @NotNull
     private String spbillCreateIp;
 
+    @NotNull
     private String errCodeDes;
 
+    @NotNull
     private String errCode;
 
+    @NotNull
     private String resultCode;
 
+    @NotNull
     private String transactionId;
 
+    @NotNull
     private String detail;
 
     public Integer getId() {

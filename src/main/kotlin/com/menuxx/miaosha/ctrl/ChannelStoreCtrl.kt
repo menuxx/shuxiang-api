@@ -1,11 +1,5 @@
 package com.menuxx.miaosha.ctrl
 
-import com.aliyun.openservices.ons.api.Message
-import com.aliyun.openservices.ons.api.OnExceptionContext
-import com.aliyun.openservices.ons.api.SendCallback
-import com.aliyun.openservices.ons.api.SendResult
-import com.aliyun.openservices.ons.api.bean.ProducerBean
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest
 import com.github.binarywang.wxpay.service.WxPayService
@@ -15,14 +9,13 @@ import com.menuxx.common.bean.Order
 import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb
 import com.menuxx.common.db.VChannelDb
-import com.menuxx.common.prop.AliyunProps
 import com.menuxx.miaosha.bean.ChannelItem
 import com.menuxx.miaosha.disruptor.ConfirmState
 import com.menuxx.miaosha.exception.LaunchException
 import com.menuxx.miaosha.exception.NotFoundException
 import com.menuxx.miaosha.queue.MsgTags
-import com.menuxx.miaosha.queue.msg.ObtainConsumedMsg
-import com.menuxx.miaosha.queue.msg.ObtainUserMsg
+import com.menuxx.miaosha.queue.publisher.ConsumeObtainPublisher
+import com.menuxx.miaosha.queue.publisher.RequestObtainPublisher
 import com.menuxx.miaosha.service.ChannelOrderService
 import com.menuxx.miaosha.store.ChannelItemStore
 import com.menuxx.miaosha.store.ChannelUserGroup
@@ -30,11 +23,13 @@ import com.menuxx.miaosha.store.ChannelUserStore
 import com.menuxx.miaosha.store.StoreItem
 import com.menuxx.weixin.prop.WeiXinProps
 import org.slf4j.LoggerFactory
+import org.springframework.amqp.AmqpException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.ValueOperations
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.context.request.async.DeferredResult
 import java.net.InetAddress
 import java.time.Instant
 import java.util.*
@@ -52,16 +47,14 @@ import kotlin.collections.LinkedHashMap
 @RestController
 @RequestMapping("/v_channel_store")
 class ChannelStoreCtrl(
-        private val aliyunProps: AliyunProps,
         private val wxProps: WeiXinProps,
         private val channelDb: VChannelDb,
         private val orderDb: OrderDb,
         private val orderChargeDb: OrderChargeDb,
         private val wxPayService: WxPayService,
         private val orderService: ChannelOrderService,
-        @Autowired @Qualifier("obtainConsumeProducer") private val obtainConsumeProducer: ProducerBean,
-        @Autowired @Qualifier("requestObtainProducer") private val requestObtainProducer: ProducerBean,
-        private val objectMapper: ObjectMapper,
+        private val consumeObtainPublisher : ConsumeObtainPublisher,
+        private val requestObtainPublisher: RequestObtainPublisher,
         @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
 ) {
 
@@ -90,6 +83,7 @@ class ChannelStoreCtrl(
         // 正常请款修改，是正确的
         logger.debug("loopRefId: UserLoopRefId: ${user.loopRefId}, RequestLoopRefId: $loopRefId")
         return if ( user.loopRefId == loopRefId ) {
+            @SuppressWarnings("unchecked")
             val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
             if ( data != null ) {
                 LoopResult(data["confirmState"] as Int, "SUCCESS", state = hashMapOf(
@@ -115,6 +109,7 @@ class ChannelStoreCtrl(
     fun getChannelUserState(@PathVariable channelId: Int, @RequestParam(required = false) loopRefId: String?) : LoopResult {
         val currentUser = getCurrentUser()
         if (loopRefId != null) {
+            @SuppressWarnings("unchecked")
             val data = objOperations.get(loopRefId) as LinkedHashMap<String, Any>?
             if (data != null) {
                 return LoopResult(data["confirmState"] as Int, "SUCCESS", state = hashMapOf(
@@ -180,8 +175,7 @@ class ChannelStoreCtrl(
     data class OrderConsumeRequestData(val addressId: Int)
     data class OrderConsumeResultData(var wxPayment: WxPayMpOrderResult?, val orderId: Int, val code: Int, val msg: String)
     @PutMapping("/{channelId}/consume")
-    fun requestConsumeObtain(@PathVariable channelId: Int, @RequestBody @Valid consumeData: OrderConsumeRequestData) : DeferredResult<OrderConsumeResultData> {
-        val asyncResult = DeferredResult<OrderConsumeResultData>()
+    fun requestConsumeObtain(@PathVariable channelId: Int, @RequestBody @Valid consumeData: OrderConsumeRequestData) : ResponseEntity<OrderConsumeResultData> {
         val currentUser = getCurrentUser()
         // 找到该用户在渠道中的持有
         val channelItem = ChannelItemStore.searchObtainFromChannel(currentUser.id, channelId) ?: throw NotFoundException("超时了，书要被抢完了")
@@ -193,21 +187,18 @@ class ChannelStoreCtrl(
             val newOrder = orderService.createChannelOrder(channelId, userId, consumeData.addressId)
             order = orderDb.insertOrder(newOrder)
         }
-
         // 如果不收费，就不拉起微信支付
-        if ( order.payAmount == 0 ) {
+        return if ( order.payAmount == 0 ) {
             // 往消息队列中，确认该订单的完成
-            val msgBody = objectMapper.writeValueAsBytes(ObtainConsumedMsg(channelId = channelId, userId = userId, orderId = order.id, loopRefId = null))
-            val msg = Message(aliyunProps.ons.consumeObtainTopicName, MsgTags.TagObtainConsume, "NoFeeConsume_${order.orderNo}", msgBody)
-            // 下单完成发送消息，给 Const.QueueTagTradeObtain 消费者处理
-            obtainConsumeProducer.sendAsync(msg, object : SendCallback {
-                override fun onSuccess(sendResult: SendResult) {
-                    asyncResult.setResult(OrderConsumeResultData(null, order.id, Const.NotErrorCode, "下单完成"))
-                }
-                override fun onException(context: OnExceptionContext) {
-                    asyncResult.setErrorResult(context.exception)
-                }
-            })
+            return try {
+                // 下单完成发送消息，给 Const.QueueTagTradeObtain 消费者处理
+                consumeObtainPublisher.sendConsumeObtainEvent(userId, channelId, order.id, null)
+                ResponseEntity.ok().body(OrderConsumeResultData(wxPayment = null, code = Const.NotErrorCode, orderId = order.id,  msg = "下单完成"))
+            } catch (e: AmqpException) {
+                logger.error("requestConsumeObtain", e)
+                ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body(OrderConsumeResultData(wxPayment = null, code = Const.MQPublishErrorCode, orderId = order.id,  msg = e.message!!))
+            }
         } else {
             var orderCharge = orderChargeDb.findChargeRecordByOutTradeNo(order.orderNo)
             if ( orderCharge == null ) {
@@ -216,7 +207,7 @@ class ChannelStoreCtrl(
             }
             val payReq = WxPayUnifiedOrderRequest()
             // 注意该处的 tag 标识
-            payReq.notifyURL = "${wxProps.pay.notifyUrl}/${MsgTags.TagObtainConsume}"
+            payReq.notifyURL = "${wxProps.pay.notifyUrl}/${MsgTags.TagConsumeObtain}"
             payReq.outTradeNo = orderCharge.outTradeNo
             payReq.attach = orderCharge.attach
             payReq.body = orderCharge.body
@@ -229,9 +220,8 @@ class ChannelStoreCtrl(
             payReq.nonceStr = orderCharge.nonceStr
             // 需要前端建立的会话数据
             val wxPayment = wxPayService.createOrder<WxPayMpOrderResult>(payReq)
-            asyncResult.setResult(OrderConsumeResultData(wxPayment = wxPayment, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
+            ResponseEntity.accepted().body(OrderConsumeResultData(wxPayment = wxPayment, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
         }
-        return asyncResult
     }
 
     /**
@@ -246,39 +236,18 @@ class ChannelStoreCtrl(
      */
     data class TryObtain(val loopRefId: String?, val messageId: String, val errCode: Int, val errMsg: String?)
     @GetMapping("/{channelId}/obtain")
-    fun requestObtain(@PathVariable channelId: Int) : DeferredResult<TryObtain> {
+    fun requestObtain(@PathVariable channelId: Int) : TryObtain {
         val currentUser = getCurrentUser()
         val user = ChannelUserStore.getUserGroup(channelId).getUser(currentUser.id)
         // 长轮询引用id, 第二次就是用原来的 id
         val loopRefId = if ( user == null ) { "$channelId:" + UUID.randomUUID().toString() } else { user.loopRefId!! }
-
-        val msgBody = objectMapper.writeValueAsBytes(ObtainUserMsg(userId = currentUser.id, channelId = channelId, loopRefId = loopRefId))
-
-        val msg = Message(aliyunProps.ons.obtainItemTopicName, MsgTags.TagFromMpRequestObtain, "RequestObtain_${channelId}_${currentUser.id}", msgBody)
-
-        // 已不返回，降低线程池压力
-        val asyncResult = DeferredResult<TryObtain>()
-        // 消息队列发送持有请求消息
-        requestObtainProducer.sendAsync(msg, object : SendCallback {
-            override fun onSuccess(result: SendResult) {
-                asyncResult.setResult(TryObtain(
-                        loopRefId = loopRefId,
-                        messageId = result.messageId,
-                        errCode = 0,
-                        errMsg = "资格已申请"
-                ))
-            }
-            override fun onException(ctx: OnExceptionContext) {
-                logger.error("ObtainError(messageId: ${ctx.messageId}, topic: ${ctx.topic}), ONSClientException( message: ${ctx.exception.message} )")
-                asyncResult.setErrorResult(TryObtain(
-                        loopRefId = null,
-                        messageId = ctx.messageId,
-                        errCode = 501,
-                        errMsg = ctx.exception.message
-                ))
-            }
-        })
-        return asyncResult
+        return try {
+            val messageId = requestObtainPublisher.sendUserObtainEvent(userId = currentUser.id, channelId = channelId, loopRefId = loopRefId)
+            TryObtain(loopRefId = loopRefId, messageId = messageId, errCode = Const.NotErrorCode, errMsg = "已申请资源抢占信息")
+        } catch (e: AmqpException) {
+            logger.error("requestObtain: AmqpException", e)
+            TryObtain(loopRefId = loopRefId, messageId = "", errCode = Const.MQPublishErrorCode, errMsg = e.message)
+        }
     }
 
     /**
