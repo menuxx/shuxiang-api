@@ -220,7 +220,7 @@ class ChannelStoreCtrl(
             payReq.nonceStr = orderCharge.nonceStr
             // 需要前端建立的会话数据
             val wxPayment = wxPayService.createOrder<WxPayMpOrderResult>(payReq)
-            ResponseEntity.accepted().body(OrderConsumeResultData(wxPayment = wxPayment, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
+            ResponseEntity.ok().body(OrderConsumeResultData(wxPayment = wxPayment, code = 2, orderId = order.id,  msg = "请在公众号中完成支付"))
         }
     }
 
