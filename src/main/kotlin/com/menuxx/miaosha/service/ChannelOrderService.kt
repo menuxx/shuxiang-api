@@ -7,6 +7,7 @@ import com.menuxx.common.bean.OrderItem
 import com.menuxx.common.db.UserAddressDb
 import com.menuxx.common.db.UserDb
 import com.menuxx.common.db.VChannelDb
+import com.menuxx.formatWXTime
 import com.menuxx.genChannelOrderNo
 import com.menuxx.genRandomString32
 import org.springframework.stereotype.Service
@@ -43,9 +44,9 @@ class ChannelOrderService(
         charge.nonceStr = genRandomString32()
         // 需要支付的总价格
         charge.totalFee = order.payAmount
-        charge.timeStart = Date(System.currentTimeMillis())
+        charge.timeStart = formatWXTime(Date(System.currentTimeMillis()))
         // 2 小时后过期
-        charge.timeExpire = Date(System.currentTimeMillis() + 7200 * 1000)
+        charge.timeExpire = formatWXTime(Date(System.currentTimeMillis() + 7200 * 1000))
         return charge
     }
 
