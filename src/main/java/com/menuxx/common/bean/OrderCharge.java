@@ -1,10 +1,5 @@
 package com.menuxx.common.bean;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.menuxx.weixin.util.WXDateDeserializer;
-
-import java.util.Date;
-
 public class OrderCharge {
 
     private Integer id;

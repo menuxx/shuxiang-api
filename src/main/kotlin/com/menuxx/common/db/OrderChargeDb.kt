@@ -5,7 +5,6 @@ import com.menuxx.common.db.tables.TOrderCharge
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
-import java.sql.Timestamp
 
 /**
  * 作者: yinchangsheng@gmail.com
@@ -42,7 +41,7 @@ class OrderChargeDb(private val dsl: DSLContext) {
                 .set(tOrderCharge.SIGN_TYPE, charge.signType)
                 .set(tOrderCharge.FEE_TYPE, charge.feeType)
                 .set(tOrderCharge.SETTLEMENT_TOTAL_FEE, charge.settlementTotalFee)
-                .set(tOrderCharge.TIME_END, Timestamp.from(charge.timeEnd.toInstant()))
+                .set(tOrderCharge.TIME_END, charge.timeEnd)
                 .where(tOrderCharge.OUT_TRADE_NO.eq(outTradeNo))
                 .execute()
     }

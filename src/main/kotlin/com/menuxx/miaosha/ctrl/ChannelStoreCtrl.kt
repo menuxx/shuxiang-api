@@ -213,7 +213,7 @@ class ChannelStoreCtrl(
             payReq.body = orderCharge.body
             payReq.openid = orderCharge.openid
             payReq.totalFee = orderCharge.totalFee
-            payReq.timeExpire = formatWXTime(orderCharge.timeExpire)    // 过期时间
+            payReq.timeExpire = orderCharge.timeExpire    // 过期时间
             payReq.tradeType = orderCharge.tradeType
             payReq.deviceInfo = orderCharge.deviceInfo
             payReq.spbillCreateIp = InetAddress.getLocalHost().hostAddress
