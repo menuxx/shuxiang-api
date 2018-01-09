@@ -32,6 +32,9 @@ class WeiXinEventHandlerCtrl(
     @PostMapping("/pay_notify/{tag}")
     fun payNotify(request: HttpServletRequest, @PathVariable tag: String) : String {
         val notifyBody = String(ByteStreams.toByteArray(request.inputStream), Charset.forName("UTF-8"))
+        logger.info("------- weixin pay xml - begin. ----------")
+        logger.info(notifyBody)
+        logger.info("------- weixin pay xml - end.  ----------")
         val result = wxPayService.parseOrderNotifyResult(notifyBody)
         // 在系统中 OrderCharge 是 WxPayOrderNotifyResult 的子集，可以收集 WxPayOrderNotifyResult 中的大部分数据
         // WxPayOrderNotifyResult => OrderCharge

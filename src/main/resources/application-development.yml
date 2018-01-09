@@ -54,7 +54,7 @@ spring:
 
 logging:
   level:
-    com.menuxx: DEBUG
+    com.menuxx: INFO
     com.yingtaohuo.ronglian: DEBUG
     com.aliyun: DEBUG
     org.springframework: DEBUG
