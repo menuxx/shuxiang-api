@@ -17,7 +17,7 @@ class ConsumeObtainPublisher ( private val rabbitTemplate: RabbitTemplate ) {
 
     @Throws(AmqpException::class)
     fun sendConsumeObtainEvent(userId: Int, channelId: Int, orderId: Int, loopRefId: String?) {
-        rabbitTemplate.convertAndSend("wxpay.exchange", "wxpay.obtain_consume",
+        rabbitTemplate.convertAndSend("wxpay.exchange", "disruptor.consume_obtain",
                 ObtainConsumedMsg(userId, channelId, orderId, loopRefId)
         )
     }
