@@ -121,7 +121,7 @@ repositories {
 jooq {
 	version = '3.9.5'
 	edition = 'OSS'
-	XueRenTest(sourceSets.main) {
+	XueRenDev(sourceSets.main) {
 		jdbc {
 			driver = 'com.mysql.cj.jdbc.Driver'
 			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?useSSL=false&useUnicode=true&characterEncoding=UTF-8'

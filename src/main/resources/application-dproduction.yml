@@ -4,7 +4,7 @@ server:
   port: ${port:8071}
 
 app:
-  code-base-url: http://c.nizhuantech.com/tc/
+  code-base-url: http://c.nizhuantech.com/c/
 
 auth-token:
   secret: 8dyh1o1fh923dh2dui112dhid823di23ihi21ksqad

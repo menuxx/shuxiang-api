@@ -13,7 +13,7 @@ ADD build.gradle /tmp/build/
 
 ADD src /tmp/build/src
 
-RUN cd /tmp/build && ./gradlew clean generateXueRenTestJooqSchemaSource
+RUN cd /tmp/build && ./gradlew clean generateXueRenDevJooqSchemaSource
 
 RUN cd /tmp/build && ./gradlew build -x test
 
