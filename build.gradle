@@ -157,14 +157,14 @@ jooq {
 	XueRenProd(sourceSets.main) {
 		jdbc {
 			driver = 'com.mysql.cj.jdbc.Driver'
-			url = 'jdbc:mysql://10.23.84.153/xueren?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
+			url = 'jdbc:mysql://nizhuantech.com:65321/xueren?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
 			user = 'xueren_prod'
 			password = 'pBZNEfwddnxzGXkc'
 		}
 		generator {
 			database {
 				name = 'org.jooq.util.mysql.MySQLDatabase'
-				inputSchema = 'xueren_read'
+				inputSchema = 'xueren'
 				forcedTypes {
 					forcedType {
 						expression = 'create_at|update_at|start_time|end_time'
