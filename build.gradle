@@ -121,7 +121,7 @@ repositories {
 jooq {
 	version = '3.9.5'
 	edition = 'OSS'
-	XueRenDev(sourceSets.main) {
+	XueRenTest(sourceSets.main) {
 		jdbc {
 			driver = 'com.mysql.cj.jdbc.Driver'
 			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/onecode?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
@@ -157,9 +157,9 @@ jooq {
 	XueRenProd(sourceSets.main) {
 		jdbc {
 			driver = 'com.mysql.cj.jdbc.Driver'
-			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
-			user = 'api-server'
-			password = 'As3$3N10d324d!a'
+			url = 'jdbc:mysql://10.23.84.153/xueren?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
+			user = 'xueren_prod'
+			password = 'pBZNEfwddnxzGXkc'
 		}
 		generator {
 			database {
