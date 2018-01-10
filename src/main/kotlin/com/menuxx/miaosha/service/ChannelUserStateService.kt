@@ -37,12 +37,12 @@ class ChannelUserStateService (
                 // 设置超时时间
                 objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
                 // 写入数据库状态
-                channelItemDb.itemObtain(event.userId, event.channelItemId)
+                channelItemDb.itemObtain(event.userId, event.channelItemId!!)
             }
             CommitActionConsume -> {
                 objRedisTemplate.expire(event.loopRefId, Const.MaxObtainSeconds.toLong(), TimeUnit.SECONDS)
                 // 写入数据库状态
-                channelItemDb.itemConsumed(event.channelItemId, event.orderId!!, event.queueNum!!)
+                channelItemDb.itemConsumed(event.channelItemId!!, event.orderId!!, event.queueNum!!)
                 orderDb.updateOrderConsumed(orderId = event.orderId!!, status = Order.CONSUMED, queueNum = event.queueNum!!)
             }
         }

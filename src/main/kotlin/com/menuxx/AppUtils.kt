@@ -6,6 +6,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.HashMap
 
+fun imageUrlsFirst (urls: String) : String {
+    return urls.split(":").first()
+}
+
 /**
  * 作者: yinchangsheng@gmail.com
  * 创建于: 2017/12/20

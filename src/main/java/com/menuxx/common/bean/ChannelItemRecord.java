@@ -16,12 +16,18 @@ public class ChannelItemRecord {
 
     private Integer consumeUserId;
 
-    public ChannelItemRecord(Integer id, Integer channelId, Integer itemId, Integer obtainUserId, Date obtainTime) {
+    private Integer orderId;
+
+    private Integer queueNum;
+
+    public ChannelItemRecord(Integer id, Integer channelId, Integer itemId, Integer obtainUserId, Date obtainTime, Integer orderId, Integer queueNum) {
         this.id = id;
         this.channelId = channelId;
         this.itemId = itemId;
         this.obtainUserId = obtainUserId;
         this.obtainTime = obtainTime;
+        this.orderId = orderId;
+        this.queueNum = queueNum;
     }
 
     public ChannelItemRecord() {
@@ -73,5 +79,21 @@ public class ChannelItemRecord {
 
     public void setConsumeUserId(Integer consumeUserId) {
         this.consumeUserId = consumeUserId;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+    public Integer getQueueNum() {
+        return queueNum;
+    }
+
+    public void setQueueNum(Integer queueNum) {
+        this.queueNum = queueNum;
     }
 }

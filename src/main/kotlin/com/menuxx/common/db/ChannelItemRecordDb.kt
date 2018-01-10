@@ -73,4 +73,9 @@ class ChannelItemRecordDb(private val dsl: DSLContext) {
         return step.execute()
     }
 
+    fun loadLatestItemCount() : List<ChannelItemRecord> {
+        return dsl.select().from(tChannelItemRecord).groupBy(tChannelItemRecord.CHANNEL_ID).orderBy(tChannelItemRecord.QUEUE_NUM.desc())
+                .fetchArray().map { it.into(ChannelItemRecord::class.java) }
+    }
+
 }

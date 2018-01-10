@@ -118,7 +118,7 @@ class VChannelDb(
             throw LaunchException(LaunchStatusFail, "状态不允许执行该操作")
         }
         // 构建
-        val items = (1..channel.stock).map { ChannelItemRecord(null, channelId, channel.itemId, null, null) }
+        val items = (1..channel.stock).map { ChannelItemRecord(null, channelId, channel.itemId, null, null, null, null) }
         // 插入到数据库
         val arows = channelItemDb.addChannelBatch(items)
         if ( arows != channel.stock ) {
@@ -138,7 +138,7 @@ class VChannelDb(
             throw LaunchException(LaunchRecordRowsFail, "数据库记录输出条数不正确")
         }
         // 存储到 渠道存储中
-        ChannelItemStore.putChannelItems(channelId, itemWithIds)
+        ChannelItemStore.putChannelItems(1, channelId, itemWithIds)
         updateToStarted(channelId)
     }
 
