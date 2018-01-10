@@ -26,7 +26,7 @@ spring:
       max-idle: 20
       # 连接池中的最小空闲连接
       min-idle: 10
-    url: redis://:4cj34t4j9@yingtaohuo.com:7389/11
+    url: redis://:4cj34t4j9@116.62.57.229:7389/11
 
   datasource:
     url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?characterEncoding=UTF-8
