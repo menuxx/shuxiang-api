@@ -10,7 +10,13 @@ public class GroupUser {
 
     private Integer salt;
 
+    private Integer userId;
+
     private Integer itemId;
+
+    private Book item;
+
+    private Group group;
 
     private Integer groupId;
 
@@ -19,6 +25,14 @@ public class GroupUser {
     private Date createAt;
 
     private Date updateAt;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
     public Integer getId() {
         return id;
@@ -82,5 +96,21 @@ public class GroupUser {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public Book getItem() {
+        return item;
+    }
+
+    public void setItem(Book item) {
+        this.item = item;
     }
 }

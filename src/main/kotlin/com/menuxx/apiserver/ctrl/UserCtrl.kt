@@ -2,16 +2,15 @@ package com.menuxx.apiserver.ctrl
 
 import com.menuxx.AllOpen
 import com.menuxx.Const
-import com.menuxx.apiserver.Page
-import com.menuxx.apiserver.PageParam
+import com.menuxx.Page
+import com.menuxx.PageParam
 import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.common.bean.GroupUser
 import com.menuxx.common.bean.Order
+import com.menuxx.common.db.GroupDb
 import com.menuxx.common.db.OrderDb
 import com.menuxx.getCurrentUser
 import org.hibernate.validator.constraints.NotEmpty
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.regex.Pattern
@@ -26,7 +25,8 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/user")
 class UserCtrl (
-        private val orderDb: OrderDb
+        private val orderDb: OrderDb,
+        private val groupDb: GroupDb
 ) {
 
     data class ItemCode(@NotEmpty val code: String)
@@ -44,8 +44,9 @@ class UserCtrl (
     }
 
     @GetMapping("books")
-    fun getMyBooks(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) {
-
+    fun getMyBooks(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<GroupUser> {
+        val user = getCurrentUser()
+        return groupDb.findGroupByUserId(user.id, PageParam(pageNum, pageSize))
     }
 
     @GetMapping("orders/{orderId}")

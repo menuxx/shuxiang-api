@@ -1,7 +1,7 @@
 package com.menuxx.apiserver.ctrl
 
-import com.menuxx.apiserver.Page
-import com.menuxx.apiserver.PageParam
+import com.menuxx.Page
+import com.menuxx.PageParam
 import com.menuxx.code.db.ItemCodeTaskDb
 import com.menuxx.common.bean.ItemCodeTask
 import org.springframework.web.bind.annotation.*
