@@ -94,6 +94,7 @@ class OrderDb(
 
         val order = record?.into(tOrder)?.into(Order::class.java)
         order?.user = record?.into(tUser)?.into(User::class.java)
+        order?.items = loadOrderItems(orderId)
         order?.vChannel = record?.into(tVChannel)?.into(VChannel::class.java)
         order?.vChannel?.item = record?.into(tItem)?.into(Item::class.java)
         return order

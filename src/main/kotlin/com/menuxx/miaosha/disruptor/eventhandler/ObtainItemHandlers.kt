@@ -35,8 +35,9 @@ class ChannelUserEventPostObtainHandler(
      * 发送订单消费提醒
      */
     private fun sendConsumedSmsMsg(orderId: Int) {
-        val order = orderDb.getOrderDetails(orderId)!!
-        smsPublisher.sendConsumeSuccess(order.receiverPhoneNumber, order.items[0].itemName)
+        val order = orderDb.getOrderById(orderId)!!
+        val itemName = if ( order.items[0] == null || order.items[0].itemName == null ) { "未知" } else { order.items[0].itemName }
+        smsPublisher.sendConsumeSuccess(order.receiverPhoneNumber, itemName)
     }
 
     override fun onEvent(event: ChannelUserEvent, sequence: Long, endOfBatch: Boolean) {
