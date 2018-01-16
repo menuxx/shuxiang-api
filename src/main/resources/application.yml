@@ -49,20 +49,20 @@ qiniu:
 weixin:
 
   mini-app:
-    app-id: wx931d9dfbd5275c6e
-    app-secret: b30904dde6054224d33571bde3084b9c
-    token: cf24c5cb8696f0e6566d2d504be9dd70
-    aes-key: 656c9fcf24c5cb8696f0e72881306fc9af
+    key: yingtaohuo_mini
+    app-id: wx93ea7832a8b08cac
+    app-secret: 205154eee5fc885e9746ff212eeb26ce
     msg-data-format: JSON
 
   mini-app-pay:
     notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
-    mch-id: 1486563372
-    pay-secret: 3444F98CD4AB436BBC180085EF4C9S9A
+    mch-id: 1488385952
+    pay-secret: 9DD647E38030012F115482AACAFDF01B
 
   mp:
+    key: xueren_mp
     app-id: wx3d87bb42c08a2c4b
-    app-secret: 80160c2f8e9b3cb74c505f597c274130
+    app-secret: 6b09bdd3bf6cd64ed5cc9f59bc938076
     token: cf24c5cb8696f0e6566d2d504be9dd70
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
 
