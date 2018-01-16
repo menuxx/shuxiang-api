@@ -24,7 +24,6 @@ import com.menuxx.miaosha.store.StoreItem
 import com.menuxx.weixin.prop.WeiXinProps
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.AmqpException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.HttpStatus
