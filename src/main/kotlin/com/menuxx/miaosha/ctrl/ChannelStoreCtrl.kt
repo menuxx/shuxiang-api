@@ -51,11 +51,11 @@ class ChannelStoreCtrl(
         private val channelDb: VChannelDb,
         private val orderDb: OrderDb,
         private val orderChargeDb: OrderChargeDb,
-        private val wxPayService: WxPayService,
+        @Qualifier("wxMpPayService") private val wxPayService: WxPayService,
         private val orderService: ChannelOrderService,
         private val consumeObtainPublisher : ConsumeObtainPublisher,
         private val requestObtainPublisher: RequestObtainPublisher,
-        @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
+        @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
 ) {
 
     @GetMapping("channel_item/{channelId}")
@@ -207,7 +207,7 @@ class ChannelStoreCtrl(
             }
             val payReq = WxPayUnifiedOrderRequest()
             // 注意该处的 tag 标识
-            payReq.notifyURL = "${wxProps.pay.notifyUrl}/${MsgTags.TagConsumeObtain}"
+            payReq.notifyURL = "${wxProps.mpPay.notifyUrl}/${MsgTags.TagConsumeObtain}"
             payReq.outTradeNo = orderCharge.outTradeNo
             payReq.attach = orderCharge.attach
             payReq.body = orderCharge.body

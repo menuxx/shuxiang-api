@@ -8,6 +8,7 @@ import com.menuxx.miaosha.queue.MsgTags
 import com.menuxx.weixin.queue.publisher.TradeOrderPublisher
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.AmqpException
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.bind.annotation.*
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServletRequest
@@ -23,7 +24,7 @@ import javax.servlet.http.HttpServletRequest
 @RestController
 class WeiXinEventHandlerCtrl(
         private val tradeOrderPublisher : TradeOrderPublisher,
-        private val wxPayService: WxPayService,
+        @Qualifier("wxMiniAppPayService") private val wxPayService: WxPayService,
         private val objectMapper: ObjectMapper
 ) {
 

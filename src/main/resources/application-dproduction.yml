@@ -61,3 +61,9 @@ spring:
 logging:
   level:
     com.menuxx: INFO
+
+weixin:
+  mini-app-pay:
+    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
+  mp-pay:
+    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify

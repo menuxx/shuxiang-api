@@ -60,3 +60,9 @@ logging:
     org.springframework: DEBUG
     org.springframework.amqp: ERROR
     org.jooq: DEBUG
+
+weixin:
+  mini-app-pay:
+    notify-url: http://wxdev.qurenjia.com/api/weixin_event_handler/pay_notify
+  mp-pay:
+    notify-url: http://wxdev.qurenjia.com/api/weixin_event_handler/pay_notify

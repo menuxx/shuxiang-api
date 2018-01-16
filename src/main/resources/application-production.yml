@@ -59,7 +59,9 @@ spring:
       password: '&asNh$80d!asd'
 
 weixin:
-  pay:
+  mp-pay:
+    notify-url: http://wx.nizhuantech.com/api/weixin_event_handler/pay_notify
+  mini-app-pay:
     notify-url: http://wx.nizhuantech.com/api/weixin_event_handler/pay_notify
 
 logging:
