@@ -1,4 +1,4 @@
-package com.menuxx.apiserver
+package com.menuxx
 
 /**
  * 作者: yinchangsheng@gmail.com

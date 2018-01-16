@@ -1,29 +1,37 @@
 package com.menuxx.common.bean;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import java.util.Date;
 
 public class Book {
 
     private Integer id;
 
+    @NotEmpty
     private String name;
 
     private Integer price;
 
+    @NotEmpty
     private String thumbImgs;
 
+    @NotEmpty
     private String coverImage;
 
+    @NotEmpty
     private String isbn;
 
     private String press;
 
+    @NotEmpty
     private String authors;
 
     private String translators;
 
     private String describe;
 
+    @NotEmpty
     private String shopUrl;
 
     private Date createAt;

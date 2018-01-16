@@ -1,6 +1,6 @@
 package com.menuxx.common.db
 
-import com.menuxx.apiserver.PageParam
+import com.menuxx.PageParam
 import com.menuxx.common.bean.*
 import com.menuxx.common.db.tables.*
 import com.menuxx.weixin.util.nullSkipUpdate

@@ -1,8 +1,8 @@
 package com.menuxx.apiserver.ctrl
 
 import com.menuxx.AllOpen
-import com.menuxx.apiserver.Page
-import com.menuxx.apiserver.PageParam
+import com.menuxx.Page
+import com.menuxx.PageParam
 import com.menuxx.common.bean.Order
 import com.menuxx.common.bean.VChannel
 import com.menuxx.common.db.OrderDb
