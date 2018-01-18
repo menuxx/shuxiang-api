@@ -4,6 +4,7 @@ import com.menuxx.common.bean.ItemCodeBatch
 import com.menuxx.common.db.tables.TItemCodeBatch
 import com.menuxx.weixin.util.nullSkipUpdate
 import org.jooq.DSLContext
+import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
 
 @Service
@@ -34,6 +35,16 @@ class ItemCodeBatchDb (private val dsl: DSLContext) {
         return dsl.select().from(tItemCodeBatch)
                 .where(tItemCodeBatch.START_CODE.eq(startCode))
                 .fetchOneInto(ItemCodeBatch::class.java)
+    }
+
+    fun getBatchById(batchId: Int) : ItemCodeBatch {
+        return dsl.select().from(tItemCodeBatch)
+                .where(tItemCodeBatch.ID.eq(UInteger.valueOf(batchId)))
+                .fetchOneInto(ItemCodeBatch::class.java)
+    }
+
+    fun updateBatchToAssignedById(batchId: Int, itemId: Int) : Int {
+        return dsl.update(tItemCodeBatch).set(tItemCodeBatch.ID, UInteger.valueOf(batchId)).set(tItemCodeBatch.ITEM_ID, UInteger.valueOf(itemId)).execute()
     }
 
     /**

@@ -13,7 +13,6 @@ import com.menuxx.getCurrentUser
 import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.regex.Pattern
 import javax.validation.Valid
 
 /**
@@ -29,29 +28,22 @@ class UserCtrl (
         private val groupDb: GroupDb
 ) {
 
-    data class ItemCode(@NotEmpty val code: String)
-    @PostMapping
-    fun bindGroupByCode(@Valid @RequestBody itemCode: ItemCode) {
-        val codeRegExp = Pattern.compile("/~([a-zA-Z0-9]*)~([a-zA-Z0-9]*)/")
-        // 1 : 解析 itemCode 得到 code 和 salt
-        val matcher = codeRegExp.matcher(itemCode.code)
-        matcher.find()
-        val code = matcher.group(1)
-        val salt = matcher.group(2)
-
-        // 2 : 检查 code 是否为已经绑定状态
-        // 3 : 消费 mongodb 中的 code
-    }
-
-    @GetMapping("books")
+    @GetMapping("/xr_groups")
     fun getMyBooks(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<GroupUser> {
         val user = getCurrentUser()
-        return groupDb.findGroupByUserId(user.id, PageParam(pageNum, pageSize))
+        return groupDb.findGroupsByUserId(user.id, PageParam(pageNum, pageSize))
     }
 
-    @GetMapping("orders/{orderId}")
+    @GetMapping("/xr_groups/{groupId}")
+    fun getGroup(@PathVariable groupId: Int, @RequestParam(required = false) withUser: Int?) : Map<String, Any?>? {
+        val user = getCurrentUser()
+        val groupUser = groupDb.findGroupUserByGroupIdAndUserId(groupId = groupId, userId = user.id)
+        val group = groupDb.getGroup(groupId)
+        return mapOf("group" to group, "groupUser" to groupUser)
+    }
+
+    @GetMapping("/orders/{orderId}")
     fun getOrderWithMe(@PathVariable orderId: Int) : ResponseEntity<Order>? {
-        //sessionRepository.createSession()
         val user = getCurrentUser()
         val order = orderDb.getUserOrderDetails(orderId, user.id)
         return if ( order == null ) {
@@ -61,7 +53,7 @@ class UserCtrl (
         }
     }
 
-    @GetMapping("orders")
+    @GetMapping("/orders")
     fun loadMyOrders(@RequestParam(defaultValue = Page.DefaultPageNumText) pageNum: Int, @RequestParam(defaultValue = Page.DefaultPageSizeText) pageSize: Int) : List<Order> {
         val user = getCurrentUser()
         return orderDb.loadMyOrders(user.id, PageParam(pageNum, pageSize))

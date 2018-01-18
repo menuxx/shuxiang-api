@@ -8,6 +8,8 @@ public class ItemCodeBatch {
 
     public static final int STATUS_FINISH = 2;  // 以结束
 
+    public static final int STATUS_ASSIGNED = 2;  // 完成分配
+
     private Integer id;
 
     private Integer count;

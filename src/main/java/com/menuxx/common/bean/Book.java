@@ -1,10 +1,13 @@
 package com.menuxx.common.bean;
 
+import com.menuxx.Const;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Date;
 
 public class Book {
+
+    public static final String QINIU_PREFIX = "/images/books/";
 
     private Integer id;
 
@@ -18,6 +21,8 @@ public class Book {
 
     @NotEmpty
     private String coverImage;
+
+    private String coverImageUrl;
 
     @NotEmpty
     private String isbn;
@@ -37,6 +42,14 @@ public class Book {
     private Date createAt;
 
     private Date updateAt;
+
+    public String getCoverImageUrl() {
+        return Const.CDNBaseUrl + QINIU_PREFIX + coverImage;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
 
     public Integer getId() {
         return id;

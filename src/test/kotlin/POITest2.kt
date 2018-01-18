@@ -1,5 +1,5 @@
 
-import com.menuxx.code.bean.SXItemCodeExported
+import com.menuxx.code.bean.SXItemCodeAssigned
 import com.menuxx.code.code.Base62
 import java.io.FileOutputStream
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -42,7 +42,7 @@ class POITest2 {
                         cell.setCellValue("1")
                     }
                     if ( c == 3 ) {
-                        cell.setCellValue(SXItemCodeExported.toString())
+                        cell.setCellValue(SXItemCodeAssigned.toString())
                     }
                     if ( c == 4 ) {
                         cell.setCellValue(Date())

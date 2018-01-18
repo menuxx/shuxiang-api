@@ -6,9 +6,7 @@ public class GroupUser {
 
     private Integer id;
 
-    private Integer code;
-
-    private Integer salt;
+    private String code;
 
     private Integer userId;
 
@@ -42,20 +40,12 @@ public class GroupUser {
         this.id = id;
     }
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(String code) {
         this.code = code;
-    }
-
-    public Integer getSalt() {
-        return salt;
-    }
-
-    public void setSalt(Integer salt) {
-        this.salt = salt;
     }
 
     public Integer getItemId() {

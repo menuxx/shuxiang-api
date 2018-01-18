@@ -1,6 +1,9 @@
 package com.menuxx
 
 import com.menuxx.apiserver.auth.AuthUser
+import com.menuxx.common.bean.User
+import com.menuxx.common.bean.WXUser
+import org.springframework.beans.BeanUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -89,4 +92,26 @@ fun genRandomNumberString(length: Int): String {
         _length--
     }
     return result.toString()
+}
+
+/**
+ * 移除敏感数据
+ */
+fun removeSensitiveData(wxUser: WXUser) : WXUser {
+    val newUer = WXUser()
+    BeanUtils.copyProperties(wxUser, newUer)
+    newUer.refreshToken = null
+    newUer.unionid = null
+    newUer.openid = null
+    return newUer
+}
+
+fun removeSensitiveData(user: User) : User {
+    val newUer = User()
+    BeanUtils.copyProperties(user, newUer)
+    newUer.wxUser = removeSensitiveData(newUer.wxUser)
+    newUer.passwordToken = null
+    newUer.lastLoginIp = null
+    newUer.lastLoginTime = null
+    return newUer
 }

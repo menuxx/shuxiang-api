@@ -8,11 +8,41 @@ public class Group {
 
     private String name;
 
+    private String tagName;
+
+    private Integer userCount;
+
     private Integer bookId;
+
+    private Book book;
 
     private Date createAt;
 
     private Date updateAt;
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
+    }
+
+    public Integer getUserCount() {
+        return userCount;
+    }
+
+    public void setUserCount(Integer userCount) {
+        this.userCount = userCount;
+    }
 
     public Integer getId() {
         return id;
@@ -53,4 +83,5 @@ public class Group {
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
     }
+
 }

@@ -30,7 +30,7 @@ spring:
       connection-timeout: 6000
   jackson:
     time-zone: GMT+8
-
+    default-property-inclusion: non_null
 
 ronglian:
   app-id: 8a216da86077dcd00160788b18b70112
