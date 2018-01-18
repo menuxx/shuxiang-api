@@ -226,7 +226,7 @@ dependencies {
 	// spring 框架 xml 解析，配合 xstream
 	// compile 'org.springframework:spring-oxm:4.3.5.RELEASE'
 
-    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2'
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.3'
 
 	compile 'com.lmax:disruptor:3.3.7'
 

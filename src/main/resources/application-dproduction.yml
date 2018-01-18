@@ -29,9 +29,9 @@ spring:
     url: redis://:4cj34t4j9@116.62.57.229:7389/11
 
   datasource:
-    url: jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?characterEncoding=UTF-8
-    username: api-server
-    password: 'As3$3N10d324d!a'
+    url: jdbc:mysql://www.nizhuantech.com/xueren?useSSL=false&useUnicode=true&characterEncoding=utf8
+    username: xueren_prod
+    password: 'pBZNEfwddnxzGXkc'
     hikari:
       maximum-pool-size: 50
 
