@@ -7,7 +7,6 @@ import com.menuxx.code.parseUrlPathCode
 import com.menuxx.common.bean.Book
 import com.menuxx.common.bean.GroupTopic
 import com.menuxx.common.db.BookDb
-import com.menuxx.common.db.GroupDb
 import com.menuxx.common.db.GroupTopicDb
 import com.menuxx.xuerengroup.service.GroupService
 import org.hibernate.validator.constraints.NotEmpty
@@ -26,34 +25,47 @@ import javax.validation.Valid
 @RequestMapping("/xr_groups")
 class GroupCtrl (
         private val bookDb: BookDb,
-        private val groupDb: GroupDb,
         private val groupTopicDb: GroupTopicDb,
         private val groupService: GroupService,
         private val codeRepository: ItemCodeRepository
 ) {
 
     data class ItemCode(@NotEmpty val codeUrl: String)
-    @PostMapping("/consume_code")
-    fun consumeCodeToGroup(@Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Book>> {
+
+    @PostMapping("/book_code_url")
+    fun getCodeBook(@RequestParam("codeUrl") codeUrl: String) : Map<String, Any?> {
+        val data = parseUrlPathCode(codeUrl)
+        val itemCode = codeRepository.getItemCodeDataByCodeWithSalt(code = data.code, salt = data.salt)
+        if (itemCode?.itemId != null) {
+            val book = bookDb.getBookId(itemCode.itemId!!)
+            return mapOf("book" to book, "code" to mapOf("status" to itemCode.status))
+        } else {
+            throw RuntimeException("码错误")
+        }
+    }
+
+
+    @PostMapping("/consume_code_url")
+    fun consumeCodeToGroup(@Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Map<String, Any?>>> {
         val user = getCurrentUser()
         val data = parseUrlPathCode(itemCode.codeUrl)
         val itemCode = codeRepository.getItemCodeDataByCodeWithSalt(code = data.code, salt = data.salt)
         return if ( itemCode != null ) {
             if ( itemCode.itemId != null ) {
                 val book = bookDb.getBookId(itemCode.itemId!!)
-                val group = bookDb.getGroupByBookId(itemCode.itemId!!)!!
-                // 在雪人群组中 item 指代 group
-                val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = group.id, channel = data.channel)
+                val group = bookDb.getGroupByBookId(itemCode.itemId!!)
+                // 在雪人群组中 item 指代 book
+                val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = group!!.id, channel = data.channel)
                 return if ( res == 2 ) {
-                    ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费成功", book))
+                    ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费成功", mapOf("book" to book, "code" to mapOf("status" to itemCode.status))))
                 } else {
-                    ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费失败，重复消费", book))
+                    ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费失败，重复消费", mapOf("book" to book, "code" to mapOf("status" to itemCode.status))))
                 }
             } else {
                 throw RuntimeException("码错误，核销 103")
             }
         } else {
-            ResponseEntity.badRequest().body(ApiRespWithData(-1, "消费失败，或code不存在", null as Book))
+            ResponseEntity.badRequest().body(ApiRespWithData(-1, "消费失败，或code不存在", emptyMap()))
         }
     }
 

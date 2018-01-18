@@ -21,7 +21,7 @@ class BookDb ( private val dsl: DSLContext ) {
                 .returning().fetchOne().into(Book::class.java)
     }
 
-    fun getBookId(bookId: Int) : Book {
+    fun getBookId(bookId: Int) : Book? {
         return dsl.select().from(tBook).where(tBook.ID.eq(UInteger.valueOf(bookId))).fetchOneInto(Book::class.java)
     }
 

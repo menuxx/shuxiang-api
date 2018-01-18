@@ -30,6 +30,7 @@ class GroupTopicDb (private val dsl: DSLContext) {
                 .leftJoin(tUser).on(tUser.ID.eq(tGroupTopic.CREATOR_ID))
                 .leftJoin(tWXUser).on(tUser.WX_USER_ID.eq(tWXUser.ID))
                 .where(tGroupTopic.GROUP_ID.eq(UInteger.valueOf(groupId)))
+                .orderBy(tGroupTopic.SORT_WEIGHT2.desc(), tGroupTopic.CREATE_AT.desc(), tGroupTopic.SORT_WEIGHT1.desc())
                 .offset(page.getOffset())
                 .limit(page.getLimit())
                 .fetchArray().map {

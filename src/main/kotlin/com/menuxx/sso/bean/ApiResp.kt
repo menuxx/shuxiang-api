@@ -7,4 +7,4 @@ package com.menuxx.sso.bean
  */
 data class ApiResp(val code: Int, val message: String)
 
-data class ApiRespWithData<T>(val code: Int, val  message: String, val data: T)
+data class ApiRespWithData<T>(val code: Int, val  message: String, val data: T?)
