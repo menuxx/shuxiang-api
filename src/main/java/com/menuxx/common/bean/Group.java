@@ -3,6 +3,7 @@ package com.menuxx.common.bean;
 import com.menuxx.Const;
 
 import java.util.Date;
+import java.util.List;
 
 public class Group {
 
@@ -20,9 +21,7 @@ public class Group {
 
     private String coverImageUrl;
 
-    private Integer bookId;
-
-    private Book book;
+    private List<Book> books;
 
     private Date createAt;
 
@@ -52,12 +51,12 @@ public class Group {
         this.tagName = tagName;
     }
 
-    public Book getBook() {
-        return book;
+    public List<Book> getBooks() {
+        return books;
     }
 
-    public void setBook(Book book) {
-        this.book = book;
+    public void setBooks(List<Book> books) {
+        this.books = books;
     }
 
     public Integer getUserCount() {
@@ -82,14 +81,6 @@ public class Group {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
-    }
-
-    public Integer getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Integer bookId) {
-        this.bookId = bookId;
     }
 
     public Date getCreateAt() {

@@ -11,6 +11,10 @@ public class Book {
 
     private Integer id;
 
+    private Integer groupId;
+
+    private Group group;
+
     @NotEmpty
     private String name;
 
@@ -49,6 +53,22 @@ public class Book {
 
     public void setCoverImageUrl(String coverImageUrl) {
         this.coverImageUrl = coverImageUrl;
+    }
+
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     public Integer getId() {

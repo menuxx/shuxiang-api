@@ -13,7 +13,10 @@ import org.jooq.types.UInteger
 import org.springframework.stereotype.Service
 
 @Service
-class GroupDb (private val dsl: DSLContext) {
+class GroupDb (
+        private val dsl: DSLContext,
+        private val bookDb: BookDb
+) {
 
     private val tGroupUser = TGroupUser.T_GROUP_USER
     private val tGroup = TGroup.T_GROUP
@@ -83,7 +86,7 @@ class GroupDb (private val dsl: DSLContext) {
         val groupRecord = sql.fetchOne()
         val group = groupRecord.into(tGroup).into(Group::class.java)
         group.userCount = sql.count()
-        group.book = groupRecord.into(tBook).into(Book::class.java)
+        group.books = bookDb.findBooksByGroupId(groupId)
         return group
     }
 

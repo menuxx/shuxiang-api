@@ -7,6 +7,7 @@ import com.menuxx.code.parseUrlPathCode
 import com.menuxx.common.bean.Book
 import com.menuxx.common.bean.GroupTopic
 import com.menuxx.common.db.BookDb
+import com.menuxx.common.db.GroupDb
 import com.menuxx.common.db.GroupTopicDb
 import com.menuxx.xuerengroup.service.GroupService
 import org.hibernate.validator.constraints.NotEmpty
@@ -25,6 +26,7 @@ import javax.validation.Valid
 @RequestMapping("/xr_groups")
 class GroupCtrl (
         private val bookDb: BookDb,
+        private val groupDb: GroupDb,
         private val groupTopicDb: GroupTopicDb,
         private val groupService: GroupService,
         private val codeRepository: ItemCodeRepository
@@ -32,15 +34,16 @@ class GroupCtrl (
 
     data class ItemCode(@NotEmpty val codeUrl: String)
     @PostMapping("/consume_code")
-    fun consumeCodeToGroup(@PathVariable groupId: Int, @Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Book>> {
+    fun consumeCodeToGroup(@Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Book>> {
         val user = getCurrentUser()
         val data = parseUrlPathCode(itemCode.codeUrl)
         val itemCode = codeRepository.getItemCodeDataByCodeWithSalt(code = data.code, salt = data.salt)
         return if ( itemCode != null ) {
             if ( itemCode.itemId != null ) {
                 val book = bookDb.getBookId(itemCode.itemId!!)
+                val group = bookDb.getGroupByBookId(itemCode.itemId!!)!!
                 // 在雪人群组中 item 指代 group
-                val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = groupId, channel = data.channel)
+                val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = group.id, channel = data.channel)
                 return if ( res == 2 ) {
                     ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费成功", book))
                 } else {
