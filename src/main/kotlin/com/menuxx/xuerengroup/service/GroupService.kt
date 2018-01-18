@@ -27,11 +27,11 @@ class GroupService(
      * 将一个 item 消费到一个 group， 从而形成一个 group_user 关系
      */
     @Transactional
-    fun consumeItemCodeToGroup(itemCode: SXItemCode, userId: Int, groupId: Int) : Int {
+    fun consumeItemCodeToGroup(itemCode: SXItemCode, userId: Int, groupId: Int, channel: String) : Int {
         // 能到达 SXItemCodeConsumed 状态
         val willCan = codeRepository.canToStatus(itemCode.code, SXItemCodeConsumed)
         if ( willCan ) {
-            codeRepository.updateCodeToConsume(itemCode.code, itemCode.salt, userId)
+            codeRepository.updateCodeToConsume(itemCode.code, itemCode.salt, channel, userId)
             groupDb.insertUserToGroup(userId = userId, groupId = groupId, code = itemCode.code, itemId = itemCode.itemId!!)
             return 2
         }

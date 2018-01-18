@@ -1,11 +1,10 @@
 package com.menuxx.weixin.ctrl
 
 import cn.binarywang.wx.miniapp.api.WxMaService
-import cn.binarywang.wx.miniapp.bean.WxMaUserInfo
-import com.menuxx.apiserver.auth.AuthUserTypeNormal
+import com.menuxx.sso.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.WXUser
 import com.menuxx.common.db.UserDb
-import com.menuxx.apiserver.auth.TokenProcessor
+import com.menuxx.sso.auth.TokenProcessor
 import com.menuxx.weixin.bean.WxMiniApp
 import com.menuxx.weixin.service.WXUserDetailsService
 import com.menuxx.weixin.util.getSex

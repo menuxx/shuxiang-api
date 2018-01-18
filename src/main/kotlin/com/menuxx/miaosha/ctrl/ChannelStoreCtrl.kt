@@ -4,7 +4,7 @@ import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest
 import com.github.binarywang.wxpay.service.WxPayService
 import com.menuxx.*
-import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.sso.bean.ApiResp
 import com.menuxx.common.bean.Order
 import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb

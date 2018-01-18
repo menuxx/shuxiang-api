@@ -1,7 +1,6 @@
 package com.menuxx.common.db
 
-import com.menuxx.apiserver.auth.AuthUserTypeAdmin
-import com.menuxx.apiserver.auth.AuthUserTypeMerchant
+import com.menuxx.sso.auth.AuthUserTypeAdmin
 import com.menuxx.common.bean.AdminUser
 import com.menuxx.common.bean.Authority
 import com.menuxx.common.bean.UserAuthority

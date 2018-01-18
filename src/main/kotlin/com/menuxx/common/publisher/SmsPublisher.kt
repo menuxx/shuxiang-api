@@ -1,8 +1,8 @@
 package com.menuxx.common.publisher
 
 import com.menuxx.AllOpen
-import com.menuxx.apiserver.queue.msg.DeliverySuccessMsg
-import com.menuxx.apiserver.queue.msg.LoginCaptchaMsg
+import com.menuxx.sso.queue.msg.DeliverySuccessMsg
+import com.menuxx.sso.queue.msg.LoginCaptchaMsg
 import com.menuxx.miaosha.queue.msg.ConsumeSuccessMsg
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component

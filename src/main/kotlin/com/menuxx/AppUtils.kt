@@ -1,6 +1,6 @@
 package com.menuxx
 
-import com.menuxx.apiserver.auth.AuthUser
+import com.menuxx.sso.auth.AuthUser
 import com.menuxx.common.bean.User
 import com.menuxx.common.bean.WXUser
 import org.springframework.beans.BeanUtils

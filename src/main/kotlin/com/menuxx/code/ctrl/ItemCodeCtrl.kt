@@ -1,8 +1,7 @@
 package com.menuxx.code.ctrl
 
 import com.menuxx.Const
-import com.menuxx.apiserver.bean.ApiResp
-import com.menuxx.apiserver.bean.ApiRespWithData
+import com.menuxx.sso.bean.ApiRespWithData
 import com.menuxx.code.db.ItemCodeTaskDb
 import com.menuxx.code.mongo.ItemCodeRepository
 import com.menuxx.code.mq.CodeOnceBatchPublisher

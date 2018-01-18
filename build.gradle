@@ -196,6 +196,8 @@ dependencies {
 
 	optional "org.springframework.boot:spring-boot-configuration-processor"
 
+	compile 'com.youhaosuda:yhsd-sdk-java:1.0.2'
+
 	// http://poi.apache.org/
 	compile group: 'org.apache.poi', name: 'poi', version: '3.17'
 	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'

@@ -53,11 +53,12 @@ class ItemCodeRepository (
     /**
      * 更新一个码到消费状态
      */
-    fun updateCodeToConsume(code: String, salt: String, userId: Int) : Boolean {
+    fun updateCodeToConsume(code: String, salt: String, channel: String, userId: Int) : Boolean {
         val query = Query(Criteria.where("code").`is`(code).andOperator(Criteria.where("salt").`is`(salt)))
         val update = Update()
                 .set("status", SXItemCodeConsumed)
                 .set("userId", userId)
+                .set("channel", channel)
         return dbTpl.updateFirst(query, update, SXItemCode::class.java).wasAcknowledged()
     }
 

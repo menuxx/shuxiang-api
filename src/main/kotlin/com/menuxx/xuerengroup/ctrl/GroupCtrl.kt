@@ -1,11 +1,10 @@
 package com.menuxx.xuerengroup.ctrl
 
 import com.menuxx.*
-import com.menuxx.apiserver.bean.ApiRespWithData
+import com.menuxx.sso.bean.ApiRespWithData
 import com.menuxx.code.mongo.ItemCodeRepository
 import com.menuxx.code.parseUrlPathCode
 import com.menuxx.common.bean.GroupTopic
-import com.menuxx.common.db.GroupDb
 import com.menuxx.common.db.GroupTopicDb
 import com.menuxx.xuerengroup.service.GroupService
 import org.hibernate.validator.constraints.NotEmpty
@@ -28,14 +27,14 @@ class GroupCtrl (
         private val codeRepository: ItemCodeRepository
 ) {
 
-    data class ItemCode(@NotEmpty val code: String)
+    data class ItemCode(@NotEmpty val codeUrl: String)
     @PostMapping("/{groupId}/consume_code")
     fun consumeCodeToGroup(@PathVariable groupId: Int, @Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Int>> {
         val user = getCurrentUser()
-        val data = parseUrlPathCode(itemCode.code)
-        val itemCode = codeRepository.getItemCodeDataByCodeWithSalt(code = data.first, salt = data.second)
+        val data = parseUrlPathCode(itemCode.codeUrl)
+        val itemCode = codeRepository.getItemCodeDataByCodeWithSalt(code = data.code, salt = data.salt)
         return if ( itemCode != null ) {
-            val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = groupId)
+            val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = groupId, channel = data.channel)
             return if ( res == 2 ) {
                 ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费成功", 1))
             } else {

@@ -1,6 +1,6 @@
 package com.menuxx.common.db
 
-import com.menuxx.apiserver.auth.AuthUserTypeNormal
+import com.menuxx.sso.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.Authority
 import com.menuxx.common.bean.User
 import com.menuxx.common.bean.UserAuthority

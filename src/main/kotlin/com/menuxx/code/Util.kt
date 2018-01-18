@@ -3,6 +3,7 @@ package com.menuxx.code
 import com.menuxx.code.bean.SXItemCodeAssigned
 import com.menuxx.code.bean.SXItemCodeConsumed
 import com.menuxx.code.bean.SXItemCodeCreated
+import com.menuxx.code.bean.UrlCode
 import java.util.regex.Pattern
 
 /**
@@ -24,12 +25,14 @@ fun codeNextStatus(currStatus: Int) : Int {
     }
 }
 
-fun parseUrlPathCode(pathCode: String) : Pair<String, String> {
-    val codeRegExp = Pattern.compile("~([a-zA-Z0-9]*)~([a-zA-Z0-9]*)")
+fun parseUrlPathCode(codeUrl: String) : UrlCode {
+    val codeRegExp = Pattern.compile("^https|http://(.+)/([a-zA-Z0]+)/~([a-zA-Z0-9]+)~([a-zA-Z0-9]+)")
     // 1 : 解析 itemCode 得到 code 和 salt
-    val matcher = codeRegExp.matcher(pathCode)
+    val matcher = codeRegExp.matcher(codeUrl)
     matcher.find()
-    val code = matcher.group(1)
-    val salt = matcher.group(2)
-    return Pair(code, salt)
+    val domain = matcher.group(1)
+    val channel = matcher.group(2)
+    val code = matcher.group(3)
+    val salt = matcher.group(4)
+    return UrlCode(domain, channel, code, salt)
 }

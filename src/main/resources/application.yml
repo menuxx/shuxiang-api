@@ -46,6 +46,10 @@ qiniu:
   access-key: sr4H3rnxg3fkN9bf5NBTj9V9ptPFMnW5Ryxbg_o6
   secret-key: 9Gtvk0QbjvLDKWXwAi_WCYQkLq5Biu-X9wjHjXS5
 
+youhao:
+  app-key: 63faf246a2974d1cb6dd8376c2032f36
+  app-secret: 92110ea42fcf4ea9b6cd2494a710a9eb
+
 weixin:
 
   mini-app:
