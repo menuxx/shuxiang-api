@@ -7,7 +7,7 @@ package com.menuxx
  */
 object Const {
 
-    const val CDNBaseUrl = "https://file.menuxx.com"
+    const val CDNBaseUrl = "https://file.menuxx.com/"
 
     const val NotErrorCode = 1
 

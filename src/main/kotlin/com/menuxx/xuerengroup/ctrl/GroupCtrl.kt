@@ -4,10 +4,9 @@ import com.menuxx.*
 import com.menuxx.sso.bean.ApiRespWithData
 import com.menuxx.code.mongo.ItemCodeRepository
 import com.menuxx.code.parseUrlPathCode
-import com.menuxx.common.bean.Group
+import com.menuxx.common.bean.Book
 import com.menuxx.common.bean.GroupTopic
 import com.menuxx.common.db.BookDb
-import com.menuxx.common.db.GroupDb
 import com.menuxx.common.db.GroupTopicDb
 import com.menuxx.xuerengroup.service.GroupService
 import org.hibernate.validator.constraints.NotEmpty
@@ -25,29 +24,33 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/xr_groups")
 class GroupCtrl (
-        private val groupDb: GroupDb,
+        private val bookDb: BookDb,
         private val groupTopicDb: GroupTopicDb,
         private val groupService: GroupService,
         private val codeRepository: ItemCodeRepository
 ) {
 
     data class ItemCode(@NotEmpty val codeUrl: String)
-    @PostMapping("/{groupId}/consume_code")
-    fun consumeCodeToGroup(@PathVariable groupId: Int, @Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Group?>?> {
+    @PostMapping("/consume_code")
+    fun consumeCodeToGroup(@PathVariable groupId: Int, @Valid @RequestBody itemCode: ItemCode) : ResponseEntity<ApiRespWithData<Book>> {
         val user = getCurrentUser()
         val data = parseUrlPathCode(itemCode.codeUrl)
         val itemCode = codeRepository.getItemCodeDataByCodeWithSalt(code = data.code, salt = data.salt)
         return if ( itemCode != null ) {
-            val group = groupDb.getGroup(groupId)
-            // 在雪人群组中 item 指代 book
-            val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = groupId, channel = data.channel)
-            return if ( res == 2 ) {
-                ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费成功", group))
+            if ( itemCode.itemId != null ) {
+                val book = bookDb.getBookId(itemCode.itemId!!)
+                // 在雪人群组中 item 指代 group
+                val res = groupService.consumeItemCodeToGroup(itemCode = itemCode, userId = user.id, groupId = groupId, channel = data.channel)
+                return if ( res == 2 ) {
+                    ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费成功", book))
+                } else {
+                    ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费失败，重复消费", book))
+                }
             } else {
-                ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "消费失败，重复消费", group))
+                throw RuntimeException("码错误，核销 103")
             }
         } else {
-            ResponseEntity.badRequest().body(ApiRespWithData(-1, "消费失败，或code不存在", null as Group?))
+            ResponseEntity.badRequest().body(ApiRespWithData(-1, "消费失败，或code不存在", null as Book))
         }
     }
 

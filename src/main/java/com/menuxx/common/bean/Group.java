@@ -1,8 +1,12 @@
 package com.menuxx.common.bean;
 
+import com.menuxx.Const;
+
 import java.util.Date;
 
 public class Group {
+
+    public static final String QINIU_PREFIX = "images/groups/";
 
     private Integer id;
 
@@ -12,6 +16,10 @@ public class Group {
 
     private Integer userCount;
 
+    private String coverImage;
+
+    private String coverImageUrl;
+
     private Integer bookId;
 
     private Book book;
@@ -19,6 +27,22 @@ public class Group {
     private Date createAt;
 
     private Date updateAt;
+
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
+
+    public String getCoverImageUrl() {
+        return Const.CDNBaseUrl + QINIU_PREFIX + coverImage;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
 
     public String getTagName() {
         return tagName;

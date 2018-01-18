@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class Book {
 
-    public static final String QINIU_PREFIX = "/images/books/";
+    public static final String QINIU_PREFIX = "images/books/";
 
     private Integer id;
 
