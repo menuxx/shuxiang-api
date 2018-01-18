@@ -21,8 +21,6 @@ class GroupService(
         private val groupDb: GroupDb
 ) {
 
-
-
     /**
      * 将一个 item 消费到一个 group， 从而形成一个 group_user 关系
      */
