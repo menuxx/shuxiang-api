@@ -153,6 +153,14 @@ class UserDb(private val dsl: DSLContext) {
         return user
     }
 
+    fun bindYhsdUser(userId: Int, yhCustomerId: Int, yhPasswd: String, yhEmail: String) : Int {
+        return dsl.update(tUser)
+                .set(tUser.YH_ID, UInteger.valueOf(yhCustomerId))
+                .set(tUser.YH_EMAIL, yhEmail)
+                .set(tUser.YH_PASSWORD, yhPasswd)
+                .where(tUser.ID.eq(UInteger.valueOf(userId))).execute()
+    }
+
     /**
      * 更新用户
      */

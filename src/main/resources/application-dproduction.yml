@@ -29,7 +29,7 @@ spring:
     url: redis://:4cj34t4j9@116.62.57.229:7389/11
 
   datasource:
-    url: jdbc:mysql://www.nizhuantech.com/xueren?useSSL=false&useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://www.nizhuantech.com:65321/xueren?useSSL=false&useUnicode=true&characterEncoding=utf8
     username: xueren_prod
     password: 'pBZNEfwddnxzGXkc'
     hikari:
@@ -64,6 +64,6 @@ logging:
 
 weixin:
   mini-app-pay:
-    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
+    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/mini_pay_notify
   mp-pay:
-    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
+    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/mp_pay_notify

@@ -1,5 +1,7 @@
 package com.menuxx.common.bean;
 
+import com.menuxx.mall.bean.YhsdCustomer;
+
 import java.util.Date;
 
 public class User {
@@ -18,15 +20,55 @@ public class User {
 
     private Integer wxUserId;
 
+    private Integer yhCustomerId;
+
+    private String yhEmail;
+
+    private String yhPassword;
+
     private Integer enable;
 
     private String passwordToken;
 
     private WXUser wxUser;
 
+    private YhsdCustomer customer;
+
     private Date updateAt;
 
     private Date createAt;
+
+    public Integer getYhCustomerId() {
+        return yhCustomerId;
+    }
+
+    public void setYhCustomerId(Integer yhCustomerId) {
+        this.yhCustomerId = yhCustomerId;
+    }
+
+    public String getYhEmail() {
+        return yhEmail;
+    }
+
+    public void setYhEmail(String yhEmail) {
+        this.yhEmail = yhEmail;
+    }
+
+    public String getYhPassword() {
+        return yhPassword;
+    }
+
+    public void setYhPassword(String yhPassword) {
+        this.yhPassword = yhPassword;
+    }
+
+    public YhsdCustomer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(YhsdCustomer customer) {
+        this.customer = customer;
+    }
 
     public String getPasswordToken() {
         return passwordToken;

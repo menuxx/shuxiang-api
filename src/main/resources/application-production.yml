@@ -60,9 +60,9 @@ spring:
 
 weixin:
   mp-pay:
-    notify-url: http://wx.nizhuantech.com/api/weixin_event_handler/pay_notify
+    notify-url: http://wx.nizhuantech.com/api/weixin_event_handler/mp_pay_notify
   mini-app-pay:
-    notify-url: http://wx.nizhuantech.com/api/weixin_event_handler/pay_notify
+    notify-url: http://wx.nizhuantech.com/api/weixin_event_handler/mini_pay_notify
 
 logging:
   level:

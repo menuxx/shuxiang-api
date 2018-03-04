@@ -55,14 +55,17 @@ spring:
 logging:
   level:
     com.menuxx: INFO
+    com.menuxx.mall: DEBUG
     com.yingtaohuo.ronglian: DEBUG
     com.aliyun: DEBUG
     org.springframework: DEBUG
     org.springframework.amqp: ERROR
+    org.springframework.session: DEBUG
     org.jooq: DEBUG
+    org.apache.http: DEBUG
 
 weixin:
   mini-app-pay:
-    notify-url: http://wxdev.qurenjia.com/api/weixin_event_handler/pay_notify
+    notify-url: http://wxdev.qurenjia.com/api/weixin_event_handler/mini_pay_notify
   mp-pay:
-    notify-url: http://wxdev.qurenjia.com/api/weixin_event_handler/pay_notify
+    notify-url: http://wxdev.qurenjia.com/api/weixin_event_handler/mp_pay_notify

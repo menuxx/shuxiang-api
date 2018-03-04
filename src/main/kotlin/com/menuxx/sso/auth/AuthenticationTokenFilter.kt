@@ -25,7 +25,7 @@ class AuthenticationTokenFilter(
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val req = request as HttpServletRequest
-        val authToken = req.getHeader(tokenHeader) ?: req.getHeader(tokenHeader.toLowerCase())
+        val authToken = req.getHeader(tokenHeader)
         if ( authToken != null ) {
             // 移除 开头的 `token ` 字符
             val token = authToken.substring(6)

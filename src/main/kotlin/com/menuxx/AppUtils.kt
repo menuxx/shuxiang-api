@@ -39,6 +39,12 @@ fun genChannelOrderNo(userId: Int, channelId: Int) : String {
     return orderNoNow() + channelIdStr +  userIdStr + randomStr
 }
 
+fun genMallOrderNo(userId: Int) : String {
+    val userIdStr = String.format("%07d", userId)
+    val randomStr = genRandomString(5)
+    return orderNoNow() +  userIdStr + randomStr
+}
+
 fun getQueryMap(query: String): Map<String, String> {
     val params = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     val map = HashMap<String, String>()

@@ -1,6 +1,7 @@
 package com.menuxx.sso.auth
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.slf4j.LoggerFactory
@@ -19,6 +20,20 @@ import java.util.Date
 class TokenProcessor(private val secret: String, private val expiration: Int) {
 
     private val logger = LoggerFactory.getLogger(TokenProcessor::class.java)
+
+    private fun getClaimsFromTokenIgnoreException(token: String) : Claims? {
+        return try {
+            Jwts.parser()
+                    .setSigningKey(secret.toByteArray(Charset.forName("UTF-8")))
+                    .parseClaimsJws(token)
+                    .body
+        } catch (ex: ExpiredJwtException) {
+            ex.claims
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            null
+        }
+    }
 
     /**
      * 获取所有 Claims
@@ -124,8 +139,8 @@ class TokenProcessor(private val secret: String, private val expiration: Int) {
      */
     fun refreshToken(token: String): String? {
         return try {
-            val claims = getClaimsFromToken(token) ?: return null
-            claims.put("created", generateCurrentDate())
+            val claims = getClaimsFromTokenIgnoreException(token) ?: return null
+            claims["created"] = generateCurrentDate()
             return generateToken(claims.toMap())
         } catch (e: Exception) {
             null

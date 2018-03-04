@@ -36,6 +36,7 @@ class RedisConfig {
         val stringRedisSerializer = StringRedisSerializer()
         redisTemplate.keySerializer = stringRedisSerializer
         redisTemplate.hashKeySerializer = stringRedisSerializer
+        redisTemplate.setEnableTransactionSupport(true)
         return redisTemplate
     }
 

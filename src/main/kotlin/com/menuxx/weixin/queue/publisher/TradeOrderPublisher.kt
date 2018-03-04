@@ -19,4 +19,9 @@ class TradeOrderPublisher ( private val rabbitTemplate: RabbitTemplate ) {
         rabbitTemplate.convertAndSend("wxpay.exchange", "wxpay.obtain_consume", orderCharge)
     }
 
+    @Throws(AmqpException::class)
+    fun sendTradeMallOrderPay(orderCharge: OrderCharge) {
+        rabbitTemplate.convertAndSend("wxpay.exchange", "wxpay.mall_order_pay", orderCharge)
+    }
+
 }

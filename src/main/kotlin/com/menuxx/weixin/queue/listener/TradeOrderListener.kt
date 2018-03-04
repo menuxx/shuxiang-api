@@ -1,9 +1,11 @@
 package com.menuxx.weixin.queue.listener
 
 import com.menuxx.common.bean.OrderCharge
+import com.menuxx.common.db.MallOrderDb
 import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb
 import com.menuxx.getQueryMap
+import com.menuxx.mall.service.MallOrderService
 import com.menuxx.miaosha.queue.publisher.ConsumeObtainPublisher
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.core.ExchangeTypes
@@ -27,7 +29,9 @@ import java.io.IOException
 class TradeOrderListener (
         private val orderChargeDb: OrderChargeDb,
         private val orderDb: OrderDb,
-        private val consumeObtainPublisher: ConsumeObtainPublisher
+        private val consumeObtainPublisher: ConsumeObtainPublisher,
+        private val mallOrderService: MallOrderService,
+        private val mallOrderDb: MallOrderDb
 ) {
 
     private val logger = LoggerFactory.getLogger(TradeOrderListener::class.java)
@@ -42,7 +46,8 @@ class TradeOrderListener (
             ]
     )
     @Throws(InterruptedException::class, IOException::class)
-    fun onWXPayNotifyWithObtainConsume(@Payload orderChange: OrderCharge) {
+    fun onWXPayNotifyWithConsumeObtain(@Payload orderChange: OrderCharge) {
+        logger.debug("onWXPayNotifyWith ConsumeObtain => " + orderChange)
         orderChargeDb.updateChargeRecordByOutTradeNo(orderChange, orderChange.outTradeNo)
         val attachData = getQueryMap(orderChange.attach)
         val channelId = attachData["channelId"]!!.toInt()
@@ -51,6 +56,32 @@ class TradeOrderListener (
         // 确认订单支付
         orderDb.updateOrderPaid(orderId, 1)
         consumeObtainPublisher.sendConsumeObtainEvent(userId, channelId, orderId, null)
+    }
+
+    @RabbitListener(
+            bindings = [
+                (QueueBinding(
+                        value = Queue("wxpay.queue", durable = "true"),
+                        exchange = Exchange("wxpay.exchange", type = ExchangeTypes.FANOUT, durable = "true"),
+                        key = "wxpay.mall_order_pay"
+                ))
+            ]
+    )
+    @Throws(InterruptedException::class, IOException::class)
+    fun onWXPayNotifyWithMallOrderPay(@Payload orderChange: OrderCharge) {
+        logger.debug("onWXPayNotifyWith MallOrderPay => " + orderChange)
+        orderChargeDb.updateChargeRecordByOutTradeNo(orderChange, orderChange.outTradeNo)
+        val attachData = getQueryMap(orderChange.attach)
+        val localOrderNo = attachData["localOrderNo"] as String
+        val order = mallOrderDb.getByOrderNo(orderNo = localOrderNo)!!
+        val res = mallOrderService.submitCreateOrder(
+                addressId = order.addressId,
+                paymentMethodId = order.paymentMethodId,
+                shipments = order.shipments,
+                metaFields = order.metaFields
+        )
+        val orderId = res["order_id"] as Int
+        mallOrderDb.updateYhsdOrderId(localOrderNo, orderId.toString())
     }
 
 }

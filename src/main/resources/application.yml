@@ -53,15 +53,15 @@ youhao:
 weixin:
 
   mini-app:
-    key: yingtaohuo_mini
-    app-id: wx93ea7832a8b08cac
-    app-secret: 205154eee5fc885e9746ff212eeb26ce
+    key: xueren_mini
+    app-id: wxeef4c820b9b60b7c
+    app-secret: 7fec832646793120259db052d0345f4b
     msg-data-format: JSON
 
   mini-app-pay:
-    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
-    mch-id: 1488385952
-    pay-secret: 9DD647E38030012F115482AACAFDF01B
+    notify-url: http://api.nizhuantech.com//weixin_event_handler/mini_pay_notify
+    mch-id: 1496051492
+    pay-secret: 54F9AA22DACB17FE29EA5869CDF13221
 
   mp:
     key: xueren_mp
@@ -71,7 +71,7 @@ weixin:
     aes-key: cf24c5cb8696f0e6566d2d504be9dd70
 
   mp-pay:
-    notify-url: http://wxtest.qurenjia.com/api/weixin_event_handler/pay_notify
+    notify-url: http://api.nizhuantech.com/weixin_event_handler/mp_pay_notify
     mch-id: 1496051492
     pay-secret: 54F9AA22DACB17FE29EA5869CDF13221
 

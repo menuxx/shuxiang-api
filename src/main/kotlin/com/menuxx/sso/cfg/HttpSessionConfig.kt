@@ -9,6 +9,7 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import org.springframework.session.SessionRepository
 import org.springframework.session.data.redis.RedisOperationsSessionRepository
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession
+import org.springframework.session.web.http.HeaderHttpSessionStrategy
 import org.springframework.session.web.http.HttpSessionStrategy
 
 
@@ -35,7 +36,9 @@ class HttpSessionConfig (private val tokenProcessor: TokenProcessor) {
 
     @Bean
     fun httpSessionStrategy() : HttpSessionStrategy {
-        return MyHeaderHttpSessionStrategy(tokenProcessor)
+        val strategy = HeaderHttpSessionStrategy()
+        strategy.setHeaderName("Session-ID")
+        return strategy
     }
 
     @Bean

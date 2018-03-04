@@ -96,8 +96,8 @@ class WeiXinMpConfig(
     fun wxMpPayService() : WxPayService {
         val payConfig = WxPayConfig()
         // http 5 秒过期
-        payConfig.httpConnectionTimeout = 5 * 1000
-        payConfig.httpTimeout = 5 * 1000
+        payConfig.httpConnectionTimeout = 10 * 1000
+        payConfig.httpTimeout = 10 * 1000
         // 支付账户必要信息
         payConfig.mchId = wxProps.mpPay.mchId
         payConfig.mchKey = wxProps.mpPay.paySecret
@@ -111,8 +111,8 @@ class WeiXinMpConfig(
     fun wxMiniAppPayService() : WxPayService {
         val payConfig = WxPayConfig()
         // http 5 秒过期
-        payConfig.httpConnectionTimeout = 5 * 1000
-        payConfig.httpTimeout = 5 * 1000
+        payConfig.httpConnectionTimeout = 10 * 1000
+        payConfig.httpTimeout = 10 * 1000
         // 支付账户必要信息
         payConfig.mchId = wxProps.miniAppPay.mchId
         payConfig.mchKey = wxProps.miniAppPay.paySecret
