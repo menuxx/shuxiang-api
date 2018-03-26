@@ -7,6 +7,8 @@ package com.menuxx
  */
 object Const {
 
+    const val CDNBaseUrl = "https://file.menuxx.com/"
+
     const val NotErrorCode = 1
 
     const val MQPublishErrorCode = 2

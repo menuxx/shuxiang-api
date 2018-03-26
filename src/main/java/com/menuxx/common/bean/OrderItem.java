@@ -14,6 +14,8 @@ public class OrderItem {
 
     private String itemName;
 
+    private String itemThumbImage;
+
     private Integer itemPayAmount;
 
     private Integer itemQuantity;
@@ -82,5 +84,13 @@ public class OrderItem {
 
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
+    }
+
+    public String getItemThumbImage() {
+        return itemThumbImage;
+    }
+
+    public void setItemThumbImage(String itemThumbImage) {
+        this.itemThumbImage = itemThumbImage;
     }
 }

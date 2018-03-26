@@ -30,7 +30,8 @@ class BatchTransactionService (
             val sxCode = SXItemCode(id = null, status = SXItemCodeCreated,
                     code = _startCode, salt = genRandomString(6),
                     batchId = batch.id, exportTime = null, itemId = null,
-                    userId = null, createAt = Date(), updateAt = Date(), consumeTime = null
+                    userId = null, createAt = Date(), updateAt = Date(), consumeTime = null,
+                    channel = null
             )
             _startCode = itemCodeFactory.next(_startCode)
             sxCode

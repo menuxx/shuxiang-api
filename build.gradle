@@ -157,14 +157,14 @@ jooq {
 	XueRenProd(sourceSets.main) {
 		jdbc {
 			driver = 'com.mysql.cj.jdbc.Driver'
-			url = 'jdbc:mysql://rm-uf68lsw07o293t779o.mysql.rds.aliyuncs.com/xueren_read?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
-			user = 'api-server'
-			password = 'As3$3N10d324d!a'
+			url = 'jdbc:mysql://nizhuantech.com:65321/xueren?useSSL=false&useUnicode=true&characterEncoding=UTF-8'
+			user = 'xueren_prod'
+			password = 'pBZNEfwddnxzGXkc'
 		}
 		generator {
 			database {
 				name = 'org.jooq.util.mysql.MySQLDatabase'
-				inputSchema = 'xueren_read'
+				inputSchema = 'xueren'
 				forcedTypes {
 					forcedType {
 						expression = 'create_at|update_at|start_time|end_time'
@@ -196,6 +196,8 @@ dependencies {
 
 	optional "org.springframework.boot:spring-boot-configuration-processor"
 
+	compile 'com.youhaosuda:yhsd-sdk-java:1.0.2'
+
 	// http://poi.apache.org/
 	compile group: 'org.apache.poi', name: 'poi', version: '3.17'
 	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
@@ -226,7 +228,7 @@ dependencies {
 	// spring 框架 xml 解析，配合 xstream
 	// compile 'org.springframework:spring-oxm:4.3.5.RELEASE'
 
-    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2'
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.3'
 
 	compile 'com.lmax:disruptor:3.3.7'
 

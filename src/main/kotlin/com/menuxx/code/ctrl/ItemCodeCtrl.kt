@@ -1,11 +1,12 @@
 package com.menuxx.code.ctrl
 
 import com.menuxx.Const
-import com.menuxx.apiserver.bean.ApiRespWithData
+import com.menuxx.sso.bean.ApiRespWithData
 import com.menuxx.code.db.ItemCodeTaskDb
 import com.menuxx.code.mongo.ItemCodeRepository
 import com.menuxx.code.mq.CodeOnceBatchPublisher
 import com.menuxx.code.service.CodeBatchService
+import com.menuxx.code.service.CodeService
 import com.menuxx.common.bean.ItemCodeBatch
 import com.menuxx.common.bean.ItemCodeTask
 import com.menuxx.common.prop.AppProps
@@ -22,10 +23,22 @@ import javax.validation.Valid
 class ItemCodeCtrl(
         private val batchPublisher: CodeOnceBatchPublisher,
         private val codeBatchService : CodeBatchService,
+        private val codeService : CodeService,
         private val codeItemCodeTaskDb: ItemCodeTaskDb,
         private val itemCodeRepository: ItemCodeRepository,
         private val appProps: AppProps
 ) {
+
+    data class AssignCode(@NotEmpty val itemId: Int)
+    @PutMapping("/batch/{batchId}/item_assign")
+    @Transactional
+    fun assignCode(@PathVariable batchId: Int, @Valid @RequestBody code: AssignCode) : ResponseEntity<ApiRespWithData<Int>> {
+        val res = codeService.tryUpdateBatchCodeToAssignedStatus(batchId, code.itemId)
+        if ( res >= 1 ) {
+            return ResponseEntity.ok(ApiRespWithData(Const.NotErrorCode, "分配完成", res))
+        }
+        return ResponseEntity.badRequest().body(ApiRespWithData(-1, "分配失败", 0))
+    }
 
     @GetMapping("/download/batch/{batchId}")
     @Transactional
@@ -34,8 +47,6 @@ class ItemCodeCtrl(
         val task = codeItemCodeTaskDb.getTaskByBatchId(batchId)
         if (codes != null) {
             val downloadBytes = codeBatchService.genExcel2003(task.remark, codes, appProps.codeBaseUrl)
-            // 更新到到导出状态
-            itemCodeRepository.updateBatchExport(batchId)
             val headers = HttpHeaders()
             headers.set("Content-Type", "application/vnd.ms-excel")
             headers.set("Content-length", downloadBytes.size.toString())

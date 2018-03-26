@@ -1,34 +1,75 @@
 package com.menuxx.common.bean;
 
+import com.menuxx.Const;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import java.util.Date;
 
 public class Book {
 
+    public static final String QINIU_PREFIX = "images/books/";
+
     private Integer id;
 
+    private Integer groupId;
+
+    private Group group;
+
+    @NotEmpty
     private String name;
 
     private Integer price;
 
+    @NotEmpty
     private String thumbImgs;
 
+    @NotEmpty
     private String coverImage;
 
+    private String coverImageUrl;
+
+    @NotEmpty
     private String isbn;
 
     private String press;
 
+    @NotEmpty
     private String authors;
 
     private String translators;
 
     private String describe;
 
+    @NotEmpty
     private String shopUrl;
 
     private Date createAt;
 
     private Date updateAt;
+
+    public String getCoverImageUrl() {
+        return Const.CDNBaseUrl + QINIU_PREFIX + coverImage;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
 
     public Integer getId() {
         return id;

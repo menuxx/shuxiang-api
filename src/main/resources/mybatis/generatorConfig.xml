@@ -99,18 +99,21 @@
             <generatedKey column="id" sqlStatement="Mysql" identity="true" />
         </table>-->
 
-        <table schema="onecode" tableName="t_book" domainObjectName="TBook">
+        <!--<table schema="onecode" tableName="t_book" domainObjectName="TBook">-->
+            <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
+        <!--</table>-->
+
+        <!--<table schema="onecode" tableName="t_group_user" domainObjectName="TGroupUser">-->
+            <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
+        <!--</table>-->
+
+        <!--<table schema="onecode" tableName="t_group" domainObjectName="TGroup">-->
+            <!--<generatedKey column="id" sqlStatement="Mysql" identity="true" />-->
+        <!--</table>-->
+
+        <table schema="onecode" tableName="t_group_topic" domainObjectName="GroupTopic">
             <generatedKey column="id" sqlStatement="Mysql" identity="true" />
         </table>
-
-        <table schema="onecode" tableName="t_group_user" domainObjectName="TGroupUser">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
-        </table>
-
-        <table schema="onecode" tableName="t_group" domainObjectName="TGroup">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
-        </table>
-
 
         </context>
     </generatorConfiguration>

@@ -12,8 +12,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @SpringBootApplication(
         scanBasePackages = [
             "com.menuxx.common.*",
-            "com.menuxx.apiserver.*",
-            "com.menuxx.miaosha.*"
+            "com.menuxx.sso.*",
+            "com.menuxx.miaosha.*",
+            "com.menuxx.code.*",
+            "com.menuxx.weixin.*",
+            "com.menuxx.xuerengroup.*",
+            "com.menuxx.mall.*"
         ]
 )
 @ComponentScan

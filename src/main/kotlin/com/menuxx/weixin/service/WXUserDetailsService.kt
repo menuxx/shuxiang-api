@@ -1,9 +1,9 @@
 package com.menuxx.weixin.service
 
 import com.menuxx.common.db.UserDb
-import com.menuxx.apiserver.auth.AGrantedAuthority
-import com.menuxx.apiserver.auth.AuthUser
-import com.menuxx.apiserver.auth.AuthUserTypeNormal
+import com.menuxx.sso.auth.AGrantedAuthority
+import com.menuxx.sso.auth.AuthUser
+import com.menuxx.sso.auth.AuthUserTypeNormal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException

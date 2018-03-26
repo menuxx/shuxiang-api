@@ -6,11 +6,15 @@ public class GroupUser {
 
     private Integer id;
 
-    private Integer code;
+    private String code;
 
-    private Integer salt;
+    private Integer userId;
 
     private Integer itemId;
+
+    private Book item;
+
+    private Group group;
 
     private Integer groupId;
 
@@ -20,6 +24,14 @@ public class GroupUser {
 
     private Date updateAt;
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -28,20 +40,12 @@ public class GroupUser {
         this.id = id;
     }
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(String code) {
         this.code = code;
-    }
-
-    public Integer getSalt() {
-        return salt;
-    }
-
-    public void setSalt(Integer salt) {
-        this.salt = salt;
     }
 
     public Integer getItemId() {
@@ -82,5 +86,21 @@ public class GroupUser {
 
     public void setUpdateAt(Date updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public Book getItem() {
+        return item;
+    }
+
+    public void setItem(Book item) {
+        this.item = item;
     }
 }

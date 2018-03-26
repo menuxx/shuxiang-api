@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration
 import redis.clients.jedis.JedisPool
 import java.net.URI
 import cn.binarywang.wx.miniapp.config.WxMaInMemoryConfig
-
+import org.springframework.beans.factory.annotation.Autowire
 
 
 /**
@@ -92,17 +92,31 @@ class WeiXinMpConfig(
     /**
      * 初始化微信支付服务
      */
-    @Bean
-    @ConditionalOnMissingBean
-    fun wxPayService() : WxPayService {
+    @Bean(name = ["wxMpPayService"], autowire = Autowire.BY_NAME)
+    fun wxMpPayService() : WxPayService {
         val payConfig = WxPayConfig()
         // http 5 秒过期
-        payConfig.httpConnectionTimeout = 5 * 1000
-        payConfig.httpTimeout = 5 * 1000
+        payConfig.httpConnectionTimeout = 10 * 1000
+        payConfig.httpTimeout = 10 * 1000
         // 支付账户必要信息
-        payConfig.mchId = wxProps.pay.mchId
-        payConfig.mchKey = wxProps.pay.paySecret
+        payConfig.mchId = wxProps.mpPay.mchId
+        payConfig.mchKey = wxProps.mpPay.paySecret
         payConfig.appId = wxProps.mp.appId
+        val wxPayService = com.github.binarywang.wxpay.service.impl.WxPayServiceImpl()
+        wxPayService.config = payConfig
+        return wxPayService
+    }
+
+    @Bean(name = ["wxMiniAppPayService"], autowire = Autowire.BY_NAME)
+    fun wxMiniAppPayService() : WxPayService {
+        val payConfig = WxPayConfig()
+        // http 5 秒过期
+        payConfig.httpConnectionTimeout = 10 * 1000
+        payConfig.httpTimeout = 10 * 1000
+        // 支付账户必要信息
+        payConfig.mchId = wxProps.miniAppPay.mchId
+        payConfig.mchKey = wxProps.miniAppPay.paySecret
+        payConfig.appId = wxProps.miniApp.appId
         val wxPayService = com.github.binarywang.wxpay.service.impl.WxPayServiceImpl()
         wxPayService.config = payConfig
         return wxPayService

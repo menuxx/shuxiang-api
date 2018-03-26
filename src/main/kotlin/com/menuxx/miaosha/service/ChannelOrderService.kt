@@ -10,6 +10,7 @@ import com.menuxx.common.db.VChannelDb
 import com.menuxx.formatWXTime
 import com.menuxx.genChannelOrderNo
 import com.menuxx.genRandomString32
+import com.menuxx.imageUrlsFirst
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -86,6 +87,7 @@ class ChannelOrderService(
         item.itemName = channel.item.name
         item.itemQuantity = 1 // 目前默认都是一个
         item.itemPayAmount = 0 // 目前书籍没有定价
+        item.itemThumbImage = imageUrlsFirst(channel.item.thumbImgs)
 
         order.items = listOf(item)
 

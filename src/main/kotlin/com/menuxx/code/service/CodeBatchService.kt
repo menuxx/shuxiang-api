@@ -21,7 +21,7 @@ class CodeBatchService (
     private val dateformat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
     // 一个批次由一千个 code 组成，可以不到1000个，但是最多1000个
-    private final val OnceBatchUnitCount = 1000
+    private final val OnceBatchUnitCount = 2000
 
     /**
      * 计算批次数量

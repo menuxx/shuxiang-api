@@ -34,6 +34,10 @@ server {
 rabbitmqctl add_user test test
 rabbitmqctl set_user_tags test administrator
 rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+
+死信队列
+rabbitmqctl set_policy DLX '.*\.queue$' '{"dead-letter-exchange":"dead.exchange"}' --apply-to queues -p test1
+rabbitmqctl set_policy TTL ".*\.queue$" '{"message-ttl": 60000}' --apply-to queues -p test1
 ```
 
 ### mongodb

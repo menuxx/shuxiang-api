@@ -30,10 +30,10 @@ object ChannelItemStore {
     }
 
     // 单个添加或替换 channel
-    fun putToChannelItems(channelId: Int, item: ChannelItem) {
+    fun putToChannelItems(initCount: Int, channelId: Int, item: ChannelItem) {
         var storeItem = Store[channelId]
         if ( storeItem == null ) {
-            storeItem = createStoreItem(1, ConcurrentHashMap())
+            storeItem = createStoreItem(initCount, ConcurrentHashMap())
             storeItem.data.put(item.id, item)
             Store.put(channelId, storeItem)
         } else {
@@ -47,9 +47,9 @@ object ChannelItemStore {
         Store.put(channelId, itemStore)
     }
 
-    fun putChannelItems(channelId: Int, items: List<ChannelItem>) {
+    fun putChannelItems(initCount: Int, channelId: Int, items: List<ChannelItem>) {
         items.forEach { item ->
-            putToChannelItems(channelId, item)
+            putToChannelItems(initCount, channelId, item)
         }
     }
 

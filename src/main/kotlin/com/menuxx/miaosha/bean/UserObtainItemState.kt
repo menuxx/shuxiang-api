@@ -12,7 +12,8 @@ import com.menuxx.NoArg
 data class UserObtainItemState(
         var loopRefId: String,
         var userId: Int,
-        var channelItemId: Int,
+        var channelId: Int,
+        var channelItemId: Int?,
         var confirmState: Int,
         // 消费后产生
         var orderId: Int?,

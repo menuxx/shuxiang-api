@@ -4,7 +4,7 @@ import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest
 import com.github.binarywang.wxpay.service.WxPayService
 import com.menuxx.*
-import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.sso.bean.ApiResp
 import com.menuxx.common.bean.Order
 import com.menuxx.common.db.OrderChargeDb
 import com.menuxx.common.db.OrderDb
@@ -24,7 +24,6 @@ import com.menuxx.miaosha.store.StoreItem
 import com.menuxx.weixin.prop.WeiXinProps
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.AmqpException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.HttpStatus
@@ -51,11 +50,11 @@ class ChannelStoreCtrl(
         private val channelDb: VChannelDb,
         private val orderDb: OrderDb,
         private val orderChargeDb: OrderChargeDb,
-        private val wxPayService: WxPayService,
+        @Qualifier("wxMpPayService") private val wxPayService: WxPayService,
         private val orderService: ChannelOrderService,
         private val consumeObtainPublisher : ConsumeObtainPublisher,
         private val requestObtainPublisher: RequestObtainPublisher,
-        @Autowired @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
+        @Qualifier("objOperations") private val objOperations: ValueOperations<String, Any>
 ) {
 
     @GetMapping("channel_item/{channelId}")
@@ -207,7 +206,7 @@ class ChannelStoreCtrl(
             }
             val payReq = WxPayUnifiedOrderRequest()
             // 注意该处的 tag 标识
-            payReq.notifyURL = "${wxProps.pay.notifyUrl}/${MsgTags.TagConsumeObtain}"
+            payReq.notifyURL = "${wxProps.mpPay.notifyUrl}/${MsgTags.TagConsumeObtain}"
             payReq.outTradeNo = orderCharge.outTradeNo
             payReq.attach = orderCharge.attach
             payReq.body = orderCharge.body

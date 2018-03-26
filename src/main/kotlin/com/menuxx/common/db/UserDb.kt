@@ -1,6 +1,6 @@
 package com.menuxx.common.db
 
-import com.menuxx.apiserver.auth.AuthUserTypeNormal
+import com.menuxx.sso.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.Authority
 import com.menuxx.common.bean.User
 import com.menuxx.common.bean.UserAuthority
@@ -151,6 +151,14 @@ class UserDb(private val dsl: DSLContext) {
         // 该用户的身份为 普通用户
         insertUserAuthority(UserAuthority(1, user.id, AuthUserTypeNormal))
         return user
+    }
+
+    fun bindYhsdUser(userId: Int, yhCustomerId: Int, yhPasswd: String, yhEmail: String) : Int {
+        return dsl.update(tUser)
+                .set(tUser.YH_ID, UInteger.valueOf(yhCustomerId))
+                .set(tUser.YH_EMAIL, yhEmail)
+                .set(tUser.YH_PASSWORD, yhPasswd)
+                .where(tUser.ID.eq(UInteger.valueOf(userId))).execute()
     }
 
     /**

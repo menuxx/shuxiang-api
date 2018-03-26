@@ -22,12 +22,15 @@ class ChannelResumeRunner(
     private val logger = LoggerFactory.getLogger(ChannelResumeRunner::class.java)
 
     override fun run(vararg args: String) {
-
+        
         logger.info("load channel: start")
+
+        val counts = channelItemRecordDb.loadLatestItemCount().map { it.channelId to if (it.queueNum == 0) { 1 } else { it.queueNum } }.toMap<Int, Int>()
+
         // 将所有的 未持有 item 分组后 恢复到内存
         channelItemRecordDb.loadChannelNotObtainItems().groupBy { it.channelId }.forEach { channelId, group ->
             logger.info("load channel: $channelId, size : ${group.size}")
-            ChannelItemStore.putChannelItems(channelId, group.map { item ->
+            ChannelItemStore.putChannelItems(counts[channelId]!!, channelId, group.map { item ->
                 ChannelItem(
                         id = item.id,
                         channelId = item.channelId,

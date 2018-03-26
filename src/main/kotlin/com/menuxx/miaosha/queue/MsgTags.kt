@@ -10,4 +10,6 @@ object MsgTags {
 
     const val TagConsumeObtain = "ChannelItem_ConsumeObtain"
 
+    const val TagMallOrderPay = "Mall_OrderPay"
+
 }

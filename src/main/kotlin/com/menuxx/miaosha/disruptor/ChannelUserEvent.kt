@@ -24,5 +24,6 @@ data class ChannelUserEvent(
         var loopRefId: String?,
         var confirmState: ConfirmState = ConfirmState.NoObtain,
         var orderId: Int?,   // 后期会产生
-        var queueNum: Int?
+        var queueNum: Int?,
+        var channelItemId: Int?
 )

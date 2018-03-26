@@ -1,9 +1,13 @@
 package com.menuxx.common.bean;
 
+import com.menuxx.Const;
+
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class Item {
+
+    public static final String QINIU_PREFIX = "images/items/";
 
     public Item() {
     }
@@ -38,6 +42,8 @@ public class Item {
 
     private String coverImage;
 
+    private String coverImageUrl;
+
     @NotNull
     private String isbn;
 
@@ -58,6 +64,14 @@ public class Item {
     private Date createAt;
 
     private Date updateAt;
+
+    public String getCoverImageUrl() {
+        return Const.CDNBaseUrl + QINIU_PREFIX + coverImage;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
 
     public String getCoverImage() {
         return coverImage;

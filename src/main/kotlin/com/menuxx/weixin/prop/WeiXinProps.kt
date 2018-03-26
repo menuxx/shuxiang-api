@@ -16,9 +16,11 @@ data class WeiXinProps(
         @NestedConfigurationProperty
         var miniApp: MiniAppProps,
         @NestedConfigurationProperty
+        var miniAppPay: WeiXinPayProps,
+        @NestedConfigurationProperty
         var mp: WeiXinMpProps,
         @NestedConfigurationProperty
-        var pay: WeiXinPayProps
+        var mpPay: WeiXinPayProps
 )
 
 @NoArg

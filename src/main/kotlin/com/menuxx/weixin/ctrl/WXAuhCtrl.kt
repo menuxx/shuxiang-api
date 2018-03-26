@@ -1,11 +1,11 @@
 package com.menuxx.weixin.ctrl
 
 import cn.binarywang.wx.miniapp.api.WxMaService
-import cn.binarywang.wx.miniapp.bean.WxMaUserInfo
-import com.menuxx.apiserver.auth.AuthUserTypeNormal
+import com.menuxx.sso.auth.AuthUserTypeNormal
 import com.menuxx.common.bean.WXUser
 import com.menuxx.common.db.UserDb
-import com.menuxx.apiserver.auth.TokenProcessor
+import com.menuxx.common.exception.AuthSessionException
+import com.menuxx.sso.auth.TokenProcessor
 import com.menuxx.weixin.bean.WxMiniApp
 import com.menuxx.weixin.service.WXUserDetailsService
 import com.menuxx.weixin.util.getSex
@@ -48,10 +48,9 @@ class WXAuhCtrl(
     /**
      * 用原始令牌刷新得到新的令牌
      */
-    data class SessionToken(@NotNull val token: String)
+    data class SessionToken(@NotEmpty val token: String)
     @PutMapping("/refresh_token")
     fun refreshSessionCode(@RequestBody @Valid oldToken: SessionToken) : ResponseEntity<Any> {
-
         val newToken = tokenProcessor.refreshToken(oldToken.token)
         return if ( newToken != null ) {
              ResponseEntity.ok(hashMapOf("token" to newToken))
@@ -79,7 +78,7 @@ class WXAuhCtrl(
         val passd = wxMaService.userService.checkUserInfo(sessionInfo.sessionKey, data.rawData, data.signature)
 
         if ( !passd ) {
-            throw RuntimeException("微信授权异常")
+            throw AuthSessionException("微信授权异常")
         }
 
         val userInfo = wxMaService.userService.getUserInfo(sessionInfo.sessionKey, data.encryptedData, data.iv)

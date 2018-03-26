@@ -1,6 +1,6 @@
 package com.menuxx.code.db
 
-import com.menuxx.apiserver.PageParam
+import com.menuxx.PageParam
 import com.menuxx.common.bean.ItemCodeBatch
 import com.menuxx.common.bean.ItemCodeTask
 import com.menuxx.common.bean.ItemCodeTask.STATUS_FINISH

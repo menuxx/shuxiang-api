@@ -281,4 +281,39 @@ public class OrderCharge {
     public void setTimeEnd(String timeEnd) {
         this.timeEnd = timeEnd;
     }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("OrderCharge{");
+        sb.append("id=").append(id);
+        sb.append(", appid='").append(appid).append('\'');
+        sb.append(", mchId='").append(mchId).append('\'');
+        sb.append(", openid='").append(openid).append('\'');
+        sb.append(", outTradeNo='").append(outTradeNo).append('\'');
+        sb.append(", deviceInfo='").append(deviceInfo).append('\'');
+        sb.append(", nonceStr='").append(nonceStr).append('\'');
+        sb.append(", prepayId='").append(prepayId).append('\'');
+        sb.append(", tradeType='").append(tradeType).append('\'');
+        sb.append(", totalFee=").append(totalFee);
+        sb.append(", settlementTotalFee=").append(settlementTotalFee);
+        sb.append(", feeType='").append(feeType).append('\'');
+        sb.append(", cashFee=").append(cashFee);
+        sb.append(", cashFeeType='").append(cashFeeType).append('\'');
+        sb.append(", attach='").append(attach).append('\'');
+        sb.append(", body='").append(body).append('\'');
+        sb.append(", sign='").append(sign).append('\'');
+        sb.append(", signType='").append(signType).append('\'');
+        sb.append(", goodsTag='").append(goodsTag).append('\'');
+        sb.append(", timeExpire='").append(timeExpire).append('\'');
+        sb.append(", timeStart='").append(timeStart).append('\'');
+        sb.append(", timeEnd='").append(timeEnd).append('\'');
+        sb.append(", spbillCreateIp='").append(spbillCreateIp).append('\'');
+        sb.append(", errCodeDes='").append(errCodeDes).append('\'');
+        sb.append(", errCode='").append(errCode).append('\'');
+        sb.append(", resultCode='").append(resultCode).append('\'');
+        sb.append(", transactionId='").append(transactionId).append('\'');
+        sb.append(", detail='").append(detail).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

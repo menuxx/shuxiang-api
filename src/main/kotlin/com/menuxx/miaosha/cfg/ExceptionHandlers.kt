@@ -1,6 +1,6 @@
 package com.menuxx.miaosha.cfg
 
-import com.menuxx.apiserver.bean.ApiResp
+import com.menuxx.sso.bean.ApiResp
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
@@ -15,7 +15,7 @@ class ExceptionHandlers {
 
     @ExceptionHandler(
             com.menuxx.common.exception.NotFoundException::class,
-            com.menuxx.apiserver.exception.NotFoundException::class,
+            com.menuxx.sso.exception.NotFoundException::class,
             com.menuxx.miaosha.exception.NotFoundException::class
     )
     fun notFoundException(ex: RuntimeException) : ApiResp {

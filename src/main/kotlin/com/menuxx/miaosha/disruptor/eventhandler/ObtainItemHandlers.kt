@@ -35,8 +35,9 @@ class ChannelUserEventPostObtainHandler(
      * 发送订单消费提醒
      */
     private fun sendConsumedSmsMsg(orderId: Int) {
-        val order = orderDb.getOrderDetails(orderId)!!
-        smsPublisher.sendConsumeSuccess(order.receiverPhoneNumber, order.items[0].itemName)
+        val order = orderDb.getOrderById(orderId)!!
+        val itemName = if ( order.items[0] == null || order.items[0].itemName == null ) { "未知" } else { order.items[0].itemName }
+        smsPublisher.sendConsumeSuccess(order.receiverPhoneNumber, itemName)
     }
 
     override fun onEvent(event: ChannelUserEvent, sequence: Long, endOfBatch: Boolean) {
@@ -55,7 +56,8 @@ class ChannelUserEventPostObtainHandler(
                 userStateService.commitObtainState(UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
-                        channelItemId = event.channelId,
+                        channelId = event.channelId,
+                        channelItemId = event.channelItemId,
                         confirmState = ConfirmState.Obtain.state,
                         orderId = null,
                         queueNum = null
@@ -68,7 +70,8 @@ class ChannelUserEventPostObtainHandler(
                 objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
-                        channelItemId = event.channelId,
+                        channelId = event.channelId,
+                        channelItemId = event.channelItemId,
                         confirmState = ConfirmState.Finish.state,
                         orderId = event.orderId,
                         queueNum = null
@@ -81,7 +84,8 @@ class ChannelUserEventPostObtainHandler(
                 objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
-                        channelItemId = event.channelId,
+                        channelId = event.channelId,
+                        channelItemId = event.channelItemId,
                         confirmState = ConfirmState.FreeObtain.state,
                         orderId = event.orderId,
                         queueNum = null
@@ -94,7 +98,8 @@ class ChannelUserEventPostObtainHandler(
                 objRedisTemplate.opsForValue().set(event.loopRefId, UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
-                        channelItemId = event.channelId,
+                        channelId = event.channelId,
+                        channelItemId = event.channelItemId,
                         confirmState = ConfirmState.ObtainConsumeAgain.state,
                         orderId = event.orderId,
                         queueNum = null
@@ -108,7 +113,8 @@ class ChannelUserEventPostObtainHandler(
                 userStateService.commitConsumeState(UserObtainItemState(
                         loopRefId = event.loopRefId!!,
                         userId = event.userId,
-                        channelItemId = event.channelId,
+                        channelId = event.channelId,
+                        channelItemId = event.channelItemId,
                         confirmState = ConfirmState.ObtainConsumed.state,
                         orderId = event.orderId,
                         queueNum = event.queueNum
@@ -171,6 +177,7 @@ class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
                     // 同时修改两种状态 sessionUser 标注用户状态，event 标注 disruptor 的下一个 handler 的状态
                     sessionUser.confirmState = ConfirmState.Obtain
                     event.confirmState = ConfirmState.Obtain
+                    event.channelItemId = channelItem.id
                 } else {
                     // 抢完了
                     event.confirmState = ConfirmState.Finish
@@ -186,6 +193,7 @@ class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
                         val channelItemId = entry.first
                         sessionUser.confirmState = ConfirmState.ObtainConsumed
                         event.confirmState = ConfirmState.ObtainConsumed
+                        event.channelItemId = channelItemId
                         // 产生序号
                         val queueNum = channelStore.counter.getAndIncrement()
                         event.queueNum = queueNum
@@ -194,6 +202,7 @@ class ChannelUserEventHandler : EventHandler<ChannelUserEvent> {
                     } else {
                         sessionUser.confirmState = ConfirmState.Obtain
                         event.confirmState = ConfirmState.Obtain
+                        event.channelItemId = entry.first
                     }
                 } else {
                     // 超过保留时间，被其他人抢走了
